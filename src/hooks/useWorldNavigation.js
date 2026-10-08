@@ -37,8 +37,15 @@ export function useWorldNavigation(destinations) {
       scrollToElement(section);
       return;
     }
+    // A gate that is on screen is where the teleport starts; otherwise it starts mid-screen.
+    let origin = { x: 50, y: 50 };
+    const gateElement = destination && document.querySelector(`[data-gate="${destination.id}"]`);
+    if (gateElement) {
+      const box = gateElement.getBoundingClientRect();
+      if (box.width && box.bottom > 0 && box.top < window.innerHeight) origin = { x: (box.left + box.width / 2) / window.innerWidth * 100, y: (box.top + box.height * .42) / window.innerHeight * 100 };
+    }
     count.current += 1;
-    setTransition({ key: count.current, label: info.label, subtitle: info.subtitle });
+    setTransition({ key: count.current, label: info.label, subtitle: info.subtitle, gate: destination?.id, origin });
     timers.current = [
       window.setTimeout(() => scrollToElement(section, { immediate: true }), JUMP_AT),
       window.setTimeout(() => setTransition(null), TOTAL),

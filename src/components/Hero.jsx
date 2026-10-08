@@ -1,9 +1,7 @@
-import { Suspense, lazy, useMemo, useRef, useState } from "react";
-import SceneBoundary from "./SceneBoundary";
+import { useMemo, useState } from "react";
+import FloatingWorld from "./world/FloatingWorld";
 import { Arrow, HPBar, Typewriter } from "./ui";
-import { pad, prefersReducedMotion, useInView } from "../lib/utils";
-
-const CastleScene = lazy(() => import("./CastleScene"));
+import { pad, prefersReducedMotion } from "../lib/utils";
 
 function NameLine({ word, offset, className = "" }) {
   return <span className={`hero-name-line ${className}`}>
@@ -12,11 +10,8 @@ function NameLine({ word, offset, className = "" }) {
 }
 
 export default function Hero({ profile, destinations, onNavigate }) {
-  const section = useRef(null);
-  const pointer = useRef({ x: 0, y: 0 });
   const [activeDestination, setActiveDestination] = useState(null);
   const [reducedMotion] = useState(prefersReducedMotion);
-  const inView = useInView(section, { threshold: .02 });
   const words = profile.name.trim().split(/\s+/);
   const firstLine = words.length > 1 ? words.slice(0, -1).join(" ") : words[0];
   const lastLine = words.length > 1 ? words.at(-1) : "";
@@ -24,13 +19,7 @@ export default function Hero({ profile, destinations, onNavigate }) {
   const activeIndex = destinations.findIndex((destination) => destination.id === activeDestination);
   const selected = destinations[activeIndex];
 
-  const track = (event) => {
-    if (event.pointerType === "touch" || reducedMotion) return;
-    const bounds = section.current.getBoundingClientRect();
-    pointer.current = { x: ((event.clientX - bounds.left) / bounds.width - .5) * 2, y: ((event.clientY - bounds.top) / bounds.height - .5) * 2 };
-  };
-
-  return <section ref={section} id="home" className="hero" onPointerMove={track} onPointerLeave={() => { pointer.current = { x: 0, y: 0 }; }} aria-labelledby="hero-name">
+  return <section id="home" className="hero" aria-labelledby="hero-name">
     <div className="hero-floor" aria-hidden="true" />
     <div className="hero-scroll-cue" aria-hidden="true"><span>Scroll to explore</span><i /></div>
     <div className="container hero-grid">
@@ -53,17 +42,13 @@ export default function Hero({ profile, destinations, onNavigate }) {
 
       <div className="hero-visual">
         <div className="hero-visual-glow" aria-hidden="true" />
-        <SceneBoundary fallback={<div className="core-fallback" aria-hidden="true" />}>
-          <Suspense fallback={<div className="core-fallback" aria-hidden="true" />}>
-            <CastleScene className="hero-core" pointer={pointer} nodeCount={destinations.length} activeIndex={activeIndex} reducedMotion={reducedMotion} active={inView} />
-          </Suspense>
-        </SceneBoundary>
+        <FloatingWorld destinations={destinations} activeId={activeDestination} onActive={setActiveDestination} onSelect={onNavigate} reducedMotion={reducedMotion} />
         <span className="hud-corner hud-corner-tl" aria-hidden="true" /><span className="hud-corner hud-corner-tr" aria-hidden="true" />
         <span className="hud-corner hud-corner-bl" aria-hidden="true" /><span className="hud-corner hud-corner-br" aria-hidden="true" />
         <div className="hero-readout" aria-live="polite">
           <span className="hero-readout-label">{selected ? `Teleport gate ${pad(activeIndex + 1)}` : "Floating world"}</span>
           <strong>{selected ? selected.label : "Floor 01 · LANZ.SYS"}</strong>
-          <span className="hero-readout-detail">{selected ? selected.detail : `${destinations.length} gates connected. Choose one below to teleport.`}</span>
+          <span className="hero-readout-detail">{selected ? selected.detail : `${destinations.length} gates stand around the castle. Select one to teleport.`}</span>
         </div>
       </div>
     </div>
