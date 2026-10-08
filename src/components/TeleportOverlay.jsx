@@ -4,7 +4,7 @@ import { gateShapes, gateTheme } from "./world/gateData";
 const streaks = Array.from({ length: 20 }, (_, index) => ({ angle: index * 18, delay: ((index * 7) % 10) * 0.03, length: 38 + ((index * 13) % 9) * 6 }));
 
 // Full-screen "teleport gate" shown while travelling between sections.
-// Travelling through one of the seven world gates flies the camera into that gate's
+// Travelling through one of the world gates flies the camera into that gate's
 // portal, in the gate's own colours; other trips use the default cyan and orange.
 export default function TeleportOverlay({ transition }) {
   if (!transition) return null;

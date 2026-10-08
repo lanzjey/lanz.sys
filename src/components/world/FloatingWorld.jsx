@@ -8,11 +8,11 @@ const rand = (seed) => { const x = Math.sin(seed * 127.1) * 43758.5453; return x
 // Where each gate stands, on an ellipse around the central island (viewBox 600 × 540).
 const gatePositions = {
   profile: [76, 214], skills: [214, 128], services: [386, 128], missions: [524, 214],
-  experience: [524, 398], loadout: [300, 492], contact: [76, 398],
+  experience: [524, 398], loadout: [388, 494], resume: [212, 494], contact: [76, 398],
 };
 // Back-to-front, so nearer gates overlap farther ones and the island sits between.
 const backRow = ["skills", "services"];
-const frontRows = ["profile", "missions", "contact", "experience", "loadout"];
+const frontRows = ["profile", "missions", "contact", "experience", "resume", "loadout"];
 
 const motes = Array.from({ length: 30 }, (_, index) => ({
   x: rand(index + 1) * 600, y: 60 + rand(index + 40) * 440, r: .7 + rand(index + 80) * 1.6, delay: -rand(index + 120) * 9, duration: 7 + rand(index + 160) * 6,
@@ -49,7 +49,7 @@ function Gate({ id, index, label, active, onActive, onSelect }) {
 }
 
 // A floating fantasy world: layered sky, drifting islands and clouds, a castle island
-// at the centre, and the seven gates standing on their own islands around it.
+// at the centre, and the eight gates standing on their own islands around it.
 export default function FloatingWorld({ destinations, activeId, onActive, onSelect, reducedMotion }) {
   const root = useRef(null);
   const byId = Object.fromEntries(destinations.map((destination, index) => [destination.id, { ...destination, index }]));
@@ -64,7 +64,7 @@ export default function FloatingWorld({ destinations, activeId, onActive, onSele
   const reset = () => { root.current.style.setProperty("--wx", 0); root.current.style.setProperty("--wy", 0); };
 
   return <div ref={root} className="world" onPointerMove={track} onPointerLeave={reset}>
-    <svg className="world-svg" viewBox="0 0 600 560" role="img" aria-label="A floating fantasy world with a castle island at its centre, ringed by seven teleport gates">
+    <svg className="world-svg" viewBox="0 0 600 560" role="img" aria-label="A floating fantasy world with a castle island at its centre, ringed by eight teleport gates">
       <defs>
         <radialGradient id="w-sun" cx="50%" cy="50%" r="50%"><stop offset="0" stopColor="#ffb257" stopOpacity=".55" /><stop offset="1" stopColor="#ffb257" stopOpacity="0" /></radialGradient>
         <radialGradient id="w-nebula" cx="50%" cy="50%" r="50%"><stop offset="0" stopColor="#7d6cff" stopOpacity=".32" /><stop offset="1" stopColor="#7d6cff" stopOpacity="0" /></radialGradient>

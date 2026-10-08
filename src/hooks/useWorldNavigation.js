@@ -7,10 +7,9 @@ const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matc
 const JUMP_AT = 500;
 const TOTAL = 1700;
 
-// Destinations that are not 3D world portals still get a name for the teleport gate.
+// Destinations that are not world gates still get a name for the teleport gate.
 const extraDestinations = {
   home: { label: "HOME", subtitle: "STARTING TOWN" },
-  resume: { label: "RESUME", subtitle: "PLAYER RECORD" },
 };
 
 // A single navigation controller: resolves a destination id or section id,

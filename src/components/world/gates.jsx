@@ -1,4 +1,4 @@
-// Line emblems for the seven teleport gates (see gateData.js for colours and outlines).
+// Line emblems for the eight teleport gates (see gateData.js for colours and outlines).
 // Line emblem drawn on a 64 × 64 grid. Stroke colour comes from `currentColor`.
 export function GateEmblem({ id }) {
   switch (id) {
@@ -16,6 +16,8 @@ export function GateEmblem({ id }) {
     case "loadout": // inventory slots
       return <g><rect x="6" y="6" width="22" height="22" rx="3" /><rect x="36" y="6" width="22" height="22" rx="3" /><rect x="6" y="36" width="22" height="22" rx="3" /><rect x="36" y="36" width="22" height="22" rx="3" />
         <path d="M12 22 22 12M15 12h7v7" /><circle cx="47" cy="17" r="5" /><path d="M17 41v12M11 47h12" /><path d="M42 52 47 41 52 52Z" /></g>;
+    case "resume": // unlocking padlock
+      return <g><rect x="12" y="28" width="40" height="30" rx="5" /><path d="M20 28V19a12 12 0 0 1 23-5" /><circle cx="32" cy="41" r="3.5" /><path d="M32 44v6" /></g>;
     case "contact": // chat bubble with signal
       return <g><path d="M8 12h48v30H34L22 54V42H8Z" /><circle cx="22" cy="27" r="2.6" fill="currentColor" /><circle cx="32" cy="27" r="2.6" fill="currentColor" /><circle cx="42" cy="27" r="2.6" fill="currentColor" /></g>;
     default:

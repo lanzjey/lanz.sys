@@ -1,5 +1,10 @@
+import { useEffect, useRef, useState } from "react";
 import { Arrow, SectionHeader } from "./ui";
 import { isFilled } from "../lib/utils";
+
+const HOLD_MS = 1500;
+const RING = 2 * Math.PI * 84;
+const stages = ["Seal engaged", "Reading player record…", "Decrypting archive…", "Breaking the seal…"];
 
 const groupBy = (items, key) => items.reduce((groups, item) => {
   const name = item[key] || "Other";
@@ -15,17 +20,73 @@ function Entry({ title, meta, org, description }) {
   </li>;
 }
 
-// Dedicated resume section: an on-page, print-ready sheet plus view / download actions.
-// With an uploaded file, the buttons open or download it; without one, the sheet itself
-// is the resume ("Download" saves it as a PDF through the browser's print dialog).
+// The vault: hexagonal seal, spinning rings, a padlock, and a progress ring that fills while held.
+function Vault({ progress, unlocked }) {
+  return <svg className="vault-art" viewBox="0 0 240 240" aria-hidden="true">
+    <circle className="vault-orbit" cx="120" cy="120" r="112" />
+    <circle className="vault-orbit vault-orbit-2" cx="120" cy="120" r="98" />
+    <path className="vault-hex" d="M120 24 L203 72 V168 L120 216 L37 168 V72 Z" />
+    <circle className="vault-track" cx="120" cy="120" r="84" />
+    <circle className="vault-progress" cx="120" cy="120" r="84" strokeDasharray={RING} strokeDashoffset={RING * (1 - (unlocked ? 1 : progress / 100))} />
+    {[0, 1, 2, 3, 4, 5].map((index) => {
+      const angle = (index / 6) * Math.PI * 2 - Math.PI / 2;
+      return <circle key={index} className="vault-node" cx={120 + Math.cos(angle) * 96} cy={120 + Math.sin(angle) * 96} r="3.2" style={{ "--i": index }} />;
+    })}
+    <g className="vault-lock">
+      <path className="vault-shackle" d="M98 112V94a22 22 0 0 1 44 0v18" />
+      <rect className="vault-body" x="86" y="110" width="68" height="52" rx="8" />
+      <circle className="vault-key" cx="120" cy="132" r="6" /><path className="vault-key" d="M120 138v12" />
+    </g>
+  </svg>;
+}
+
+// A sealed player record. Holding the seal decrypts it (a keyboard or screen-reader
+// activation unlocks at once); the unlocked item can then be viewed or downloaded.
+// With an uploaded file the buttons open or download it; without one, the on-page
+// sheet is the resume and "Download" saves it as a PDF through the print dialog.
 export default function Resume({ profile, skills, education, experience, certificates, tools, resume }) {
+  const [progress, setProgress] = useState(0);
+  const [unlocked, setUnlocked] = useState(false);
+  const holding = useRef(false);
+  const startedAt = useRef(0);
+  const frame = useRef(0);
+  const printTimer = useRef(0);
+
+  useEffect(() => () => { cancelAnimationFrame(frame.current); window.clearTimeout(printTimer.current); }, []);
+
   const fileHref = resume.file || resume.url;
   const experienceItems = experience.filter((item) => isFilled(item.title));
   const educationItems = education.filter((item) => isFilled(item.title));
   const credentials = certificates.filter((item) => isFilled(item.title) && isFilled(item.issuer));
-  const skillGroups = Object.entries(groupBy(skills.filter((skill) => isFilled(skill.name)), "category"));
+  const skillItems = skills.filter((skill) => isFilled(skill.name));
+  const skillGroups = Object.entries(groupBy(skillItems, "category"));
   const toolNames = tools.filter((tool) => isFilled(tool.name)).map((tool) => tool.name);
   const roles = (profile.roles || []).filter(isFilled);
+  const stats = [["Skill slots", skillItems.length], ["Tools", toolNames.length], ["Experience", experienceItems.length], ["Education", educationItems.length], ["Credentials", credentials.length]].filter(([, count]) => count > 0);
+
+  const unlock = () => { holding.current = false; cancelAnimationFrame(frame.current); setProgress(100); setUnlocked(true); };
+  const tick = (now) => {
+    if (!holding.current) return;
+    const ratio = Math.min(1, (now - startedAt.current) / HOLD_MS);
+    setProgress(Math.round(ratio * 100));
+    if (ratio >= 1) unlock();
+    else frame.current = requestAnimationFrame(tick);
+  };
+  const beginHold = (event) => {
+    if (unlocked) return;
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    holding.current = true;
+    startedAt.current = performance.now() - (progress / 100) * HOLD_MS;
+    frame.current = requestAnimationFrame(tick);
+  };
+  const endHold = () => {
+    if (!holding.current) return;
+    holding.current = false;
+    cancelAnimationFrame(frame.current);
+    setProgress(0);
+  };
+  // detail === 0: activated from the keyboard or assistive technology, which cannot "hold".
+  const activate = (event) => { if (event.detail === 0 && !unlocked) unlock(); };
 
   const viewResume = (event) => {
     if (fileHref) return;
@@ -37,16 +98,53 @@ export default function Resume({ profile, skills, education, experience, certifi
     event.preventDefault();
     window.print();
   };
+  // Skip the ritual: a file downloads straight away; otherwise unlock, then print the sheet.
+  const skipAndDownload = (event) => {
+    if (fileHref) return;
+    event.preventDefault();
+    unlock();
+    printTimer.current = window.setTimeout(() => window.print(), 700);
+  };
 
-  return <section id="resume" className="section section-resume" aria-labelledby="resume-title">
+  const stage = unlocked ? "Seal broken" : stages[Math.min(stages.length - 1, Math.floor(progress / 34))];
+
+  return <section id="resume" className={`section section-resume ${unlocked ? "is-unlocked" : ""}`} aria-labelledby="resume-title">
     <div className="container">
-      <SectionHeader id="resume-title" index="07" word="RESUME" eyebrow="Player record · Resume" title={<>My <em>resume.</em></>} text={resume.description || "A concise overview of education, skills, and selected work."} />
-      <div className="resume-actions scroll-fx">
-        <a className="button button-primary" href={fileHref || "#resume-sheet"} onClick={viewResume} {...(fileHref ? { target: "_blank", rel: "noopener noreferrer" } : {})}>View Resume <Arrow direction={fileHref ? "up-right" : "down"} /></a>
-        <a className="button button-ghost" href={fileHref || "#resume-sheet"} onClick={downloadResume} {...(resume.file ? { download: true } : fileHref ? { target: "_blank", rel: "noopener noreferrer" } : {})}>Download Resume <Arrow direction="down" /></a>
+      <SectionHeader id="resume-title" index="07" word="UNLOCK" eyebrow="Player record · Sealed archive" title={<>Unlock the <em>full record.</em></>} text="My education, skills, and work, sealed in an archive. Hold the seal to decrypt it, then take your copy." />
+
+      <div className={`vault scroll-fx ${progress > 0 && !unlocked ? "is-holding" : ""} ${unlocked ? "is-unlocked" : ""}`} style={{ "--p": progress / 100 }}>
+        <div className="vault-stage">
+          <Vault progress={progress} unlocked={unlocked} />
+          <i className="vault-burst" aria-hidden="true" /><i className="vault-burst vault-burst-2" aria-hidden="true" />
+          <span className="vault-readout" aria-hidden="true">{unlocked ? "100" : String(progress).padStart(2, "0")}<small>%</small></span>
+        </div>
+
+        <div className="vault-item">
+          <span className="rarity-chip"><span className="sao-diamond" aria-hidden="true" />Legendary item</span>
+          <h3>Player Record</h3>
+          <p className="vault-sub">{resume.title} · {profile.name}</p>
+          {stats.length > 0 && <ul className="item-stats">{stats.map(([label, count]) => <li key={label}><span>{label}</span><b>{count}</b></li>)}</ul>}
+          <p className="seal-status" role="status" aria-live="polite">Seal status <b>{unlocked ? "UNLOCKED" : "LOCKED"}</b><span>{stage}</span></p>
+
+          {unlocked
+            ? <div className="vault-claim">
+              <p className="item-acquired"><span className="sao-diamond" aria-hidden="true" />Item acquired: Player Record</p>
+              <div className="resume-actions">
+                <a className="button button-primary button-large" href={fileHref || "#resume-sheet"} onClick={downloadResume} {...(resume.file ? { download: true } : fileHref ? { target: "_blank", rel: "noopener noreferrer" } : {})}>Download Resume <Arrow direction="down" /></a>
+                <a className="button button-ghost button-large" href={fileHref || "#resume-sheet"} onClick={viewResume} {...(fileHref ? { target: "_blank", rel: "noopener noreferrer" } : {})}>View Resume <Arrow direction={fileHref ? "up-right" : "down"} /></a>
+              </div>
+            </div>
+            : <div className="vault-controls">
+              <button type="button" className="hold-button" style={{ "--p": progress / 100 }} onPointerDown={beginHold} onPointerUp={endHold} onPointerCancel={endHold} onLostPointerCapture={endHold} onContextMenu={(event) => event.preventDefault()} onClick={activate}>
+                <span className="hold-fill" aria-hidden="true" />
+                <span className="hold-label">{progress > 0 ? "Decrypting…" : "Hold to unlock"}</span>
+              </button>
+              <a className="vault-skip" href={fileHref || "#resume-sheet"} onClick={skipAndDownload} {...(resume.file ? { download: true } : fileHref ? { target: "_blank", rel: "noopener noreferrer" } : {})}>Skip and download</a>
+            </div>}
+        </div>
       </div>
 
-      <article id="resume-sheet" className="cv-sheet scroll-fx" aria-label={`${profile.name} resume`} tabIndex={-1}>
+      <article id="resume-sheet" className={`cv-sheet ${unlocked ? "is-open" : "is-sealed"}`} aria-label={`${profile.name} resume`} aria-hidden={!unlocked} inert={!unlocked} tabIndex={-1}>
         <header className="cv-header">
           <h3>{profile.name}</h3>
           <p className="cv-role">{roles.length ? roles.join(" · ") : profile.role}</p>

@@ -1,4 +1,4 @@
-// Visual identity of the seven teleport gates. Every gate shares one drawing
+// Visual identity of the eight teleport gates. Every gate shares one drawing
 // language (dark body, glowing outline, portal light, line emblem) but has its
 // own silhouette, emblem and colour pair, themed after the section it leads to.
 //
@@ -11,6 +11,7 @@ export const gateTheme = {
   missions: { a: "#ffcb7a", b: "#ff8a2b" },
   experience: { a: "#9dff7a", b: "#5fe3ff" },
   loadout: { a: "#ffe0a0", b: "#ffa53d" },
+  resume: { a: "#ffd6e0", b: "#ff6b9a" },
   contact: { a: "#7fd4ff", b: "#6a8dff" },
 };
 
@@ -28,6 +29,8 @@ export const gateShapes = {
   experience: { d: "M-34 0 V-30 H-24 V-54 H-14 V-78 H-5 L0 -86 L5 -78 H14 V-54 H24 V-30 H34 V0 Z", cy: -43 },
   // Equipment: a bolted vault door.
   loadout: { d: "M-30 0 V-86 Q-30 -94 -22 -94 H22 Q30 -94 30 -86 V0 Z", cy: -47 },
+  // Record: a keyhole, the seal on the player record.
+  resume: { d: "M-16 0 L-11 -43 A28 28 0 1 1 11 -43 L16 0 Z", cy: -62 },
   // Communication: a round signal ring.
   contact: { d: "M-34 -50 A34 34 0 1 1 34 -50 A34 34 0 1 1 -34 -50 Z", cy: -50 },
 };
