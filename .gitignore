@@ -33,3 +33,6 @@ dist-ssr
 
 # Build-time content snapshot (regenerated on every build)
 src/data/snapshot.json
+
+# Supabase CLI local state
+supabase/.temp/

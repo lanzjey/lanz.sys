@@ -3,30 +3,46 @@ import { scrollToElement } from "../lib/scroll";
 
 const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+// Teleport timing (ms): the gate closes, the page jumps while hidden, the gate opens.
+const JUMP_AT = 500;
+const TOTAL = 1700;
+
+// Destinations that are not 3D world portals still get a name for the teleport gate.
+const extraDestinations = {
+  home: { label: "HOME", subtitle: "STARTING TOWN" },
+  resume: { label: "RESUME", subtitle: "PLAYER RECORD" },
+};
+
 // A single navigation controller: resolves a destination id or section id,
-// shows a short route cue, and scrolls to the matching section.
+// plays the teleport transition, and brings the matching section into view.
 export function useWorldNavigation(destinations) {
   const [transition, setTransition] = useState(null);
-  const timer = useRef(null);
+  const timers = useRef([]);
   const count = useRef(0);
   const lastHash = useRef(window.location.hash);
   const navigate = useCallback((targetId, { updateHistory = true } = {}) => {
-    const destination = targetId === "home"
-      ? { id: "home", label: "Home", sectionId: "home" }
-      : destinations.find((item) => item.id === targetId || item.sectionId === targetId);
+    const destination = destinations.find((item) => item.id === targetId || item.sectionId === targetId);
     const sectionId = destination?.sectionId || targetId;
     const section = document.getElementById(sectionId);
     if (!section) return;
-    const label = destination?.label || sectionId;
+    const info = destination || extraDestinations[sectionId] || { label: sectionId.toUpperCase() };
     const nextHash = `#${sectionId}`;
     if (updateHistory && window.location.hash !== nextHash) window.history.pushState({ portfolioWorld: true }, "", nextHash);
     lastHash.current = nextHash;
-    window.clearTimeout(timer.current);
-    scrollToElement(section);
-    if (reduced() || sectionId === "home") { setTransition(null); return; }
+    timers.current.forEach(window.clearTimeout);
+    timers.current = [];
+    // Reduced motion, or a section that is already on screen: plain scroll, no gate.
+    if (reduced() || Math.abs(section.getBoundingClientRect().top) < window.innerHeight * .35) {
+      setTransition(null);
+      scrollToElement(section);
+      return;
+    }
     count.current += 1;
-    setTransition({ key: count.current, label });
-    timer.current = window.setTimeout(() => setTransition(null), 1600);
+    setTransition({ key: count.current, label: info.label, subtitle: info.subtitle });
+    timers.current = [
+      window.setTimeout(() => scrollToElement(section, { immediate: true }), JUMP_AT),
+      window.setTimeout(() => setTransition(null), TOTAL),
+    ];
   }, [destinations]);
 
   useEffect(() => {
@@ -43,6 +59,6 @@ export function useWorldNavigation(destinations) {
       window.removeEventListener("hashchange", syncFromLocation);
     };
   }, [navigate]);
-  useEffect(() => () => window.clearTimeout(timer.current), []);
+  useEffect(() => () => timers.current.forEach(window.clearTimeout), []);
   return { navigate, transition };
 }

@@ -3,7 +3,7 @@ import { Arrow } from "./ui";
 
 const links = [
   ["home", "Home"], ["about", "Profile"], ["skills", "Skills"], ["services", "Services"],
-  ["projects", "Missions"], ["experience", "Experience"], ["loadout", "Loadout"], ["contact", "Contact"],
+  ["projects", "Missions"], ["experience", "Experience"], ["loadout", "Loadout"], ["resume", "Resume"], ["contact", "Contact"],
 ];
 
 export default function Navbar({ onNavigate }) {

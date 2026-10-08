@@ -271,7 +271,7 @@ export function Contact({ profile, socialLinks, resume }) {
       <span className="bg-word scroll-fx" aria-hidden="true">MESSAGE</span>
       <div className="contact-panel scroll-fx">
         <div className="contact-info">
-          <Eyebrow index="07">Message window</Eyebrow>
+          <Eyebrow index="08">Message window</Eyebrow>
           <h2 id="contact-title">Let's build something <em>together.</em></h2>
           <p className="section-lead">Have an idea, a project, or need thoughtful digital support? Send a message and I'll get back to you.</p>
           <p className="hud-chip"><span className="status-dot" aria-hidden="true" />{profile.availability}</p>
@@ -291,7 +291,7 @@ export function Contact({ profile, socialLinks, resume }) {
             </ul>
           </div>
 
-          <div id="resume" className="resume-row">
+          <div className="resume-row">
             <span className="resume-icon" aria-hidden="true">CV</span>
             <span className="resume-copy"><strong>{resume.title}</strong><span>{resume.description}</span></span>
             {resumeHref

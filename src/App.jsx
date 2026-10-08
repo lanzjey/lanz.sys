@@ -4,6 +4,8 @@ import Hero from "./components/Hero";
 import IntroExperience from "./components/IntroExperience";
 import { About, Contact, Experience, Loadout, ProjectDialog, Projects, Services, Skills, Testimonials } from "./components/Sections";
 import { Arrow } from "./components/ui";
+import Resume from "./components/Resume";
+import TeleportOverlay from "./components/TeleportOverlay";
 import AmbientBackground from "./components/AmbientBackground";
 import { scrollToElement, setScrollLocked, startSmoothScroll } from "./lib/scroll";
 import { useScrollFX } from "./hooks/useScrollFX";
@@ -84,6 +86,7 @@ function App() {
       <Experience education={education} experience={experience} certificates={certificates} />
       <Loadout tools={tools} />
       <Testimonials testimonials={testimonials} />
+      <Resume profile={profile} skills={skills} education={education} experience={experience} certificates={certificates} tools={tools} resume={resume} />
       <Contact profile={profile} socialLinks={socialLinks} resume={resume} />
     </main>
     <footer className="footer">
@@ -94,9 +97,7 @@ function App() {
       </div>
     </footer>
     <ProjectDialog project={activeProject} onClose={() => setActiveProject(null)} />
-    {transition && <div key={transition.key} className="route-toast" role="status" aria-live="polite">
-      <span className="sao-diamond" aria-hidden="true" /><span className="route-toast-label">Teleporting to</span><strong>{transition.label}</strong><i className="route-toast-bar" aria-hidden="true" />
-    </div>}
+    <TeleportOverlay transition={transition} />
   </div>;
 }
 
