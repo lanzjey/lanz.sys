@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Arrow, SectionHeader } from "./ui";
+import { Arrow, ReturnToWorld, SectionHeader } from "./ui";
 import { isFilled } from "../lib/utils";
 
 const HOLD_MS = 1500;
@@ -44,7 +44,7 @@ function Vault({ progress, unlocked }) {
 // activation unlocks at once); the unlocked item can then be viewed or downloaded.
 // With an uploaded file the buttons open or download it; without one, the on-page
 // sheet is the resume and "Download" saves it as a PDF through the print dialog.
-export default function Resume({ profile, skills, education, experience, certificates, tools, resume }) {
+export default function Resume({ profile, skills, education, experience, certificates, tools, resume, onNavigate }) {
   const [progress, setProgress] = useState(0);
   const [unlocked, setUnlocked] = useState(false);
   const holding = useRef(false);
@@ -174,6 +174,7 @@ export default function Resume({ profile, skills, education, experience, certifi
           <ul>{credentials.map((item, index) => <Entry key={`${item.title}-${index}`} title={item.title} meta={item.date} org={item.issuer} />)}</ul>
         </section>}
       </article>
+      <ReturnToWorld onNavigate={onNavigate} />
     </div>
   </section>;
 }

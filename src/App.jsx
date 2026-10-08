@@ -80,20 +80,20 @@ function App() {
     <main>
       <Hero profile={profile} destinations={worldDestinations} onNavigate={navigate} />
       <About profile={profile} onNavigate={navigate} />
-      <Skills skills={skills} />
-      <Services services={services} email={profile.email} />
-      <Projects projects={projects} onOpen={setActiveProject} />
-      <Experience education={education} experience={experience} certificates={certificates} />
-      <Loadout tools={tools} />
-      <Testimonials testimonials={testimonials} />
-      <Resume profile={profile} skills={skills} education={education} experience={experience} certificates={certificates} tools={tools} resume={resume} />
-      <Contact profile={profile} socialLinks={socialLinks} resume={resume} />
+      <Skills skills={skills} onNavigate={navigate} />
+      <Services services={services} email={profile.email} onNavigate={navigate} />
+      <Projects projects={projects} onOpen={setActiveProject} onNavigate={navigate} />
+      <Experience education={education} experience={experience} certificates={certificates} onNavigate={navigate} />
+      <Loadout tools={tools} onNavigate={navigate} />
+      <Testimonials testimonials={testimonials} onNavigate={navigate} />
+      <Resume profile={profile} skills={skills} education={education} experience={experience} certificates={certificates} tools={tools} resume={resume} onNavigate={navigate} />
+      <Contact profile={profile} socialLinks={socialLinks} resume={resume} onNavigate={navigate} />
     </main>
     <footer className="footer">
       <div className="container footer-inner">
         <span className="brand"><span className="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span className="brand-name">LANZ<b>.SYS</b></span></span>
         <span className="footer-copy">© {new Date().getFullYear()} {profile.name}. Built with React &amp; Three.js.</span>
-        <a className="footer-top" href="#home" onClick={(event) => { event.preventDefault(); navigate("home"); }}>Back to top <Arrow direction="up" /></a>
+        <a className="footer-top" href="#home" onClick={(event) => { event.preventDefault(); navigate("home"); }}>Return to World <Arrow direction="up" /></a>
       </div>
     </footer>
     <ProjectDialog project={activeProject} onClose={() => setActiveProject(null)} />

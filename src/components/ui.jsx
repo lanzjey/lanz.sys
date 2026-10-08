@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { scrollToElement } from "../lib/scroll";
 
 export function Eyebrow({ index, children }) {
   return <p className="eyebrow"><span className="sao-diamond" aria-hidden="true" /><span className="eyebrow-index">{index}</span>{children}</p>;
@@ -53,4 +54,32 @@ export function Typewriter({ words, reducedMotion }) {
 export function Arrow({ direction = "up-right" }) {
   const paths = { "up-right": "M7 17 17 7M8 7h9v9", right: "M5 12h14M13 6l6 6-6 6", down: "M12 5v14M6 13l6 6 6-6", up: "M12 19V5M6 11l6-6 6 6" };
   return <svg className="icon-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[direction]} /></svg>;
+}
+
+// End-of-section exit: teleports the visitor back to the world hub at the top.
+export function ReturnToWorld({ onNavigate }) {
+  return <div className="return-world">
+    <i aria-hidden="true" />
+    <button type="button" className="return-world-button" onClick={() => onNavigate("home")}>
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 2.5 21.5 12 12 21.5 2.5 12Z" /><path d="M12 16V8M8.5 11.5 12 8l3.5 3.5" /></svg>
+      Return to World
+    </button>
+    <i aria-hidden="true" />
+  </div>;
+}
+
+// Expands a trimmed list. Collapsing carries the visitor back to the top of the section.
+export function ShowMore({ hasMore, expanded, hidden, toggle }) {
+  if (!hasMore) return null;
+  const onClick = (event) => {
+    if (expanded) scrollToElement(event.currentTarget.closest("section"));
+    toggle();
+  };
+  return <div className="show-more">
+    <button type="button" className={`show-more-button ${expanded ? "is-expanded" : ""}`} aria-expanded={expanded} onClick={onClick}>
+      <span className="sao-diamond" aria-hidden="true" />
+      {expanded ? "Show less" : <>Show more<span className="show-more-count">+{hidden}</span></>}
+      <Arrow direction={expanded ? "up" : "down"} />
+    </button>
+  </div>;
 }
