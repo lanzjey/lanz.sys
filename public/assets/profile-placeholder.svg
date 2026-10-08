@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 800" role="img" aria-labelledby="title desc">
+  <title id="title">Profile image placeholder</title>
+  <desc id="desc">Holographic portrait silhouette. Replace with a personal portrait.</desc>
+  <defs>
+    <linearGradient id="field" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#0d1c33"/><stop offset=".6" stop-color="#081224"/><stop offset="1" stop-color="#050a14"/></linearGradient>
+    <linearGradient id="figure" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#3ee0ff" stop-opacity=".55"/><stop offset="1" stop-color="#8f7bff" stop-opacity=".45"/></linearGradient>
+    <linearGradient id="edge" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#3ee0ff"/><stop offset="1" stop-color="#a48bff"/></linearGradient>
+    <radialGradient id="light" cx=".5" cy=".42"><stop stop-color="#3ee0ff" stop-opacity=".28"/><stop offset="1" stop-color="#3ee0ff" stop-opacity="0"/></radialGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="#8cc8ff" stroke-opacity=".08"/></pattern>
+    <pattern id="lines" width="6" height="6" patternUnits="userSpaceOnUse"><path d="M0 0h6" stroke="#bff4ff" stroke-opacity=".12"/></pattern>
+  </defs>
+  <rect width="640" height="800" fill="url(#field)"/>
+  <rect width="640" height="800" fill="url(#grid)"/>
+  <ellipse cx="320" cy="340" rx="300" ry="340" fill="url(#light)"/>
+  <ellipse cx="320" cy="760" rx="250" ry="34" fill="none" stroke="#3ee0ff" stroke-opacity=".35" stroke-width="2"/>
+  <ellipse cx="320" cy="760" rx="190" ry="24" fill="none" stroke="#8f7bff" stroke-opacity=".35" stroke-width="1.5"/>
+  <g>
+    <path d="M90 800c16-150 92-236 170-266 20-8 40-12 60-12s40 4 60 12c78 30 154 116 170 266z" fill="url(#figure)"/>
+    <circle cx="320" cy="340" r="132" fill="url(#figure)"/>
+    <path d="M90 800c16-150 92-236 170-266 20-8 40-12 60-12s40 4 60 12c78 30 154 116 170 266z" fill="url(#lines)"/>
+    <circle cx="320" cy="340" r="132" fill="url(#lines)"/>
+    <path d="M90 800c16-150 92-236 170-266 20-8 40-12 60-12s40 4 60 12c78 30 154 116 170 266" fill="none" stroke="url(#edge)" stroke-width="2.5"/>
+    <circle cx="320" cy="340" r="132" fill="none" stroke="url(#edge)" stroke-width="2.5"/>
+  </g>
+  <path d="M40 40h70M40 40v70m560-70h-70m70 0v70" fill="none" stroke="#3ee0ff" stroke-opacity=".6" stroke-width="2"/>
+  <text x="320" y="140" fill="#bfefff" fill-opacity=".6" font-family="monospace" font-size="16" letter-spacing="5" text-anchor="middle">PORTRAIT SLOT</text>
+</svg>

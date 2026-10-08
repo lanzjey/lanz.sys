@@ -1,0 +1,348 @@
+import { useMemo, useState } from "react";
+import { Arrow, Eyebrow, HPBar, SectionHeader } from "./ui";
+import { isFilled, pad, tilt } from "../lib/utils";
+
+const icons = {
+  video: "M4 6h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Zm14 5 4-3v8l-4-3",
+  web: "M3 5h18v14H3zM3 9h18M7 7h.01M10 7h.01",
+  social: "M18 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM6 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm12 7a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM8.6 13.5l6.8 4M15.4 6.5l-6.8 4",
+  design: "M12 19l7-7 3 3-7 7-3-3ZM18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5ZM2 2l7.6 7.6M11 13a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z",
+  content: "M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z",
+  data: "M12 8c4.4 0 8-1.3 8-3s-3.6-3-8-3-8 1.3-8 3 3.6 3 8 3ZM4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3",
+  research: "M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM21 21l-4.3-4.3",
+  assist: "M9 11l3 3 8-8M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9",
+};
+const iconFor = (name) => {
+  const key = name.toLowerCase();
+  if (key.includes("video")) return icons.video;
+  if (key.includes("web")) return icons.web;
+  if (key.includes("social")) return icons.social;
+  if (key.includes("graphic") || key.includes("design")) return icons.design;
+  if (key.includes("content")) return icons.content;
+  if (key.includes("data")) return icons.data;
+  if (key.includes("research")) return icons.research;
+  return icons.assist;
+};
+function Icon({ path }) {
+  return <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={path} /></svg>;
+}
+
+function FilterTabs({ label, items, value, onChange, counts }) {
+  return <div className="filter-tabs" role="group" aria-label={label}>
+    {items.map((item) => <button key={item} type="button" className={value === item ? "is-active" : ""} aria-pressed={value === item} onClick={() => onChange(item)}>
+      {item}{counts && <span className="filter-count">{counts[item]}</span>}
+    </button>)}
+  </div>;
+}
+
+const countBy = (items, key) => items.reduce((acc, item) => ({ ...acc, [item[key]]: (acc[item[key]] || 0) + 1 }), { All: items.length });
+
+/* ── 01 Profile ─────────────────────────────────────────── */
+export function About({ profile, onNavigate }) {
+  const facts = [
+    ["Discipline", profile.playerClass],
+    ["Focus", profile.specialization],
+    ["Status", profile.availability, true],
+    ["Base", profile.location],
+  ].filter(([, value]) => isFilled(value));
+  return <section id="about" className="section" aria-labelledby="about-title">
+    <div className="container">
+      <SectionHeader id="about-title" index="01" eyebrow="Player profile" word="PROFILE" title={<>The person behind <em>the system.</em></>} />
+      <div className="about-grid">
+        <figure className="profile-card tilt scroll-fx" {...tilt}>
+          <div className="profile-card-frame">
+            <img src={profile.image} alt={profile.imageAlt} loading="lazy" />
+            <span className="profile-scan" aria-hidden="true" />
+          </div>
+          <figcaption>
+            <HPBar name={profile.name.split(" ")[0]} />
+            <span className="profile-card-row"><span>Player ID · 001</span><span className="profile-card-status"><span className="status-dot" aria-hidden="true" />Online</span></span>
+          </figcaption>
+        </figure>
+        <div className="about-body scroll-fx" style={{ "--stagger": 1 }}>
+          <p className="about-lead">{profile.about}</p>
+          <p className="about-text">{profile.intro}</p>
+          <dl className="fact-grid">
+            {facts.map(([label, value, live]) => <div key={label} className="fact">
+              <dt>{label}</dt>
+              <dd>{live && <span className="status-dot" aria-hidden="true" />}{value}</dd>
+            </div>)}
+          </dl>
+          <div className="button-row">
+            <button type="button" className="button button-primary" onClick={() => onNavigate("missions")}>See missions <Arrow direction="right" /></button>
+            <button type="button" className="button button-ghost" onClick={() => onNavigate("contact")}>Contact me</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>;
+}
+
+/* ── 02 Skills ──────────────────────────────────────────── */
+const levelSteps = { beginner: 1, intermediate: 2, advanced: 3, expert: 4 };
+
+export function Skills({ skills }) {
+  const [category, setCategory] = useState("All");
+  const categories = useMemo(() => ["All", ...new Set(skills.map((skill) => skill.category))], [skills]);
+  const counts = useMemo(() => countBy(skills, "category"), [skills]);
+  const visible = skills.filter((skill) => category === "All" || skill.category === category);
+  return <section id="skills" className="section" aria-labelledby="skills-title">
+    <div className="container">
+      <SectionHeader id="skills-title" index="02" word="SKILLS" eyebrow="Skill slots" title={<>Abilities that grow <em>through connection.</em></>} text="A snapshot of the capabilities I'm building across software, creative, and digital work." />
+      <FilterTabs label="Filter skills by branch" items={categories} value={category} onChange={setCategory} counts={counts} />
+      <div><div className="card-grid skill-grid" key={category}>
+        {visible.map((skill, index) => {
+          const steps = levelSteps[skill.level?.toLowerCase()] || 0;
+          return <article key={skill.name} className="card skill-card tilt scroll-fx" style={{ "--stagger": index }} {...tilt}>
+            <div className="card-meta"><span>{skill.category}</span>{steps > 0 && <span className="level-badge">{skill.level}</span>}</div>
+            <h3>{skill.name}</h3>
+            {steps > 0 && <div className="proficiency" role="img" aria-label={`${skill.level}: proficiency ${steps * 250} of 1000`}>
+              <span className="proficiency-track"><i style={{ "--fill": steps / 4 }} /></span>
+              <span className="proficiency-value">{steps * 250}<small>/1000</small></span>
+            </div>}
+            {isFilled(skill.description) && <p>{skill.description}</p>}
+            {skill.related?.length > 0 && <ul className="chip-list" aria-label="Related">{skill.related.map((item) => <li key={item}>{item}</li>)}</ul>}
+          </article>;
+        })}
+      </div></div>
+    </div>
+  </section>;
+}
+
+/* ── 03 Services ────────────────────────────────────────── */
+export function Services({ services, email }) {
+  return <section id="services" className="section" aria-labelledby="services-title">
+    <div className="container">
+      <SectionHeader id="services-title" index="03" word="ABILITY" eyebrow="Abilities · Services" title={<>Digital work, <em>ready to deploy.</em></>} text="Ways I can help — from creative production to organized, dependable digital support." />
+      <div className="card-grid service-grid">
+        {services.map((service, index) => <article key={service.name} className="card service-card tilt scroll-fx" style={{ "--stagger": index }} {...tilt}>
+          <div className="service-head">
+            <span className="icon-badge"><Icon path={iconFor(service.name)} /></span>
+            <span className="service-index">{pad(index + 1)}</span>
+          </div>
+          <h3>{service.name}</h3>
+          <p>{service.description}</p>
+          {service.capabilities?.length > 0 && <ul className="tick-list">{service.capabilities.filter(isFilled).map((item) => <li key={item}>{item}</li>)}</ul>}
+          {service.tools?.length > 0 && <ul className="chip-list" aria-label="Tools">{service.tools.map((tool) => <li key={tool}>{tool}</li>)}</ul>}
+          <a className="card-link" href={`mailto:${email}?subject=${encodeURIComponent(service.cta || service.name)}`}>{isFilled(service.cta) ? service.cta : "Start a project"} <Arrow /></a>
+        </article>)}
+      </div>
+    </div>
+  </section>;
+}
+
+/* ── 04 Missions ────────────────────────────────────────── */
+function ProjectMedia({ project, index }) {
+  if (project.media) return <div className="project-media"><img src={project.media} alt="" loading="lazy" /></div>;
+  return <div className={`project-media project-media-placeholder tone-${index % 3}`} aria-hidden="true">
+    <span className="pm-grid" />
+    <span className="pm-window"><span className="pm-bar"><i /><i /><i /></span><span className="pm-body"><span className="pm-side" /><span className="pm-map"><i /><i /><i /></span></span></span>
+    <span className="pm-label">Mission {pad(index + 1, 3)}</span>
+  </div>;
+}
+
+export function Projects({ projects, onOpen }) {
+  const [filter, setFilter] = useState("All");
+  const categories = useMemo(() => ["All", ...new Set(projects.map((project) => project.category))], [projects]);
+  const counts = useMemo(() => countBy(projects, "category"), [projects]);
+  const visible = projects.map((project, index) => ({ project, index })).filter(({ project }) => filter === "All" || project.category === filter);
+  return <section id="projects" className="section" aria-labelledby="projects-title">
+    <div className="container">
+      <SectionHeader id="projects-title" index="04" word="QUESTS" eyebrow="Quest log · Missions" title={<>Selected <em>missions.</em></>} text="Projects, experiments, and work in progress. Open a mission to read its full briefing." />
+      <FilterTabs label="Filter missions by category" items={categories} value={filter} onChange={setFilter} counts={counts} />
+      <div><div className="project-grid" key={filter}>
+        {visible.map(({ project, index }, order) => <button key={`${project.name}-${index}`} type="button" className={`card project-card tilt scroll-fx ${project.featured && filter === "All" ? "is-featured" : ""}`} style={{ "--stagger": order }} onClick={() => onOpen(project)} {...tilt} aria-label={`Open mission briefing: ${project.name}`}>
+          <ProjectMedia project={project} index={index} />
+          <span className="project-body">
+            <span className="card-meta"><span>{project.category} · {project.year}</span><span className="status-pill"><span className="status-dot" aria-hidden="true" />{project.status}</span></span>
+            <span className="project-title">{project.name}</span>
+            <span className="project-description">{project.description}</span>
+            <span className="chip-list">{project.tech.filter(isFilled).map((tech) => <span key={tech}>{tech}</span>)}</span>
+            <span className="card-link">Open briefing <Arrow /></span>
+          </span>
+        </button>)}
+      </div></div>
+    </div>
+  </section>;
+}
+
+/* ── 05 Experience ──────────────────────────────────────── */
+export function Experience({ education, experience, certificates }) {
+  const milestones = [
+    ...experience.map((item) => ({ ...item, kind: "Experience" })),
+    ...education.map((item) => ({ ...item, kind: "Education" })),
+  ];
+  const credentials = certificates.filter((item) => isFilled(item.title) && isFilled(item.issuer));
+  return <section id="experience" className="section" aria-labelledby="experience-title">
+    <div className="container">
+      <SectionHeader id="experience-title" index="05" word="JOURNEY" eyebrow="Progression" title={<>Growth through <em>practice.</em></>} text="Education, experience, and credentials earned along the way." />
+      <div className="experience-grid">
+        <ol id="education" className="timeline">
+          {milestones.map((item, index) => <li key={`${item.kind}-${index}`} className="timeline-item" style={{ "--stagger": index }}>
+            <span className="timeline-node" aria-hidden="true" />
+            <div className="card timeline-card scroll-fx" style={{ "--stagger": index }}>
+              <div className="card-meta"><span className={`kind-badge kind-${item.kind.toLowerCase()}`}>{item.kind}</span>{isFilled(item.period) && <span>{item.period}</span>}</div>
+              <h3>{item.title}</h3>
+              {isFilled(item.organization) && <p className="timeline-org">{item.organization}</p>}
+              {isFilled(item.description) && <p>{item.description}</p>}
+            </div>
+          </li>)}
+        </ol>
+        <aside id="certificates" className="credentials" aria-labelledby="credentials-title">
+          <h3 id="credentials-title" className="subheading">Credentials</h3>
+          {credentials.length ? <ul className="credential-list">
+            {credentials.map((item, index) => <li key={`${item.title}-${index}`} className="card credential-card scroll-fx">
+              <span className="icon-badge" aria-hidden="true">✦</span>
+              <span className="credential-copy">
+                <strong>{item.title}</strong>
+                <span>{item.issuer}{isFilled(item.date) ? ` · ${item.date}` : ""}</span>
+                {(item.credentialUrl || item.pdf) && <a className="card-link" href={item.credentialUrl || item.pdf} target="_blank" rel="noreferrer">View credential <Arrow /></a>}
+              </span>
+            </li>)}
+          </ul> : <div className="card empty-state scroll-fx">
+            <span className="icon-badge" aria-hidden="true">✦</span>
+            <p><strong>Credentials loading…</strong>Certificates will appear here as they're earned and verified.</p>
+          </div>}
+        </aside>
+      </div>
+    </div>
+  </section>;
+}
+
+/* ── 06 Loadout ─────────────────────────────────────────── */
+const initials = (name) => name.split(/\s+/).filter((word) => /^[A-Za-z]/.test(word)).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
+
+export function Loadout({ tools }) {
+  const [category, setCategory] = useState("All");
+  const categories = useMemo(() => ["All", ...new Set(tools.map((tool) => tool.category))], [tools]);
+  const counts = useMemo(() => countBy(tools, "category"), [tools]);
+  const visible = tools.filter((tool) => category === "All" || tool.category === category);
+  return <section id="loadout" className="section" aria-labelledby="loadout-title">
+    <div className="container">
+      <SectionHeader id="loadout-title" index="06" word="LOADOUT" eyebrow="Inventory · Loadout" title={<>Tools for <em>the build.</em></>} text="The software in my current working kit." />
+      <FilterTabs label="Filter tools by category" items={categories} value={category} onChange={setCategory} counts={counts} />
+      <div><ul className="tool-grid" key={category}>
+        {visible.map((tool, index) => <li key={`${tool.name}-${index}`} className="card tool-card tilt scroll-fx" style={{ "--stagger": index }} {...tilt}>
+          <span className="tool-glyph" aria-hidden="true">{initials(tool.name)}</span>
+          <span className="tool-copy"><strong>{tool.name}</strong><span>{tool.category}</span></span>
+          {isFilled(tool.usage) && <p className="tool-usage">{tool.usage}</p>}
+        </li>)}
+      </ul></div>
+    </div>
+  </section>;
+}
+
+/* ── Feedback (only rendered once approved messages exist) ── */
+export function Testimonials({ testimonials }) {
+  if (!testimonials.length) return null;
+  return <section id="testimonials" className="section" aria-labelledby="testimonials-title">
+    <div className="container">
+      <SectionHeader id="testimonials-title" index="—" eyebrow="Feedback" title={<>Kind words from <em>collaborators.</em></>} />
+      <div className="card-grid testimonial-grid">
+        {testimonials.map((item, index) => <figure key={`${item.name}-${index}`} className="card testimonial-card scroll-fx">
+          <blockquote>{item.message}</blockquote>
+          <figcaption><strong>{item.name}</strong><span>{item.role}</span></figcaption>
+        </figure>)}
+      </div>
+    </div>
+  </section>;
+}
+
+/* ── 07 Contact ─────────────────────────────────────────── */
+export function Contact({ profile, socialLinks, resume }) {
+  const [status, setStatus] = useState("");
+  const [copied, setCopied] = useState(false);
+  const send = (event) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const body = `Name: ${form.get("name")}\nEmail: ${form.get("email")}\n\n${form.get("message")}`;
+    setStatus("Opening your email app with this draft…");
+    window.location.href = `mailto:${profile.email}?subject=${encodeURIComponent("Portfolio inquiry")}&body=${encodeURIComponent(body)}`;
+  };
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(profile.email);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch { setCopied(false); }
+  };
+  const resumeHref = resume.file || resume.url;
+  return <section id="contact" className="section section-contact" aria-labelledby="contact-title">
+    <div className="container">
+      <span className="bg-word scroll-fx" aria-hidden="true">MESSAGE</span>
+      <div className="contact-panel scroll-fx">
+        <div className="contact-info">
+          <Eyebrow index="07">Message window</Eyebrow>
+          <h2 id="contact-title">Let's build something <em>together.</em></h2>
+          <p className="section-lead">Have an idea, a project, or need thoughtful digital support? Send a message and I'll get back to you.</p>
+          <p className="hud-chip"><span className="status-dot" aria-hidden="true" />{profile.availability}</p>
+
+          <div className="contact-email">
+            <span className="contact-label">Email</span>
+            <a href={`mailto:${profile.email}`}>{profile.email}</a>
+            <button type="button" className="copy-button" onClick={copyEmail} aria-live="polite">{copied ? "Copied ✓" : "Copy"}</button>
+          </div>
+
+          <div id="social" className="contact-links">
+            <span className="contact-label">Channels</span>
+            <ul>
+              {socialLinks.map((social) => <li key={social.label}>{social.placeholder || !social.href
+                ? <span className="social-link is-pending" aria-disabled="true">{social.label}<small>Coming soon</small></span>
+                : <a className="social-link" href={social.href} target={social.href.startsWith("http") ? "_blank" : undefined} rel={social.href.startsWith("http") ? "noreferrer" : undefined}>{social.label}<Arrow /></a>}</li>)}
+            </ul>
+          </div>
+
+          <div id="resume" className="resume-row">
+            <span className="resume-icon" aria-hidden="true">CV</span>
+            <span className="resume-copy"><strong>{resume.title}</strong><span>{resume.description}</span></span>
+            {resumeHref
+              ? <a className="button button-ghost button-small" href={resumeHref} {...(resume.file ? { download: true } : { target: "_blank", rel: "noreferrer" })}>{resume.file ? "Download" : "Open"} <Arrow direction={resume.file ? "down" : "up-right"} /></a>
+              : <span className="resume-soon">Coming soon</span>}
+          </div>
+        </div>
+
+        <form className="contact-form" onSubmit={send}>
+          <div className="contact-form-bar"><span className="terminal-dots" aria-hidden="true"><i /><i /><i /></span><span>new_message.txt</span></div>
+          <label>Name<input name="name" autoComplete="name" placeholder="Your name" required /></label>
+          <label>Email<input name="email" type="email" autoComplete="email" placeholder="you@example.com" required /></label>
+          <label>Message<textarea name="message" rows="5" placeholder="Tell me about your project…" required /></label>
+          <button className="button button-primary button-large" type="submit">Send message <Arrow /></button>
+          <p className="form-status" aria-live="polite">{status || "This opens your email app with the message ready to send."}</p>
+        </form>
+      </div>
+    </div>
+  </section>;
+}
+
+/* ── Mission briefing dialog ───────────────────────────── */
+export function ProjectDialog({ project, onClose }) {
+  if (!project) return null;
+  const details = [["Objective", project.objective], ["Challenge", project.challenge], ["Solution", project.solution]].filter(([, value]) => isFilled(value));
+  const facts = [["Status", project.status], ["Role", project.role], ["Year", project.year]].filter(([, value]) => isFilled(value));
+  const features = (project.features || []).filter(isFilled);
+  return <div className="dialog-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <section className="project-dialog" data-lenis-prevent role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+      <button type="button" className="dialog-close" onClick={onClose} aria-label="Close mission briefing">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+      </button>
+      <div className="dialog-media">
+        {project.video ? <video controls playsInline preload="metadata" poster={project.media || undefined}><source src={project.video} />Your browser does not support video playback.</video> : <ProjectMedia project={project} index={0} />}
+      </div>
+      <div className="dialog-body">
+        <Eyebrow index="Quest">{project.category}</Eyebrow>
+        <h2 id="dialog-title">{project.name}</h2>
+        <p className="dialog-lead">{project.description}</p>
+        {facts.length > 0 && <dl className="dialog-facts">{facts.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>}
+        {details.map(([label, value]) => <section key={label} className="dialog-section"><h3>{label}</h3><p>{value}</p></section>)}
+        {features.length > 0 && <section className="dialog-section"><h3>Features</h3><ul className="tick-list">{features.map((feature) => <li key={feature}>{feature}</li>)}</ul></section>}
+        {project.results?.length > 0 && <section className="dialog-section"><h3>Results</h3><ul className="tick-list">{project.results.map((result) => <li key={result}>{result}</li>)}</ul></section>}
+        <section className="dialog-section"><h3>Technologies</h3><ul className="chip-list">{project.tech.filter(isFilled).map((tech) => <li key={tech}>{tech}</li>)}</ul></section>
+        {project.gallery?.length > 0 && <div className="dialog-gallery">{project.gallery.map((image) => <img key={image.src} src={image.src} alt={image.alt || `${project.name} screenshot`} loading="lazy" />)}</div>}
+        {(project.githubUrl || project.liveUrl) && <div className="button-row">
+          {project.liveUrl && <a className="button button-primary" href={project.liveUrl} target="_blank" rel="noreferrer">Live project <Arrow /></a>}
+          {project.githubUrl && <a className="button button-ghost" href={project.githubUrl} target="_blank" rel="noreferrer">Source code <Arrow /></a>}
+        </div>}
+      </div>
+    </section>
+  </div>;
+}

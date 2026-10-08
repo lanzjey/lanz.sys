@@ -1,0 +1,82 @@
+import { Suspense, lazy, useMemo, useRef, useState } from "react";
+import SceneBoundary from "./SceneBoundary";
+import { Arrow, HPBar, Typewriter } from "./ui";
+import { pad, prefersReducedMotion, useInView } from "../lib/utils";
+
+const CastleScene = lazy(() => import("./CastleScene"));
+
+function NameLine({ word, offset, className = "" }) {
+  return <span className={`hero-name-line ${className}`}>
+    {[...word].map((char, index) => <span key={index} className="hero-char" style={{ "--i": offset + index }}>{char === " " ? " " : char}</span>)}
+  </span>;
+}
+
+export default function Hero({ profile, destinations, onNavigate }) {
+  const section = useRef(null);
+  const pointer = useRef({ x: 0, y: 0 });
+  const [activeDestination, setActiveDestination] = useState(null);
+  const [reducedMotion] = useState(prefersReducedMotion);
+  const inView = useInView(section, { threshold: .02 });
+  const words = profile.name.trim().split(/\s+/);
+  const firstLine = words.length > 1 ? words.slice(0, -1).join(" ") : words[0];
+  const lastLine = words.length > 1 ? words.at(-1) : "";
+  const roles = useMemo(() => profile.roles?.length ? profile.roles : [profile.role], [profile.roles, profile.role]);
+  const activeIndex = destinations.findIndex((destination) => destination.id === activeDestination);
+  const selected = destinations[activeIndex];
+
+  const track = (event) => {
+    if (event.pointerType === "touch" || reducedMotion) return;
+    const bounds = section.current.getBoundingClientRect();
+    pointer.current = { x: ((event.clientX - bounds.left) / bounds.width - .5) * 2, y: ((event.clientY - bounds.top) / bounds.height - .5) * 2 };
+  };
+
+  return <section ref={section} id="home" className="hero" onPointerMove={track} onPointerLeave={() => { pointer.current = { x: 0, y: 0 }; }} aria-labelledby="hero-name">
+    <div className="hero-floor" aria-hidden="true" />
+    <div className="hero-scroll-cue" aria-hidden="true"><span>Scroll to explore</span><i /></div>
+    <div className="container hero-grid">
+      <div className="hero-copy">
+        <HPBar name={words[0]} className="hero-hp" />
+        <p className="hero-kicker"><span className="status-dot" aria-hidden="true" />{profile.availability}</p>
+        <h1 id="hero-name" className="hero-name" aria-label={profile.name}>
+          <span aria-hidden="true">
+            <NameLine word={firstLine} offset={0} />
+            {lastLine && <NameLine word={lastLine} offset={firstLine.length} className="text-gradient" />}
+          </span>
+        </h1>
+        <p className="hero-role"><span className="hero-prompt" aria-hidden="true">&gt;_</span><Typewriter words={roles} reducedMotion={reducedMotion} /></p>
+        <p className="hero-intro">{profile.intro}</p>
+        <div className="hero-actions">
+          <button type="button" className="button button-primary button-large" onClick={() => onNavigate("missions")}>View my work <Arrow direction="right" /></button>
+          <button type="button" className="button button-ghost button-large" onClick={() => onNavigate("contact")}>Get in touch</button>
+        </div>
+      </div>
+
+      <div className="hero-visual">
+        <div className="hero-visual-glow" aria-hidden="true" />
+        <SceneBoundary fallback={<div className="core-fallback" aria-hidden="true" />}>
+          <Suspense fallback={<div className="core-fallback" aria-hidden="true" />}>
+            <CastleScene className="hero-core" pointer={pointer} nodeCount={destinations.length} activeIndex={activeIndex} reducedMotion={reducedMotion} active={inView} />
+          </Suspense>
+        </SceneBoundary>
+        <span className="hud-corner hud-corner-tl" aria-hidden="true" /><span className="hud-corner hud-corner-tr" aria-hidden="true" />
+        <span className="hud-corner hud-corner-bl" aria-hidden="true" /><span className="hud-corner hud-corner-br" aria-hidden="true" />
+        <div className="hero-readout" aria-live="polite">
+          <span className="hero-readout-label">{selected ? `Teleport gate ${pad(activeIndex + 1)}` : "Floating world"}</span>
+          <strong>{selected ? selected.label : "Floor 01 · LANZ.SYS"}</strong>
+          <span className="hero-readout-detail">{selected ? selected.detail : `${destinations.length} gates connected. Choose one below to teleport.`}</span>
+        </div>
+      </div>
+    </div>
+
+    <nav className="container hero-destinations" aria-label="World destinations">
+      {destinations.map((destination, index) => <button key={destination.id} type="button" className={`destination ${activeDestination === destination.id ? "is-active" : ""}`} style={{ "--i": index }}
+        onPointerEnter={() => setActiveDestination(destination.id)} onPointerLeave={() => setActiveDestination(null)}
+        onFocus={() => setActiveDestination(destination.id)} onBlur={() => setActiveDestination(null)}
+        onClick={() => onNavigate(destination.id)}>
+        <span className="destination-index">{pad(index + 1)}</span>
+        <span className="destination-label">{destination.label}</span>
+        <span className="destination-sub">{destination.subtitle}</span>
+      </button>)}
+    </nav>
+  </section>;
+}
