@@ -30,3 +30,6 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# Build-time content snapshot (regenerated on every build)
+src/data/snapshot.json

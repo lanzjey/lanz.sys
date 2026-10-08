@@ -22,7 +22,7 @@ export const projects = [
   {
     name: "Project Example",
     category: "Web / Mobile",
-    status: "Concept",
+    status: "Planned",
     year: "2025",
     description: "Add project description. Replace this mock entry with a project overview and the problem it addresses.",
     objective: "Add project objective.",
@@ -42,7 +42,7 @@ export const projects = [
   {
     name: "Project Example",
     category: "Web Development",
-    status: "In progress",
+    status: "In Progress",
     year: "2026",
     description: "Add project description. Use this entry for a software, creative, or digital services project.",
     objective: "Add project objective.",

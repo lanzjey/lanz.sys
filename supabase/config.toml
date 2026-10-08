@@ -1,0 +1,5 @@
+# Only used if you deploy functions with the Supabase CLI.
+# The public site calls this function without a user session, so JWT checks are off;
+# spam protection (Turnstile, honeypot, timing, rate limits) happens inside the function.
+[functions.contact]
+verify_jwt = false

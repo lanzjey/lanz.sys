@@ -8,12 +8,13 @@ const checks = ["Touch", "Sight", "Hearing", "Taste", "Smell"];
 const LINK_START_MS = 2300;
 
 // Phases: 0 sensory check → 1 LINK START tunnel → 2 welcome / login.
-export default function IntroExperience({ profile, onEnter }) {
+export default function IntroExperience({ profile, onEnter, ready = true }) {
   const enterTimer = useRef(null);
   const [reducedMotion] = useState(prefersReducedMotion);
   const [phase, setPhase] = useState(reducedMotion ? 2 : 0);
   const [checked, setChecked] = useState(reducedMotion ? checks.length : 0);
-  const [exiting, setExiting] = useState(false);
+  const [requested, setRequested] = useState(false);
+  const exiting = requested && ready;
 
   useEffect(() => {
     if (phase !== 0) return undefined;
@@ -30,11 +31,12 @@ export default function IntroExperience({ profile, onEnter }) {
     return () => window.clearTimeout(timer);
   }, [phase]);
 
-  const enter = useCallback(() => {
-    if (exiting) return;
-    setExiting(true);
-    if (reducedMotion) onEnter();
-    else enterTimer.current = window.setTimeout(onEnter, 900);
+  // Entering waits for the portfolio content; the exit plays once it has arrived.
+  const enter = useCallback(() => setRequested(true), []);
+  useEffect(() => {
+    if (!exiting) return undefined;
+    enterTimer.current = window.setTimeout(onEnter, reducedMotion ? 0 : 900);
+    return () => window.clearTimeout(enterTimer.current);
   }, [exiting, onEnter, reducedMotion]);
 
   useEffect(() => {
@@ -48,7 +50,6 @@ export default function IntroExperience({ profile, onEnter }) {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [enter]);
-  useEffect(() => () => window.clearTimeout(enterTimer.current), []);
 
   const nameWords = profile.name.split(/\s+/);
   const speed = exiting ? 2.6 : phase === 1 ? 1.5 : phase === 2 ? .12 : .05;
@@ -60,7 +61,7 @@ export default function IntroExperience({ profile, onEnter }) {
 
     <header className="intro-topbar">
       <span className="brand"><span className="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span className="brand-name">LANZ<b>.SYS</b></span></span>
-      <button className="intro-skip" type="button" onClick={enter} disabled={exiting}>Skip <kbd>Esc</kbd></button>
+      <button className="intro-skip" type="button" onClick={() => { enter(); setPhase(2); }} disabled={exiting}>Skip <kbd>Esc</kbd></button>
     </header>
 
     <div className="intro-stage">
@@ -80,7 +81,7 @@ export default function IntroExperience({ profile, onEnter }) {
         <p className="intro-welcome">Welcome to <b>LANZ.SYS</b></p>
         <h1 id="intro-title" className="intro-name"><span>{nameWords.slice(0, -1).join(" ")}</span><span className="text-gradient">{nameWords.at(-1)}</span></h1>
         <p className="intro-role">{profile.role}</p>
-        <button className="button button-primary button-large" type="button" onClick={enter} disabled={exiting} autoFocus>Enter world <Arrow direction="right" /></button>
+        <button className="button button-primary button-large" type="button" onClick={enter} disabled={exiting} autoFocus>{requested && !ready ? "Syncing world data…" : <>Enter world <Arrow direction="right" /></>}</button>
         <p className="intro-hint">or press <kbd>Enter</kbd></p>
       </section>}
     </div>

@@ -1,5 +1,8 @@
 import { useMemo, useState } from "react";
 import { Arrow, Eyebrow, HPBar, SectionHeader } from "./ui";
+import ContactForm from "./ContactForm";
+import SocialIcon from "./SocialIcon";
+import { isVideoFile, toEmbedUrl } from "../services/content";
 import { isFilled, pad, tilt } from "../lib/utils";
 
 const icons = {
@@ -118,7 +121,7 @@ export function Services({ services, email }) {
         {services.map((service, index) => <article key={service.name} className="card service-card tilt scroll-fx" style={{ "--stagger": index }} {...tilt}>
           <div className="service-head">
             <span className="icon-badge"><Icon path={iconFor(service.name)} /></span>
-            <span className="service-index">{pad(index + 1)}</span>
+            <span className="service-head-meta">{isFilled(service.availability) && <span className={`availability-badge is-${service.availability.toLowerCase().replace(/\s+/g, "-")}`}>{service.availability}</span>}<span className="service-index">{pad(index + 1)}</span></span>
           </div>
           <h3>{service.name}</h3>
           <p>{service.description}</p>
@@ -192,11 +195,15 @@ export function Experience({ education, experience, certificates }) {
           <h3 id="credentials-title" className="subheading">Credentials</h3>
           {credentials.length ? <ul className="credential-list">
             {credentials.map((item, index) => <li key={`${item.title}-${index}`} className="card credential-card scroll-fx">
-              <span className="icon-badge" aria-hidden="true">✦</span>
+              {item.image ? <a className="credential-thumb" href={item.image} target="_blank" rel="noopener noreferrer"><img src={item.image} alt={`${item.title} certificate`} loading="lazy" /></a> : <span className="icon-badge" aria-hidden="true">✦</span>}
               <span className="credential-copy">
                 <strong>{item.title}</strong>
                 <span>{item.issuer}{isFilled(item.date) ? ` · ${item.date}` : ""}</span>
-                {(item.credentialUrl || item.pdf) && <a className="card-link" href={item.credentialUrl || item.pdf} target="_blank" rel="noreferrer">View credential <Arrow /></a>}
+                {isFilled(item.credentialId) && <span className="credential-id">ID {item.credentialId}</span>}
+                <span className="credential-links">
+                  {item.credentialUrl && <a className="card-link" href={item.credentialUrl} target="_blank" rel="noopener noreferrer">Verify <Arrow /></a>}
+                  {item.pdf && <a className="card-link" href={item.pdf} target="_blank" rel="noopener noreferrer">PDF <Arrow /></a>}
+                </span>
               </span>
             </li>)}
           </ul> : <div className="card empty-state scroll-fx">
@@ -250,15 +257,7 @@ export function Testimonials({ testimonials }) {
 
 /* ── 07 Contact ─────────────────────────────────────────── */
 export function Contact({ profile, socialLinks, resume }) {
-  const [status, setStatus] = useState("");
   const [copied, setCopied] = useState(false);
-  const send = (event) => {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const body = `Name: ${form.get("name")}\nEmail: ${form.get("email")}\n\n${form.get("message")}`;
-    setStatus("Opening your email app with this draft…");
-    window.location.href = `mailto:${profile.email}?subject=${encodeURIComponent("Portfolio inquiry")}&body=${encodeURIComponent(body)}`;
-  };
   const copyEmail = async () => {
     try {
       await navigator.clipboard.writeText(profile.email);
@@ -286,9 +285,9 @@ export function Contact({ profile, socialLinks, resume }) {
           <div id="social" className="contact-links">
             <span className="contact-label">Channels</span>
             <ul>
-              {socialLinks.map((social) => <li key={social.label}>{social.placeholder || !social.href
-                ? <span className="social-link is-pending" aria-disabled="true">{social.label}<small>Coming soon</small></span>
-                : <a className="social-link" href={social.href} target={social.href.startsWith("http") ? "_blank" : undefined} rel={social.href.startsWith("http") ? "noreferrer" : undefined}>{social.label}<Arrow /></a>}</li>)}
+              {socialLinks.map((social, index) => <li key={`${social.label}-${index}`}>{social.placeholder || !social.href
+                ? <span className="social-link is-pending" aria-disabled="true"><SocialIcon platform={social.platform} />{social.label}<small>Coming soon</small></span>
+                : <a className="social-link" href={social.href} target={social.href.startsWith("http") ? "_blank" : undefined} rel={social.href.startsWith("http") ? "noopener noreferrer" : undefined}><SocialIcon platform={social.platform} />{social.label}<Arrow /></a>}</li>)}
             </ul>
           </div>
 
@@ -301,14 +300,7 @@ export function Contact({ profile, socialLinks, resume }) {
           </div>
         </div>
 
-        <form className="contact-form" onSubmit={send}>
-          <div className="contact-form-bar"><span className="terminal-dots" aria-hidden="true"><i /><i /><i /></span><span>new_message.txt</span></div>
-          <label>Name<input name="name" autoComplete="name" placeholder="Your name" required /></label>
-          <label>Email<input name="email" type="email" autoComplete="email" placeholder="you@example.com" required /></label>
-          <label>Message<textarea name="message" rows="5" placeholder="Tell me about your project…" required /></label>
-          <button className="button button-primary button-large" type="submit">Send message <Arrow /></button>
-          <p className="form-status" aria-live="polite">{status || "This opens your email app with the message ready to send."}</p>
-        </form>
+        <ContactForm email={profile.email} />
       </div>
     </div>
   </section>;
@@ -326,7 +318,7 @@ export function ProjectDialog({ project, onClose }) {
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
       </button>
       <div className="dialog-media">
-        {project.video ? <video controls playsInline preload="metadata" poster={project.media || undefined}><source src={project.video} />Your browser does not support video playback.</video> : <ProjectMedia project={project} index={0} />}
+        {project.video ? <MediaItem item={{ src: project.video, alt: `${project.name} video` }} poster={project.media} /> : <ProjectMedia project={project} index={0} />}
       </div>
       <div className="dialog-body">
         <Eyebrow index="Quest">{project.category}</Eyebrow>
@@ -337,7 +329,7 @@ export function ProjectDialog({ project, onClose }) {
         {features.length > 0 && <section className="dialog-section"><h3>Features</h3><ul className="tick-list">{features.map((feature) => <li key={feature}>{feature}</li>)}</ul></section>}
         {project.results?.length > 0 && <section className="dialog-section"><h3>Results</h3><ul className="tick-list">{project.results.map((result) => <li key={result}>{result}</li>)}</ul></section>}
         <section className="dialog-section"><h3>Technologies</h3><ul className="chip-list">{project.tech.filter(isFilled).map((tech) => <li key={tech}>{tech}</li>)}</ul></section>
-        {project.gallery?.length > 0 && <div className="dialog-gallery">{project.gallery.map((image) => <img key={image.src} src={image.src} alt={image.alt || `${project.name} screenshot`} loading="lazy" />)}</div>}
+        {project.gallery?.length > 0 && <section className="dialog-section"><h3>Gallery</h3><div className="dialog-gallery">{project.gallery.map((item) => <figure key={item.src} className="dialog-gallery-item"><MediaItem item={{ ...item, alt: item.alt || `${project.name} media` }} />{item.caption && <figcaption>{item.caption}</figcaption>}</figure>)}</div></section>}
         {(project.githubUrl || project.liveUrl) && <div className="button-row">
           {project.liveUrl && <a className="button button-primary" href={project.liveUrl} target="_blank" rel="noreferrer">Live project <Arrow /></a>}
           {project.githubUrl && <a className="button button-ghost" href={project.githubUrl} target="_blank" rel="noreferrer">Source code <Arrow /></a>}
@@ -345,4 +337,12 @@ export function ProjectDialog({ project, onClose }) {
       </div>
     </section>
   </div>;
+}
+
+// Image, uploaded video file, or YouTube/Vimeo link.
+function MediaItem({ item, poster }) {
+  const embed = toEmbedUrl(item.src);
+  if (embed) return <iframe src={embed} title={item.alt} loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowFullScreen />;
+  if (item.type === "video" || isVideoFile(item.src)) return <video controls playsInline preload="metadata" poster={poster || undefined}><source src={item.src} />Your browser does not support video playback.</video>;
+  return <img src={item.src} alt={item.alt} loading="lazy" />;
 }

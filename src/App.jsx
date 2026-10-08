@@ -7,14 +7,19 @@ import { Arrow } from "./components/ui";
 import AmbientBackground from "./components/AmbientBackground";
 import { scrollToElement, setScrollLocked, startSmoothScroll } from "./lib/scroll";
 import { useScrollFX } from "./hooks/useScrollFX";
-import { portfolioRepository } from "./services/portfolioRepository";
+import { fallbackPortfolio, loadPortfolio } from "./services/portfolioRepository";
 import { useWorldNavigation } from "./hooks/useWorldNavigation";
 
 function App() {
-  const [content] = useState(() => portfolioRepository.getPortfolio());
+  const [content, setContent] = useState(null);
   const [introComplete, setIntroComplete] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    loadPortfolio().then(({ content: loaded }) => { if (!cancelled) setContent(loaded); });
+    return () => { cancelled = true; };
+  }, []);
   const [activeProject, setActiveProject] = useState(null);
-  const { navigate, transition } = useWorldNavigation(content.worldDestinations);
+  const { navigate, transition } = useWorldNavigation(fallbackPortfolio.worldDestinations);
   const pendingTarget = useRef(window.location.hash ? decodeURIComponent(window.location.hash.slice(1)) : null);
   useScrollFX(introComplete);
 
@@ -63,8 +68,8 @@ function App() {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [activeProject, introComplete, navigate]);
 
+  if (!introComplete || !content) return <IntroExperience profile={(content || fallbackPortfolio).profile} ready={Boolean(content)} onEnter={() => setIntroComplete(true)} />;
   const { profile, skills, projects, services, education, experience, certificates, resume, socialLinks, tools, testimonials, worldDestinations } = content;
-  if (!introComplete) return <IntroExperience profile={profile} onEnter={() => setIntroComplete(true)} />;
 
   return <div className="site-shell">
     <a className="skip-link" href="#about">Skip to content</a>
