@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { NavContext } from "../lib/nav";
 import { scrollToElement } from "../lib/scroll";
 
 // Moon phase glyph, drawn with SVG so it stays crisp at any size. `phase` runs 0-7
@@ -16,11 +17,22 @@ export function Moon({ phase = 4, size = 22 }) {
   </svg>;
 }
 
+// Game-style button prompt that returns to the hero menu. Esc does the same.
+export function BackToMenu() {
+  const navigate = useContext(NavContext);
+  return <button type="button" className="back-menu" onClick={() => navigate("home")}>
+    <i aria-hidden="true" /><span>Back to Menu</span><kbd aria-hidden="true">Esc</kbd>
+  </button>;
+}
+
 // Section title: a slanted tab with the moon phase, then the heading. `em` words become cyan slabs.
 export function SectionHeader({ id, eyebrow, phase, title, text, word }) {
   return <header className="sec-head scroll-fx">
     {word && <span className="bg-word" aria-hidden="true">{word}</span>}
-    <p className="sec-tab"><Moon phase={phase} size={18} /><span>{eyebrow}</span></p>
+    <div className="sec-top">
+      <p className="sec-tab"><Moon phase={phase} size={18} /><span>{eyebrow}</span></p>
+      <BackToMenu />
+    </div>
     <h2 id={id}>{title}</h2>
     {text && <p className="sec-lead">{text}</p>}
   </header>;

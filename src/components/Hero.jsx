@@ -1,16 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { RoleTicker } from "./ui";
 import { menuItems } from "../lib/menu";
-import { prefersReducedMotion } from "../lib/utils";
+import { isFilled, prefersReducedMotion } from "../lib/utils";
 
 // The opening screen is a game menu: a tilted stack of sections with a red and white slash
 // that follows the selection (hover, arrow keys, or tap), over a duotone portrait with layered parallax.
-export default function Hero({ profile, onNavigate }) {
+export default function Hero({ profile, projects, onNavigate }) {
   const [reducedMotion] = useState(prefersReducedMotion);
   const [active, setActive] = useState(3);
   const sectionRef = useRef(null);
   const roles = useMemo(() => profile.roles?.length ? profile.roles : [profile.role], [profile.roles, profile.role]);
   const words = profile.name.trim().split(/\s+/);
+  const building = projects.find((project) => /ongoing|in progress/i.test(project.status) && isFilled(project.name));
+  const cards = [
+    isFilled(profile.availability) && { tag: "Now", text: profile.availability, target: "contact" },
+    building && { tag: "Building", text: building.name, target: "projects" },
+    isFilled(profile.playerClass) && { tag: "Studying", text: profile.playerClass, target: "about" },
+  ].filter(Boolean);
 
   // Pointer parallax for the layered scene (mouse and pen only, one write per frame).
   useEffect(() => {
@@ -62,7 +68,11 @@ export default function Hero({ profile, onNavigate }) {
     <div className="container hero-grid">
       <div className="hero-id reveal">
         <p className="hero-tag"><span className="live-dot" aria-hidden="true" />{profile.availability}</p>
-        <h1 id="hero-name" className="hero-name" aria-label={profile.name}>{words.map((word) => <span key={word} aria-hidden="true">{word}</span>)}</h1>
+        <h1 id="hero-name" className="hero-name" aria-label={profile.name}>
+          {words.map((word, wi) => <span key={word} className="cut-word" aria-hidden="true">
+            {[...word].map((letter, i) => <i key={i} className={(i + wi) % 3 === 1 ? "is-dark" : ""} style={{ "--r": `${((i * 37 + wi * 19) % 7) - 3}deg` }}>{letter}</i>)}
+          </span>)}
+        </h1>
         <p className="hero-role"><RoleTicker words={roles} reducedMotion={reducedMotion} /></p>
       </div>
 
@@ -78,6 +88,11 @@ export default function Hero({ profile, onNavigate }) {
         <p className="hero-hint" aria-hidden="true"><kbd>↑</kbd><kbd>↓</kbd> choose <kbd>Enter</kbd> go</p>
       </nav>
     </div>
+    {cards.length > 0 && <ul className="now-cards reveal" style={{ "--d": ".4s" }} aria-label="Currently">
+      {cards.map((card, index) => <li key={card.tag} style={{ "--k": index }}>
+        <button type="button" onClick={() => onNavigate(card.target)}><b>{card.tag}</b><span>{card.text}</span></button>
+      </li>)}
+    </ul>}
     <p className="scroll-cue" aria-hidden="true">Scroll</p>
   </section>;
 }

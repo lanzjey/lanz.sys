@@ -8,6 +8,7 @@ import ProjectPanel from "./components/ProjectPanel";
 import { About, Certificates, Contact, Experience, Projects, Services, Skills, Testimonials } from "./components/Sections";
 import { Arrow } from "./components/ui";
 import { labelFor } from "./lib/menu";
+import { NavContext } from "./lib/nav";
 import { prefersReducedMotion } from "./lib/utils";
 import { scrollToElement, setScrollLocked, startSmoothScroll } from "./lib/scroll";
 import { useScrollFX } from "./hooks/useScrollFX";
@@ -83,19 +84,29 @@ function App() {
     };
   }, [panelOpen]);
 
+  // Esc is the shortcut for "Back to Menu" anywhere below the hero.
+  useEffect(() => {
+    if (!introDone || !content) return undefined;
+    const onKeyDown = (event) => {
+      if (event.key !== "Escape" || panelOpen || document.querySelector(".menu.is-open") || window.scrollY < window.innerHeight * .5) return;
+      navigate("home");
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [introDone, content, panelOpen, navigate]);
+
   const profile = (content || fallbackPortfolio).profile;
   const showSite = introDone && content;
-  const initials = profile.name.split(/\s+/).filter(Boolean).map((word) => word[0]).slice(0, 2).join("").toUpperCase();
 
   return <>
     {!introDone && <Intro name={profile.name} onExit={onIntroExit} onDone={onIntroDone} />}
     {introDone && !content && <div className="loading" role="status">Loading portfolio…</div>}
-    {content && <div className={`site-shell ${ready ? "is-ready" : ""}`}>
+    {content && <NavContext.Provider value={navigate}><div className={`site-shell ${ready ? "is-ready" : ""}`}>
       <Backdrop />
       <a className="skip-link" href="#about">Skip to content</a>
-      <Navbar onNavigate={navigate} brand={initials} />
+      <Navbar onNavigate={navigate} brand="lanz.sys" />
       <main id="main">
-        <Hero profile={content.profile} onNavigate={navigate} />
+        <Hero profile={content.profile} projects={content.projects} onNavigate={navigate} />
         <About profile={content.profile} onNavigate={navigate} />
         <Skills skills={content.skills} tools={content.tools} />
         <Services services={content.services} email={content.profile.email} onNavigate={navigate} />
@@ -108,7 +119,7 @@ function App() {
       </main>
       <footer className="footer">
         <div className="container footer-inner">
-          <span className="footer-brand">{profile.name}</span>
+          <span className="footer-brand">lanz<b>.sys</b></span>
           <span className="footer-copy">
             <span>© {new Date().getFullYear()} {profile.name}. Built with React.</span>
             <small>Design inspired by Persona 3 Reload, with original artwork. Persona belongs to its respective owners; this site is not affiliated with or endorsed by them.</small>
@@ -118,7 +129,7 @@ function App() {
       </footer>
       {panelOpen && showSite && <ProjectPanel projects={content.projects} index={activeProject} onChange={setActiveProject} onClose={() => setActiveProject(null)} />}
       <div className={`burst ${wipe ? `is-${wipe}` : ""}`} aria-hidden="true"><i className="burst-rays" /><i className="burst-slab" /><b>{wipeLabel}</b></div>
-    </div>}
+    </div></NavContext.Provider>}
   </>;
 }
 

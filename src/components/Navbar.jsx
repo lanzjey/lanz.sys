@@ -57,7 +57,7 @@ export default function Navbar({ onNavigate, brand }) {
 
   return <>
     <header className="topbar">
-      <a className="brand" href="#home" onClick={(event) => go(event, "home")} aria-label={`${brand}, back to top`}>{brand}<b>/</b></a>
+      <a className="brand" href="#home" onClick={(event) => go(event, "home")} aria-label={`${brand}, back to top`}>lanz<b>.sys</b></a>
       <button ref={toggleRef} type="button" className="menu-toggle" aria-expanded={open} aria-controls="primary-menu" onClick={() => setOpen(!open)}>
         <span>{open ? "Close" : "Menu"}</span>
       </button>

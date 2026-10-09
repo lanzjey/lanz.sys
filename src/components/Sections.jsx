@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Arrow, SectionHeader, ShowMore } from "./ui";
+import { Arrow, BackToMenu, SectionHeader, ShowMore } from "./ui";
 import { useShowMore } from "../hooks/useShowMore";
 import ContactForm from "./ContactForm";
 import SocialIcon from "./SocialIcon";
@@ -32,11 +32,18 @@ function Icon({ path }) {
   return <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={path} /></svg>;
 }
 
+// Category tabs with LB / RB shoulder prompts that step through them, like a game's tab bar.
 function FilterTabs({ label, items, value, onChange, counts }) {
-  return <div className="filter-tabs" role="group" aria-label={label}>
-    {items.map((item) => <button key={item} type="button" className={value === item ? "is-active" : ""} aria-pressed={value === item} onClick={() => onChange(item)}>
-      <span>{item}{counts && <small>{counts[item]}</small>}</span>
-    </button>)}
+  const step = (delta) => onChange(items[(items.indexOf(value) + delta + items.length) % items.length]);
+  const stepping = items.length > 2;
+  return <div className="filter-bar">
+    {stepping && <button type="button" className="shoulder" aria-label="Previous category" onClick={() => step(-1)}>LB</button>}
+    <div className="filter-tabs" role="group" aria-label={label}>
+      {items.map((item) => <button key={item} type="button" className={value === item ? "is-active" : ""} aria-pressed={value === item} onClick={() => onChange(item)}>
+        <span>{item}{counts && <small>{counts[item]}</small>}</span>
+      </button>)}
+    </div>
+    {stepping && <button type="button" className="shoulder" aria-label="Next category" onClick={() => step(1)}>RB</button>}
   </div>;
 }
 
@@ -315,7 +322,7 @@ export function Contact({ profile, socialLinks, resume }) {
       <p className="stamp" aria-hidden="true">Mail</p>
       <div className="contact-panel scroll-fx">
         <div className="contact-info">
-          <p className="sec-tab"><span>Contact</span></p>
+          <div className="sec-top"><p className="sec-tab"><span>Contact</span></p><BackToMenu /></div>
           <h2 id="contact-title">Let's build something <em>together</em></h2>
           <p className="sec-lead">Have an idea, a project, or need thoughtful digital support? Send a message and I'll get back to you.</p>
           <p className="avail"><i className="live-dot" aria-hidden="true" />{profile.availability}</p>
