@@ -69,8 +69,13 @@ export default function Hero({ profile, projects, onNavigate }) {
       <div className="hero-id reveal">
         <p className="hero-tag"><span className="live-dot" aria-hidden="true" />{profile.availability}</p>
         <h1 id="hero-name" className="hero-name" aria-label={profile.name}>
-          {words.map((word, wi) => <span key={word} className="cut-word" aria-hidden="true">
-            {[...word].map((letter, i) => <i key={i} className={(i + wi) % 3 === 1 ? "is-dark" : ""} style={{ "--r": `${((i * 37 + wi * 19) % 7) - 3}deg` }}>{letter}</i>)}
+          {[words.slice(0, -1), words.slice(-1)].filter((line) => line.length).map((line, li) => <span key={li} className="cut-line" aria-hidden="true">
+            {line.map((word, wj) => {
+              const wi = li ? words.length - 1 : wj;
+              return <span key={word} className="cut-word">
+                {[...word].map((letter, i) => <i key={i} className={(i + wi) % 3 === 1 ? "is-dark" : ""} style={{ "--r": `${((i * 37 + wi * 19) % 7) - 3}deg` }}>{letter}</i>)}
+              </span>;
+            })}
           </span>)}
         </h1>
         <p className="hero-role"><RoleTicker words={roles} reducedMotion={reducedMotion} /></p>
