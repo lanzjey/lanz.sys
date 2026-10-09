@@ -48,12 +48,21 @@ export default function Hero({ profile, projects, onNavigate }) {
   }, [active, onNavigate]);
 
   return <section ref={sectionRef} id="home" className="hero" aria-labelledby="hero-name">
+    <svg className="duo-defs" width="0" height="0" aria-hidden="true" focusable="false">
+      <filter id="duotone" colorInterpolationFilters="sRGB">
+        <feColorMatrix type="matrix" values=".4 .4 .4 0 0  .4 .4 .4 0 0  .4 .4 .4 0 0  0 0 0 1 0" />
+        <feComponentTransfer><feFuncR type="gamma" exponent=".62" /><feFuncG type="gamma" exponent=".62" /><feFuncB type="gamma" exponent=".62" /></feComponentTransfer>
+        <feComponentTransfer>
+          <feFuncR type="table" tableValues="0 0 .2 .75 1" /><feFuncG type="table" tableValues="0 .04 .6 .95 1" /><feFuncB type="table" tableValues="0 .3 .95 1 1" />
+        </feComponentTransfer>
+      </filter>
+    </svg>
 
     <div className="scene" aria-hidden="true">
       <i className="scene-word">Portfolio</i>
       <i className="scene-slash scene-slash-a" /><i className="scene-slash scene-slash-b" />
       <div className="scene-moon"><i /></div>
-      <div className="scene-portrait"><img src="/assets/portrait-cutout.webp" alt="" width="720" height="1053" decoding="async" fetchPriority="high" /></div>
+      <div className="scene-portrait"><img src="/assets/portrait.jpg" alt="" width="1000" height="1333" decoding="async" fetchPriority="high" /></div>
     </div>
 
     <div className="container hero-grid">

@@ -23,7 +23,7 @@ void main(){
   vec2 uv = gl_FragCoord.xy / r;
   float asp = r.x / r.y;
   float x = uv.x * asp;
-  vec3 sky = mix(vec3(.008, .02, .07), vec3(.02, .08, .26), smoothstep(.15, 1.0, uv.y));
+  vec3 sky = mix(vec3(.005, .012, .045), vec3(.012, .05, .16), smoothstep(.15, 1.0, uv.y));
   vec2 mp = vec2(asp * .70, .74 + sin(t * .15) * .01);
   float md = length(vec2(x, uv.y) - mp);
   sky += vec3(.12, .5, 1.0) * .13 / (1.0 + 16.0 * md * md);
@@ -37,16 +37,16 @@ void main(){
     float yy = waveY(x + m.x * .06 * (fi + 1.0), base, amp, 2.6 + fi * 1.3, .30 + fi * .11, fi * 2.1);
     float above = uv.y - yy;
     float fill = smoothstep(.0025, -.0025, above);
-    vec3 lc = mix(vec3(.03, .16, .5), vec3(.012, .05, .22), k);
+    vec3 lc = mix(vec3(.014, .07, .24), vec3(.008, .028, .12), k);
     lc *= .55 + .45 * smoothstep(-.28, 0.0, above);
     float ripple = pow(.5 + .5 * sin(above * 110.0 + x * 7.0 + t * (.6 + fi * .2)), 3.0) * .045;
     float glint = refl * pow(.5 + .5 * sin(x * 95.0 + sin(above * 38.0 + t * .9 + fi) * 3.2 - t * 1.6), 9.0) * (1.0 - k * .5) * smoothstep(-.2, 0.0, above);
-    vec3 layer = lc + vec3(.2, .6, 1.0) * ripple * (1.0 - k * .4) + vec3(.55, .9, 1.0) * glint * .34;
-    layer += vec3(.25, .75, 1.0) * smoothstep(.014, 0.0, abs(above)) * (.5 - k * .25);
+    vec3 layer = lc + vec3(.2, .6, 1.0) * ripple * (1.0 - k * .4) + vec3(.55, .9, 1.0) * glint * .24;
+    layer += vec3(.25, .75, 1.0) * smoothstep(.014, 0.0, abs(above)) * (.3 - k * .16);
     col = mix(col, layer, fill);
   }
   col += vec3(.1, .35, .8) * exp(-pow((uv.y - .60) * 6.0, 2.0)) * .09;
-  col *= mix(1.0, .55, d);
+  col *= mix(.8, .5, d);
   float lum = dot(col, vec3(.3, .59, .11));
   col = mix(col, vec3(lum * .35, lum * 1.35, lum * .85) + vec3(.0, .012, .01), dh);
   col += (fract(sin(dot(gl_FragCoord.xy + t, vec2(12.9898, 78.233))) * 43758.5453) - .5) * .018;
