@@ -210,6 +210,16 @@ create table if not exists public.testimonials (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.highlights (
+  id uuid primary key default gen_random_uuid(),
+  value text not null,
+  label text not null,
+  note text,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 -- ── Contact inbox ───────────────────────────────────────────────────────────
 create table if not exists public.messages (
   id uuid primary key default gen_random_uuid(),
@@ -228,7 +238,7 @@ do $$
 declare
   t text;
 begin
-  foreach t in array array['profile', 'resume', 'skills', 'services', 'tools', 'projects', 'experience', 'education', 'certificates', 'social_links', 'testimonials']
+  foreach t in array array['profile', 'resume', 'skills', 'services', 'tools', 'projects', 'experience', 'education', 'certificates', 'social_links', 'testimonials', 'highlights']
   loop
     execute format('alter table public.%I enable row level security', t);
     execute format('drop policy if exists "Public can read" on public.%I', t);

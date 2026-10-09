@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
-export const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+// True for visitors who ask their system for less motion, and for those who switched on Quick mode.
+export const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.classList.contains("quick-mode");
 
 // Template entries ("Add …", "Example …", "… placeholder") stay in the data files but are not shown to visitors.
 export const isFilled = (value) => typeof value === "string" && value.trim() !== "" && !/^(add|example)\b|placeholder/i.test(value.trim());

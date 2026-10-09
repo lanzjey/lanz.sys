@@ -51,7 +51,7 @@ export function About({ profile, onNavigate }) {
   ].filter(([, value]) => isFilled(value));
   return <section id="about" className="section" aria-labelledby="about-title">
     <div className="container">
-      <SectionHeader id="about-title" index="01" eyebrow="Player profile" word="PROFILE" title={<>The person behind <em>the system.</em></>} />
+      <SectionHeader id="about-title" index="01" eyebrow="Player profile" word="ABOUT" title={<>The person behind <em>the work.</em></>} />
       <div className="about-grid">
         <figure className="profile-card tilt scroll-fx" {...tilt}>
           <div className="profile-card-frame">
@@ -94,7 +94,7 @@ export function Skills({ skills, onNavigate }) {
   const more = useShowMore(visible, 6);
   return <section id="skills" className="section" aria-labelledby="skills-title">
     <div className="container">
-      <SectionHeader id="skills-title" index="02" word="SKILLS" eyebrow="Skill slots" title={<>Abilities that grow <em>through connection.</em></>} text="A snapshot of the capabilities I'm building across software, creative, and digital work." />
+      <SectionHeader id="skills-title" index="02" word="SKILLS" eyebrow="Skill slots" title={<>Skills I bring <em>to your project.</em></>} text="A snapshot of the capabilities I'm building across software, creative, and digital work." />
       <FilterTabs label="Filter skills by branch" items={categories} value={category} onChange={setCategory} counts={counts} />
       <div><div className="card-grid skill-grid" key={category}>
         {more.shown.map((skill, index) => {
@@ -160,17 +160,17 @@ export function Projects({ projects, onOpen, onNavigate }) {
   const more = useShowMore(visible, 6);
   return <section id="projects" className="section" aria-labelledby="projects-title">
     <div className="container">
-      <SectionHeader id="projects-title" index="04" word="QUESTS" eyebrow="Quest log · Missions" title={<>Selected <em>missions.</em></>} text="Projects, experiments, and work in progress. Open a mission to read its full briefing." />
+      <SectionHeader id="projects-title" index="04" word="QUESTS" eyebrow="Quest log · Projects" title={<>Selected <em>projects.</em></>} text="Projects, experiments, and work in progress. Open one to see the goal, what I did, and the results." />
       <FilterTabs label="Filter missions by category" items={categories} value={filter} onChange={setFilter} counts={counts} />
       <div><div className="project-grid" key={filter}>
-        {more.shown.map(({ project, index }, order) => <button key={`${project.name}-${index}`} type="button" className={`card project-card tilt scroll-fx ${project.featured && filter === "All" ? "is-featured" : ""} ${order >= more.limit ? "is-extra" : ""}`} style={{ "--stagger": order, "--extra": order - more.limit }} onClick={() => onOpen(project)} {...tilt} aria-label={`Open mission briefing: ${project.name}`}>
+        {more.shown.map(({ project, index }, order) => <button key={`${project.name}-${index}`} type="button" className={`card project-card tilt scroll-fx ${project.featured && filter === "All" ? "is-featured" : ""} ${order >= more.limit ? "is-extra" : ""}`} style={{ "--stagger": order, "--extra": order - more.limit }} onClick={() => onOpen(project)} {...tilt} aria-label={`View project: ${project.name}`}>
           <ProjectMedia project={project} index={index} />
           <span className="project-body">
             <span className="card-meta"><span>{project.category} · {project.year}</span><span className="status-pill"><span className="status-dot" aria-hidden="true" />{project.status}</span></span>
             <span className="project-title">{project.name}</span>
             <span className="project-description">{project.description}</span>
             <span className="chip-list">{project.tech.filter(isFilled).map((tech) => <span key={tech}>{tech}</span>)}</span>
-            <span className="card-link">Open briefing <Arrow /></span>
+            <span className="card-link">View project <Arrow /></span>
           </span>
         </button>)}
       </div></div>

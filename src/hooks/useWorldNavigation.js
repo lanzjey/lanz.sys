@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { scrollToElement } from "../lib/scroll";
-
-const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+import { prefersReducedMotion as reduced } from "../lib/utils";
 
 // Teleport timing (ms): the gate closes, the page jumps while hidden, the gate opens.
 const JUMP_AT = 500;

@@ -12,7 +12,9 @@ export const PLATFORM_LABELS = {
 
 // Tables loaded by the public site, in the order they are fetched.
 export const SINGLETON_TABLES = ["profile", "resume"];
-export const LIST_TABLES = ["skills", "services", "tools", "projects", "experience", "education", "certificates", "social_links", "testimonials"];
+export const LIST_TABLES = ["skills", "services", "tools", "projects", "experience", "education", "certificates", "social_links", "testimonials", "highlights"];
+// Tables the site can live without (e.g. before their migration has been run).
+export const OPTIONAL_TABLES = ["highlights"];
 
 const list = (value) => (Array.isArray(value) ? value.filter((item) => typeof item === "string" && item.trim()) : []);
 const text = (value) => (typeof value === "string" ? value : value == null ? "" : String(value));
@@ -102,6 +104,7 @@ export function mapPortfolio(raw) {
       image: row.image || null, pdf: row.file || null, relatedSkills: list(row.related_skills),
     })),
     socialLinks: (raw.social_links || []).map((row) => ({ platform: text(row.platform) || "other", label: text(row.label), href: row.url || null, placeholder: !row.url })),
+    highlights: (raw.highlights || []).map((row) => ({ value: text(row.value), label: text(row.label), note: text(row.note) })),
     testimonials: (raw.testimonials || []).map((row) => ({ name: text(row.name), role: text(row.role), message: text(row.message), project: text(row.project) })),
   };
 }

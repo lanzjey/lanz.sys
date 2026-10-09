@@ -25,6 +25,7 @@ export function startSmoothScroll() {
 export function scrollToElement(element, { immediate = false } = {}) {
   if (!element) return;
   const offset = element.matches("main > section") ? 0 : -96;
+  if (document.documentElement.classList.contains("quick-mode")) immediate = true;
   if (lenis) lenis.scrollTo(element, { offset, immediate, duration: immediate ? 0 : 1.4 });
   else element.scrollIntoView({ behavior: immediate || prefersReducedMotion() ? "auto" : "smooth", block: "start" });
 }

@@ -36,8 +36,9 @@ export default function Hero({ profile, destinations, onNavigate }) {
         <p className="hero-intro">{profile.intro}</p>
         <div className="hero-actions">
           <button type="button" className="button button-primary button-large" onClick={() => onNavigate("missions")}>View my work <Arrow direction="right" /></button>
-          <button type="button" className="button button-ghost button-large" onClick={() => onNavigate("contact")}>Get in touch</button>
+          <button type="button" className="button button-ghost button-large" onClick={() => onNavigate("contact")}>Hire me</button>
         </div>
+        <button type="button" className="hero-link" onClick={() => onNavigate("resume")}>Or view my resume <Arrow direction="right" /></button>
       </div>
 
       <div className="hero-visual">

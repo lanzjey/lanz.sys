@@ -94,6 +94,16 @@ export const SECTIONS = [
     ],
   },
   {
+    id: "highlights", table: "highlights", label: "Highlights", group: "Showcase",
+    description: "The big numbers shown right under the hero, e.g. clients served or projects delivered. Only add real figures.",
+    titleField: "label", subtitle: (row) => row.value,
+    fields: [
+      { name: "value", label: "Number / value", type: "text", required: true, help: "Short and bold, e.g. “12+”, “3 years”, “24h”." },
+      { name: "label", label: "What it measures", type: "text", required: true, help: "e.g. “Clients served”, “Projects delivered”, “Average reply time”." },
+      { name: "note", label: "Small note", type: "text", help: "Optional, one short line under the label." },
+    ],
+  },
+  {
     id: "skills", table: "skills", label: "Skills", group: "Showcase",
     titleField: "name", subtitle: (row) => [row.category, row.level].filter(Boolean).join(" · "),
     fields: [

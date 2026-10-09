@@ -5,6 +5,9 @@ import IntroExperience from "./components/IntroExperience";
 import { About, Contact, Experience, Loadout, ProjectDialog, Projects, Services, Skills, Testimonials } from "./components/Sections";
 import { Arrow } from "./components/ui";
 import Resume from "./components/Resume";
+import QuickStart from "./components/QuickStart";
+import FloatingCta from "./components/FloatingCta";
+import { isQuickMode } from "./lib/preferences";
 import TeleportOverlay from "./components/TeleportOverlay";
 import AmbientBackground from "./components/AmbientBackground";
 import { scrollToElement, setScrollLocked, startSmoothScroll } from "./lib/scroll";
@@ -14,7 +17,7 @@ import { useWorldNavigation } from "./hooks/useWorldNavigation";
 
 function App() {
   const [content, setContent] = useState(null);
-  const [introComplete, setIntroComplete] = useState(false);
+  const [introComplete, setIntroComplete] = useState(isQuickMode);
   useEffect(() => {
     let cancelled = false;
     loadPortfolio().then(({ content: loaded }) => { if (!cancelled) setContent(loaded); });
@@ -70,8 +73,9 @@ function App() {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [activeProject, introComplete, navigate]);
 
+  if (introComplete && !content) return <div className="quick-loading" role="status">Loading portfolio…</div>;
   if (!introComplete || !content) return <IntroExperience profile={(content || fallbackPortfolio).profile} ready={Boolean(content)} onEnter={() => setIntroComplete(true)} />;
-  const { profile, skills, projects, services, education, experience, certificates, resume, socialLinks, tools, testimonials, worldDestinations } = content;
+  const { profile, skills, projects, services, education, experience, certificates, resume, socialLinks, tools, testimonials, worldDestinations, highlights = [] } = content;
 
   return <div className="site-shell">
     <a className="skip-link" href="#about">Skip to content</a>
@@ -79,6 +83,7 @@ function App() {
     <Navbar onNavigate={navigate} />
     <main>
       <Hero profile={profile} destinations={worldDestinations} onNavigate={navigate} />
+      <QuickStart profile={profile} highlights={highlights} hasTestimonials={testimonials.length > 0} onNavigate={navigate} />
       <About profile={profile} onNavigate={navigate} />
       <Skills skills={skills} onNavigate={navigate} />
       <Services services={services} email={profile.email} onNavigate={navigate} />
@@ -97,6 +102,7 @@ function App() {
       </div>
     </footer>
     <ProjectDialog project={activeProject} onClose={() => setActiveProject(null)} />
+    <FloatingCta onNavigate={navigate} />
     <TeleportOverlay transition={transition} />
   </div>;
 }

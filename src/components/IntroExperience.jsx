@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import LinkStartTunnel from "./LinkStartTunnel";
 import { Arrow } from "./ui";
 import { prefersReducedMotion } from "../lib/utils";
+import { setQuickMode } from "../lib/preferences";
 
 // A nod to the full-dive sensory check before logging in.
 const checks = ["Touch", "Sight", "Hearing", "Taste", "Smell"];
@@ -82,7 +83,8 @@ export default function IntroExperience({ profile, onEnter, ready = true }) {
         <h1 id="intro-title" className="intro-name"><span>{nameWords.slice(0, -1).join(" ")}</span><span className="text-gradient">{nameWords.at(-1)}</span></h1>
         <p className="intro-role">{profile.role}</p>
         <button className="button button-primary button-large" type="button" onClick={enter} disabled={exiting} autoFocus>{requested && !ready ? "Syncing world data…" : <>Enter world <Arrow direction="right" /></>}</button>
-        <p className="intro-hint">or press <kbd>Enter</kbd></p>
+        <button className="button button-ghost" type="button" onClick={() => { setQuickMode(true); enter(); }} disabled={exiting}>Quick view</button>
+        <p className="intro-hint">Quick view skips the animations. Or press <kbd>Enter</kbd> to enter.</p>
       </section>}
     </div>
 

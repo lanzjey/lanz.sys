@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { Arrow } from "./ui";
+import { setQuickMode, useQuickMode } from "../lib/preferences";
 
 const links = [
-  ["home", "Home"], ["about", "Profile"], ["skills", "Skills"], ["services", "Services"],
-  ["projects", "Missions"], ["experience", "Experience"], ["loadout", "Loadout"], ["resume", "Resume"], ["contact", "Contact"],
+  ["home", "Home"], ["about", "About"], ["skills", "Skills"], ["services", "Services"],
+  ["projects", "Projects"], ["experience", "Experience"], ["loadout", "Tools"], ["resume", "Resume"], ["contact", "Contact"],
 ];
 
 export default function Navbar({ onNavigate }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("home");
   const [scrolled, setScrolled] = useState(false);
+  const quick = useQuickMode();
   const toggleRef = useRef(null);
   const progressRef = useRef(null);
 
@@ -62,7 +64,11 @@ export default function Navbar({ onNavigate }) {
       </a>
       <nav id="primary-navigation" data-lenis-prevent className={`nav-links ${open ? "open" : ""}`} aria-label="Primary navigation">
         {links.map(([id, label]) => <a key={id} className={active === id ? "active" : ""} href={`#${id}`} aria-current={active === id ? "location" : undefined} onClick={(event) => go(event, id)}>{label}</a>)}
-        <a className="button button-primary button-small nav-cta" href="#contact" onClick={(event) => go(event, "contact")}>Let's talk <Arrow /></a>
+        <button type="button" className="quick-toggle" aria-pressed={quick} onClick={() => setQuickMode(!quick)} title="Quick mode skips the animations and transitions so you can read straight away">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7Z" /></svg>
+          <span className="quick-toggle-label">Quick mode</span><b>{quick ? "On" : "Off"}</b>
+        </button>
+        <a className="button button-primary button-small nav-cta" href="#contact" onClick={(event) => go(event, "contact")}>Hire me <Arrow /></a>
       </nav>
       <button ref={toggleRef} type="button" className="menu-toggle" aria-label={open ? "Close navigation" : "Open navigation"} aria-expanded={open} aria-controls="primary-navigation" onClick={() => setOpen(!open)}>
         <span /><span /><span />

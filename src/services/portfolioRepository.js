@@ -10,7 +10,7 @@ import { socialLinks } from "../data/socialLinks";
 import { tools } from "../data/tools";
 import { testimonials } from "../data/testimonials";
 import { worldDestinations } from "../data/worldDestinations";
-import { LIST_TABLES, SINGLETON_TABLES, mapPortfolio } from "./content";
+import { LIST_TABLES, OPTIONAL_TABLES, SINGLETON_TABLES, mapPortfolio } from "./content";
 import { SUPABASE_KEY, SUPABASE_URL, isSupabaseConfigured } from "../lib/config";
 
 // Backup content, used when the database is unreachable:
@@ -28,7 +28,10 @@ async function fetchTable(table, signal) {
     headers: { apikey: SUPABASE_KEY, Accept: "application/json" },
     signal,
   });
-  if (!response.ok) throw new Error(`${table}: ${response.status}`);
+  if (!response.ok) {
+    if (OPTIONAL_TABLES.includes(table)) return [];
+    throw new Error(`${table}: ${response.status}`);
+  }
   const rows = await response.json();
   return SINGLETON_TABLES.includes(table) ? rows[0] || null : rows;
 }
