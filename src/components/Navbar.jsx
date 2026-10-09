@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Moon } from "./ui";
 import { setScrollLocked } from "../lib/scroll";
+import { menuItems } from "../lib/menu";
 
-const menuItems = [
-  ["home", "Home"], ["about", "About"], ["skills", "Skills"], ["services", "Services"], ["projects", "Projects"],
-  ["experience", "Experience"], ["certificates", "Certificates"], ["resume", "Resume"], ["contact", "Contact"],
-];
+const links = [{ id: "home", label: "Home" }, ...menuItems];
 
 // The persistent menu: a vertical list on wide screens, a full-screen sheet on phones and tablets.
 // The current section is the cyan slab.
@@ -65,9 +63,9 @@ export default function Navbar({ onNavigate, brand }) {
       </button>
       <span ref={progressRef} className="scroll-progress" aria-hidden="true" />
     </header>
-    <nav id="primary-menu" ref={listRef} data-lenis-prevent className={`menu ${open ? "is-open" : ""}`} aria-label="Primary">
+    <nav id="primary-menu" ref={listRef} data-lenis-prevent className={`menu ${open ? "is-open" : ""} ${active === "home" ? "is-hero" : ""}`} aria-label="Primary">
       <ul>
-        {menuItems.map(([id, label], index) => <li key={id}>
+        {links.map(({ id, label }, index) => <li key={id}>
           <a className={active === id ? "on" : ""} href={`#${id}`} aria-current={active === id ? "location" : undefined} onClick={(event) => go(event, id)}>
             <Moon phase={index} size={16} /><span>{label}</span>
           </a>

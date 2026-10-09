@@ -1,24 +1,29 @@
 import { useEffect, useRef, useState } from "react";
 
-// A two-second opening: the clock reaches midnight, the screen flashes the Dark Hour green,
-// then a blue slash wipes away to reveal the page. Any key, click or the Skip button ends it early.
-const EXIT_MS = 1450;
-const DONE_MS = 2100;
+// A three-second opening. A blue and white speed-line burst slams the name in, the screen turns
+// to the Dark Hour (green moon, clock running past midnight), then a stamp and a slash wipe
+// hand over to the page. Any key, click or the Skip button ends it early.
+const EXIT_MS = 2450;
+const DONE_MS = 3050;
 
 export default function Intro({ name, onExit, onDone }) {
-  const [midnight, setMidnight] = useState(false);
   const [exiting, setExiting] = useState(false);
+  const [seconds, setSeconds] = useState(0);
   const finished = useRef(false);
   const timers = useRef([]);
   const words = name.trim().split(/\s+/);
+  const first = words[0] || name;
+  const second = words.length > 2 ? words[1] : words[1] || "";
 
   useEffect(() => {
     const later = (fn, ms) => timers.current.push(window.setTimeout(fn, ms));
-    later(() => setMidnight(true), 850);
     later(() => { setExiting(true); onExit(); }, EXIT_MS);
     later(() => { finished.current = true; onDone(); }, DONE_MS);
+    // The clock runs from midnight up to the half minute while the Dark Hour screen is up.
+    const clock = window.setInterval(() => setSeconds((value) => Math.min(37, value + 1)), 34);
+    later(() => window.clearInterval(clock), 1500);
     const pending = timers.current;
-    return () => pending.forEach(window.clearTimeout);
+    return () => { pending.forEach(window.clearTimeout); window.clearInterval(clock); };
   }, [onExit, onDone]);
 
   const skip = () => {
@@ -35,21 +40,20 @@ export default function Intro({ name, onExit, onDone }) {
     return () => window.removeEventListener("keydown", onKey);
   });
 
-  return <div className={`intro ${midnight ? "is-midnight" : ""} ${exiting ? "is-exiting" : ""}`} role="dialog" aria-modal="true" aria-label="Opening animation" onPointerDown={skip}>
+  return <div className={`intro ${exiting ? "is-exiting" : ""}`} role="dialog" aria-modal="true" aria-label="Opening animation" onPointerDown={skip}>
+    <div className="intro-burst" aria-hidden="true"><i /><i /></div>
+    <div className="intro-words" aria-hidden="true">
+      <span style={{ "--i": 0 }}>{first}</span>
+      {second && <span style={{ "--i": 1 }}>{second}</span>}
+    </div>
+    <div className="intro-dh" aria-hidden="true">
+      <i className="intro-moon" />
+      <p className="intro-clock"><small>AM</small>00<b>:</b>00<b>:</b>{String(seconds).padStart(2, "0")}</p>
+      <p className="intro-stamp">Portfolio</p>
+    </div>
+    <div className="intro-flash" aria-hidden="true" />
     <div className="intro-slab intro-slab-a" aria-hidden="true" />
     <div className="intro-slab intro-slab-b" aria-hidden="true" />
-    <div className="intro-center">
-      <svg className="intro-clock" viewBox="0 0 200 200" aria-hidden="true">
-        <circle className="clock-ring" cx="100" cy="100" r="92" />
-        <circle className="clock-ring clock-ring-inner" cx="100" cy="100" r="76" />
-        {Array.from({ length: 12 }, (_, i) => <line key={i} className="clock-tick" x1="100" y1="12" x2="100" y2={i % 3 === 0 ? 30 : 22} transform={`rotate(${i * 30} 100 100)`} />)}
-        <line className="clock-hand" x1="100" y1="100" x2="100" y2="34" />
-        <circle className="clock-pin" cx="100" cy="100" r="5" />
-      </svg>
-      <p className="intro-time" aria-hidden="true">{midnight ? "00:00" : "23:59"}</p>
-      <h1 className="intro-name">{words.map((word, index) => <span key={word + index} style={{ "--i": index }}>{word}</span>)}</h1>
-      <p className="intro-sub">Portfolio</p>
-    </div>
     <button type="button" className="intro-skip" onPointerDown={(event) => event.stopPropagation()} onClick={skip}>Skip <kbd>Esc</kbd></button>
   </div>;
 }

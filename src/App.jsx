@@ -3,9 +3,11 @@ import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import Intro from "./components/Intro";
 import Resume from "./components/Resume";
+import Backdrop from "./components/Backdrop";
 import ProjectPanel from "./components/ProjectPanel";
 import { About, Certificates, Contact, Experience, Projects, Services, Skills, Testimonials } from "./components/Sections";
 import { Arrow } from "./components/ui";
+import { labelFor } from "./lib/menu";
 import { prefersReducedMotion } from "./lib/utils";
 import { scrollToElement, setScrollLocked, startSmoothScroll } from "./lib/scroll";
 import { useScrollFX } from "./hooks/useScrollFX";
@@ -24,6 +26,7 @@ function App() {
   const [introDone, setIntroDone] = useState(introSeen);
   const [ready, setReady] = useState(introSeen);
   const [wipe, setWipe] = useState("");
+  const [wipeLabel, setWipeLabel] = useState("");
   const [activeProject, setActiveProject] = useState(null);
   const pendingTarget = useRef(window.location.hash ? decodeURIComponent(window.location.hash.slice(1)) : null);
   const wipeTimers = useRef([]);
@@ -58,10 +61,11 @@ function App() {
     const far = Math.abs(target.getBoundingClientRect().top) > window.innerHeight * 1.4;
     if (!far || prefersReducedMotion()) { scrollToElement(target); return; }
     wipeTimers.current.forEach(window.clearTimeout);
+    setWipeLabel(labelFor(target.id));
     setWipe("in");
     wipeTimers.current = [
-      window.setTimeout(() => { scrollToElement(target, { immediate: true }); setWipe("out"); }, 340),
-      window.setTimeout(() => setWipe(""), 860),
+      window.setTimeout(() => { scrollToElement(target, { immediate: true }); setWipe("out"); }, 520),
+      window.setTimeout(() => setWipe(""), 1150),
     ];
   }, []);
 
@@ -87,6 +91,7 @@ function App() {
     {!introDone && <Intro name={profile.name} onExit={onIntroExit} onDone={onIntroDone} />}
     {introDone && !content && <div className="loading" role="status">Loading portfolio…</div>}
     {content && <div className={`site-shell ${ready ? "is-ready" : ""}`}>
+      <Backdrop />
       <a className="skip-link" href="#about">Skip to content</a>
       <Navbar onNavigate={navigate} brand={initials} />
       <main id="main">
@@ -112,7 +117,7 @@ function App() {
         </div>
       </footer>
       {panelOpen && showSite && <ProjectPanel projects={content.projects} index={activeProject} onChange={setActiveProject} onClose={() => setActiveProject(null)} />}
-      <div className={`wipe ${wipe ? `is-${wipe}` : ""}`} aria-hidden="true"><i /><i /></div>
+      <div className={`burst ${wipe ? `is-${wipe}` : ""}`} aria-hidden="true"><i className="burst-rays" /><i className="burst-slab" /><b>{wipeLabel}</b></div>
     </div>}
   </>;
 }

@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Arrow, SectionHeader, ShowMore } from "./ui";
 import { useShowMore } from "../hooks/useShowMore";
 import ContactForm from "./ContactForm";
 import SocialIcon from "./SocialIcon";
 import ProjectMedia from "./ProjectMedia";
 import { isFilled, pad, statusLabel } from "../lib/utils";
+import { toRoman } from "../lib/menu";
 
 const icons = {
   video: "M4 6h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Zm14 5 4-3v8l-4-3",
@@ -94,7 +95,7 @@ export function Skills({ skills, tools }) {
       <div className="card-grid" key={category}>
         {more.shown.map((skill, index) => {
           const steps = levelSteps[skill.level?.toLowerCase()] || 0;
-          return <article key={skill.name} className={`card scroll-fx ${index >= more.limit ? "is-extra" : ""}`} style={{ "--delay": index % 3, "--extra": index - more.limit }}>
+          return <article key={skill.name} className={`card skill scroll-fx ${index >= more.limit ? "is-extra" : ""}`} style={{ "--delay": index % 3, "--extra": index - more.limit }}>
             <div className="card-meta"><span>{skill.category}</span>{steps > 0 && <span className="level-text">{skill.level}</span>}</div>
             <h3>{skill.name}</h3>
             {steps > 0 && <div className="level-bar" role="img" aria-label={`${skill.level}: ${steps} of 4`}>{[1, 2, 3, 4].map((n) => <i key={n} className={n <= steps ? "on" : ""} />)}</div>}
@@ -160,25 +161,52 @@ export function Services({ services, email, onNavigate }) {
 /* ── Projects ───────────────────────────────────────────── */
 export function Projects({ projects, onOpen }) {
   const [filter, setFilter] = useState("All");
+  const [selected, setSelected] = useState(0);
   const categories = useMemo(() => ["All", ...new Set(projects.map((project) => project.category))], [projects]);
   const counts = useMemo(() => countBy(projects, "category"), [projects]);
   const visible = projects.map((project, index) => ({ project, index })).filter(({ project }) => filter === "All" || project.category === filter);
   const more = useShowMore(visible, 6);
+  const current = more.shown[Math.min(selected, more.shown.length - 1)];
+  const onFilter = (value) => { setFilter(value); setSelected(0); };
+  const tiltStage = (event) => {
+    if (event.pointerType === "touch") return;
+    const box = event.currentTarget.getBoundingClientRect();
+    const x = (event.clientX - box.left) / box.width - .5;
+    const y = (event.clientY - box.top) / box.height - .5;
+    event.currentTarget.style.setProperty("--rx", `${(-y * 10).toFixed(2)}deg`);
+    event.currentTarget.style.setProperty("--ry", `${(x * 14).toFixed(2)}deg`);
+  };
+  const resetStage = (event) => { event.currentTarget.style.setProperty("--rx", "0deg"); event.currentTarget.style.setProperty("--ry", "0deg"); };
   return <section id="projects" className="section" aria-labelledby="projects-title">
     <div className="container">
-      <SectionHeader id="projects-title" phase={3} word="WORK" eyebrow="Projects" title={<>Selected <em>projects</em></>} text="Projects, experiments, and work in progress. Open one for the goal, what I did, and the results." />
-      <FilterTabs label="Filter projects by category" items={categories} value={filter} onChange={setFilter} counts={counts} />
-      <div className="project-grid" key={filter}>
-        {more.shown.map(({ project, index }, order) => <button key={`${project.name}-${index}`} type="button" className={`card project scroll-fx ${project.featured && filter === "All" ? "is-featured" : ""} ${order >= more.limit ? "is-extra" : ""}`} style={{ "--delay": order % 2, "--extra": order - more.limit }} onClick={() => onOpen(index)} aria-label={`View project: ${project.name}`}>
-          <ProjectMedia project={project} index={index} />
-          <span className="project-body">
-            <span className="card-meta"><span>{project.category} · {project.year}</span><span className="pill">{statusLabel(project.status)}</span></span>
-            <span className="project-title">{project.name}</span>
-            <span className="project-desc">{project.description}</span>
-            <span className="chips">{project.tech.filter(isFilled).map((tech) => <span key={tech}>{tech}</span>)}</span>
-            <span className="card-link">View project <Arrow /></span>
-          </span>
-        </button>)}
+      <SectionHeader id="projects-title" phase={3} word="WORK" eyebrow="Projects" title={<>Selected <em>projects</em></>} text="Pick a project to preview it. Open one for the goal, what I did, and the results." />
+      <FilterTabs label="Filter projects by category" items={categories} value={filter} onChange={onFilter} counts={counts} />
+      <div className="proj-layout">
+        <ol className="proj-list" key={filter}>
+          {more.shown.map(({ project, index }, order) => <li key={`${project.name}-${index}`} className={`${order >= more.limit ? "is-extra" : ""}`} style={{ "--extra": order - more.limit }}>
+            <button type="button" className={`proj-row ${order === selected ? "is-active" : ""}`} style={{ "--o": order }} aria-label={`View project: ${project.name}`}
+              onClick={() => onOpen(index)} onFocus={() => setSelected(order)} onPointerEnter={(event) => { if (event.pointerType !== "touch") setSelected(order); }}>
+              <b className="proj-num" aria-hidden="true">{toRoman(order + 1)}</b>
+              <span className="proj-text">
+                <strong>{project.name}</strong>
+                <small>{project.category} · {project.year}</small>
+                <span className="proj-desc">{project.description}</span>
+              </span>
+              <span className="pill">{statusLabel(project.status)}</span>
+            </button>
+          </li>)}
+        </ol>
+        {current && <aside className="proj-preview" aria-hidden="true" onPointerMove={tiltStage} onPointerLeave={resetStage}>
+          <div className="proj-stage" key={current.index}>
+            <ProjectMedia project={current.project} index={current.index} />
+            <div className="proj-stage-info">
+              <span className="card-meta"><span>{current.project.category}</span><span>{current.project.year}</span></span>
+              <strong>{current.project.name}</strong>
+              <p>{current.project.description}</p>
+              <span className="chips">{current.project.tech.filter(isFilled).map((tech) => <span key={tech}>{tech}</span>)}</span>
+            </div>
+          </div>
+        </aside>}
       </div>
       <ShowMore {...more} />
     </div>
@@ -260,6 +288,19 @@ export function Testimonials({ testimonials }) {
 /* ── Contact ────────────────────────────────────────────── */
 export function Contact({ profile, socialLinks, resume }) {
   const [copied, setCopied] = useState(false);
+  const sectionRef = useRef(null);
+  // The one Dark Hour moment: the page backdrop turns green while the contact section is on screen.
+  useEffect(() => {
+    const node = sectionRef.current;
+    if (!node) return undefined;
+    const root = document.documentElement;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) root.dataset.darkHour = "1";
+      else delete root.dataset.darkHour;
+    }, { threshold: .35 });
+    observer.observe(node);
+    return () => { observer.disconnect(); delete root.dataset.darkHour; };
+  }, []);
   const copyEmail = async () => {
     try {
       await navigator.clipboard.writeText(profile.email);
@@ -268,8 +309,10 @@ export function Contact({ profile, socialLinks, resume }) {
     } catch { setCopied(false); }
   };
   const resumeHref = resume.file || resume.url;
-  return <section id="contact" className="section" aria-labelledby="contact-title">
+  return <section ref={sectionRef} id="contact" className="section section-contact" aria-labelledby="contact-title">
+    <div className="dh-moon" aria-hidden="true"><i /></div>
     <div className="container">
+      <p className="stamp" aria-hidden="true">Mail</p>
       <div className="contact-panel scroll-fx">
         <div className="contact-info">
           <p className="sec-tab"><span>Contact</span></p>

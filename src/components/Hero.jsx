@@ -1,32 +1,82 @@
-import { useMemo, useState } from "react";
-import { Arrow, RoleTicker } from "./ui";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { RoleTicker } from "./ui";
+import { menuItems } from "../lib/menu";
 import { prefersReducedMotion } from "../lib/utils";
 
+// The opening screen is a game menu: a tilted stack of sections with a red and white slash
+// that follows the selection (hover, arrow keys, or tap), over a duotone portrait with layered parallax.
 export default function Hero({ profile, onNavigate }) {
   const [reducedMotion] = useState(prefersReducedMotion);
-  const words = profile.name.trim().split(/\s+/);
-  const lines = words.length > 2 ? [words[0], words.slice(1, -1).join(" "), words.at(-1)] : words;
+  const [active, setActive] = useState(3);
+  const sectionRef = useRef(null);
   const roles = useMemo(() => profile.roles?.length ? profile.roles : [profile.role], [profile.roles, profile.role]);
+  const words = profile.name.trim().split(/\s+/);
 
-  return <section id="home" className="hero" aria-labelledby="hero-name">
-    <div className="hero-art" aria-hidden="true">
-      <i className="shard shard-a" /><i className="shard shard-b" />
-      <div className="moon-wrap"><div className="moon" /><i className="moon-orbit" /><i className="moon-orbit moon-orbit-2" /></div>
+  // Pointer parallax for the layered scene (mouse and pen only, one write per frame).
+  useEffect(() => {
+    const node = sectionRef.current;
+    if (!node || reducedMotion || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return undefined;
+    let frame = 0;
+    let x = 0;
+    let y = 0;
+    const apply = () => { frame = 0; node.style.setProperty("--px", x.toFixed(3)); node.style.setProperty("--py", y.toFixed(3)); };
+    const onMove = (event) => {
+      x = event.clientX / window.innerWidth - .5;
+      y = event.clientY / window.innerHeight - .5;
+      if (!frame) frame = requestAnimationFrame(apply);
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => { window.removeEventListener("pointermove", onMove); cancelAnimationFrame(frame); };
+  }, [reducedMotion]);
+
+  // Arrow keys and Enter drive the menu while the hero is on screen.
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (window.scrollY > window.innerHeight * .5 || event.target.closest?.("input, textarea, select, [role='dialog']")) return;
+      if (event.key === "ArrowDown") { event.preventDefault(); setActive((value) => (value + 1) % menuItems.length); }
+      else if (event.key === "ArrowUp") { event.preventDefault(); setActive((value) => (value - 1 + menuItems.length) % menuItems.length); }
+      else if (event.key === "Enter" && !event.target.closest?.("a, button")) onNavigate(menuItems[active].id);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [active, onNavigate]);
+
+  return <section ref={sectionRef} id="home" className="hero" aria-labelledby="hero-name">
+    <svg className="duo-defs" width="0" height="0" aria-hidden="true" focusable="false">
+      <filter id="duotone" colorInterpolationFilters="sRGB">
+        <feColorMatrix type="matrix" values=".4 .4 .4 0 0  .4 .4 .4 0 0  .4 .4 .4 0 0  0 0 0 1 0" />
+        <feComponentTransfer><feFuncR type="gamma" exponent=".62" /><feFuncG type="gamma" exponent=".62" /><feFuncB type="gamma" exponent=".62" /></feComponentTransfer>
+        <feComponentTransfer>
+          <feFuncR type="table" tableValues="0 0 .2 .75 1" /><feFuncG type="table" tableValues="0 .04 .6 .95 1" /><feFuncB type="table" tableValues="0 .3 .95 1 1" />
+        </feComponentTransfer>
+      </filter>
+    </svg>
+
+    <div className="scene" aria-hidden="true">
+      <i className="scene-word">Portfolio</i>
+      <i className="scene-slash scene-slash-a" /><i className="scene-slash scene-slash-b" />
+      <div className="scene-moon"><i /></div>
+      <div className="scene-portrait"><img src="/assets/portrait.jpg" alt="" width="1000" height="1333" decoding="async" fetchPriority="high" /></div>
     </div>
+
     <div className="container hero-grid">
-      <div className="hero-copy">
-        <p className="hero-tag reveal"><span>{profile.playerClass || "Portfolio"}</span><span className="live"><i aria-hidden="true" />{profile.availability}</span></p>
-        <h1 id="hero-name" className="hero-name reveal" style={{ "--d": ".08s" }} aria-label={profile.name}>
-          {lines.map((line, index) => <span key={line} aria-hidden="true" className={index === 1 ? "is-accent" : ""}>{line}</span>)}
-        </h1>
-        <p className="hero-role reveal" style={{ "--d": ".16s" }}><RoleTicker words={roles} reducedMotion={reducedMotion} /></p>
-        <p className="hero-intro reveal" style={{ "--d": ".22s" }}>{profile.intro}</p>
-        <div className="hero-actions reveal" style={{ "--d": ".3s" }}>
-          <button type="button" className="btn btn-fill" onClick={() => onNavigate("projects")}><span>View my work</span><Arrow direction="right" /></button>
-          <button type="button" className="btn" onClick={() => onNavigate("contact")}><span>Hire me</span></button>
-        </div>
-        <button type="button" className="text-link reveal" style={{ "--d": ".36s" }} onClick={() => onNavigate("resume")}>Or view my resume <Arrow direction="right" /></button>
+      <div className="hero-id reveal">
+        <p className="hero-tag"><span className="live-dot" aria-hidden="true" />{profile.availability}</p>
+        <h1 id="hero-name" className="hero-name" aria-label={profile.name}>{words.map((word) => <span key={word} aria-hidden="true">{word}</span>)}</h1>
+        <p className="hero-role"><RoleTicker words={roles} reducedMotion={reducedMotion} /></p>
       </div>
+
+      <nav className="hero-menu reveal" style={{ "--d": ".15s", "--count": menuItems.length, "--i": active }} aria-label="Sections">
+        <i className="slash" aria-hidden="true"><b /></i>
+        <ul>
+          {menuItems.map((item, index) => <li key={item.id}>
+            <button type="button" className={index === active ? "is-active" : ""} onPointerEnter={(event) => { if (event.pointerType !== "touch") setActive(index); }} onFocus={() => setActive(index)} onClick={() => onNavigate(item.id)}>
+              <span>{item.label}</span>
+            </button>
+          </li>)}
+        </ul>
+        <p className="hero-hint" aria-hidden="true"><kbd>↑</kbd><kbd>↓</kbd> choose <kbd>Enter</kbd> go</p>
+      </nav>
     </div>
     <p className="scroll-cue" aria-hidden="true">Scroll</p>
   </section>;
