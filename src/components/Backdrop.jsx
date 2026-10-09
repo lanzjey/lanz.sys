@@ -2,9 +2,9 @@ import { useEffect, useRef } from "react";
 import { prefersReducedMotion } from "../lib/utils";
 
 // The living background, three layers deep:
-//   1. a WebGL shader at reduced resolution: a vivid azure gradient, rippling water caustics,
-//      sweeping diagonal light bands and a breathing glow;
-//   2. a 2D canvas of drifting light motes in three depth layers that react to scroll and pointer;
+//   1. a WebGL shader at reduced resolution: an underwater scene with a bright azure surface,
+//      rippling caustics and swaying light shafts that sinks to deep navy as you scroll down;
+//   2. a 2D canvas of rising bubbles and light motes in three depth layers (scroll and pointer parallax);
 //   3. skewed glass shards that shift with scroll and pointer for a subtle 3D parallax.
 // Everything stops when the tab is hidden, drops to a lighter setup on touch devices, and falls
 // back to a CSS gradient on reduced motion or data-saver. <html data-dark-hour="1"> tints it green.
@@ -15,32 +15,35 @@ precision highp float;
 #else
 precision mediump float;
 #endif
-uniform vec2 r; uniform float t; uniform float dh; uniform vec2 m;
+uniform vec2 r; uniform float t; uniform float dh; uniform float d; uniform vec2 m;
 void main(){
   vec2 uv = gl_FragCoord.xy / r;
   float asp = r.x / r.y;
-  vec2 p = vec2(uv.x * asp, uv.y) * 5.0 + m * .5;
+  vec2 p = vec2(uv.x * asp, uv.y) * 4.5 + m * .5;
   vec2 i = p; float c = 1.0; float inten = .0065;
   for (int n = 0; n < 4; n++) {
-    float tt = t * .24 * (1.0 - 3.2 / float(n + 1));
+    float tt = t * .26 * (1.0 - 3.2 / float(n + 1));
     i = p + vec2(cos(tt - i.x) + sin(tt + i.y), sin(tt - i.y) + cos(tt + i.x));
     c += 1.0 / length(vec2(p.x / (sin(i.x + tt) / inten), p.y / (cos(i.y + tt) / inten)));
   }
   c /= 4.0; c = 1.17 - pow(c, 1.35);
-  float w = pow(abs(c), 6.0);
-  float g = clamp(uv.y * .72 + uv.x * .5, 0.0, 1.0);
-  vec3 base = mix(vec3(.01, .03, .12), vec3(.05, .27, .85), g * g);
-  float band = sin((uv.x * asp * .9 - uv.y * 1.3) * 5.5 + t * .35);
-  band = pow(max(band, 0.0), 8.0) * (.1 + .22 * uv.y);
-  vec2 gp = uv - vec2(.74 + sin(t * .2) * .03, .64);
-  float glow = .24 / (1.0 + 9.0 * dot(gp, gp) * asp);
-  vec3 col = base + vec3(.2, .62, 1.0) * w * .6 + vec3(.25, .65, 1.0) * band + vec3(.1, .45, 1.0) * glow;
-  col += (fract(sin(dot(gl_FragCoord.xy + t, vec2(12.9898, 78.233))) * 43758.5453) - .5) * .022;
-  vec3 dhBase = mix(vec3(.0, .04, .03), vec3(.03, .32, .2), g * g);
-  vec3 dhCol = dhBase + vec3(.3, 1.0, .65) * w * .55 + vec3(.3, 1.0, .6) * band * .8 + vec3(.2, .9, .5) * glow;
+  float w = clamp(pow(abs(c), 9.0), 0.0, 1.0);
+  float y = uv.y;
+  vec3 topC = mix(vec3(.10, .70, 1.0), vec3(.04, .34, .95), d);
+  vec3 midC = mix(vec3(.02, .28, .98), vec3(.01, .12, .6), d);
+  vec3 botC = mix(vec3(.01, .07, .56), vec3(.005, .03, .2), d);
+  vec3 base = mix(mix(botC, midC, smoothstep(0.0, .55, y)), topC, smoothstep(.42, 1.0, y));
+  float s = sin((uv.x * asp * 1.1 + (1.0 - y) * .9) * 7.0 + sin(t * .18 + uv.x * 3.0) * 1.2 + t * .14);
+  float rays = pow(max(s, 0.0), 6.0) * smoothstep(.1, 1.0, y) * .3 * (1.0 - d * .7);
+  float surf = smoothstep(.84, 1.0, y) * (.5 + .5 * sin(uv.x * asp * 26.0 + sin(y * 30.0 + t * 1.2) * 2.0 - t * 1.4)) * .22;
+  vec3 col = base + vec3(.6, .9, 1.0) * w * (.18 + .3 * y) * (1.0 - .5 * d) + vec3(.6, .9, 1.0) * (rays * .55 + surf * .6);
+  col += (fract(sin(dot(gl_FragCoord.xy + t, vec2(12.9898, 78.233))) * 43758.5453) - .5) * .02;
+  vec3 dhBase = mix(mix(vec3(.0, .05, .04), vec3(.02, .22, .15), smoothstep(0.0, .6, y)), vec3(.05, .42, .3), smoothstep(.5, 1.0, y));
+  vec3 dhCol = dhBase + vec3(.4, 1.0, .7) * w * (.2 + .4 * y) + vec3(.4, 1.0, .7) * (rays + surf) * .8;
   col = mix(col, dhCol, dh);
-  float vig = smoothstep(1.3, .3, length(uv - .5));
-  gl_FragColor = vec4(col * (.6 + .4 * vig), 1.0);
+  col = 1.0 - exp(-col * 1.25);
+  float vig = smoothstep(1.4, .3, length(uv - .5));
+  gl_FragColor = vec4(col * (.78 + .22 * vig), 1.0);
 }`;
 
 const SHARDS = [
@@ -87,11 +90,11 @@ export default function Backdrop() {
         const position = gl.getAttribLocation(program, "p");
         gl.enableVertexAttribArray(position);
         gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-        uniforms = Object.fromEntries(["r", "t", "dh", "m"].map((name) => [name, gl.getUniformLocation(program, name)]));
+        uniforms = Object.fromEntries(["r", "t", "dh", "d", "m"].map((name) => [name, gl.getUniformLocation(program, name)]));
       } else gl = null;
     }
 
-    // Layer 2: light motes in three depth bands.
+    // Layer 2: bubbles and light motes in three depth bands.
     const fx = fxCanvas.getContext("2d");
     const coarse = window.matchMedia("(pointer: coarse)").matches;
     const motes = Array.from({ length: coarse ? 30 : 72 }, () => ({ x: Math.random(), y: Math.random(), z: .2 + Math.random() * .8, ph: Math.random() * 6.28 }));
@@ -126,6 +129,7 @@ export default function Backdrop() {
     let sx = 0;
     let sy = 0;
     let sScroll = scrollY;
+    let depth = 0;
     const draw = (now) => {
       frame = requestAnimationFrame(draw);
       tick += 1;
@@ -134,6 +138,8 @@ export default function Backdrop() {
       sx += (pointer.x - sx) * .06;
       sy += (pointer.y - sy) * .06;
       sScroll += (scrollY - sScroll) * .12;
+      const room = document.documentElement.scrollHeight - height;
+      depth += ((room > 0 ? Math.min(1, Math.max(0, scrollY / room)) : 0) - depth) * .05;
       root.style.setProperty("--mx", sx.toFixed(3));
       root.style.setProperty("--my", sy.toFixed(3));
       root.style.setProperty("--sy", sScroll.toFixed(0));
@@ -142,24 +148,31 @@ export default function Backdrop() {
         gl.uniform2f(uniforms.r, glCanvas.width, glCanvas.height);
         gl.uniform1f(uniforms.t, t % 3600);
         gl.uniform1f(uniforms.dh, tint);
+        gl.uniform1f(uniforms.d, depth);
         gl.uniform2f(uniforms.m, sx, sy);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
       }
 
       fx.clearRect(0, 0, width, height);
-      const red = Math.round(150 - 30 * tint);
-      const green = Math.round(225 + 30 * tint);
-      const blue = Math.round(255 - 65 * tint);
-      for (const mote of motes) {
+      const rgb = tint > .5 ? "190, 255, 215" : "235, 250, 255";
+      motes.forEach((mote, index) => {
         const drift = Math.sin(t * .3 + mote.ph) * 22 * mote.z;
         const x = ((mote.x * width + drift + sx * 90 * mote.z) % width + width) % width;
-        const y = (((mote.y * height - t * 14 * mote.z - sScroll * .28 * mote.z) % height) + height) % height;
-        const flicker = .65 + .35 * Math.sin(t * 1.4 + mote.ph * 3);
-        fx.fillStyle = `rgba(${red}, ${green}, ${blue}, ${(.18 + .5 * mote.z) * flicker})`;
-        fx.beginPath();
-        fx.arc(x, y, .8 + mote.z * 2.4, 0, 6.2832);
-        fx.fill();
-      }
+        const y = (((mote.y * height - t * 16 * mote.z - sScroll * .3 * mote.z) % height) + height) % height;
+        const flicker = .7 + .3 * Math.sin(t * 1.4 + mote.ph * 3);
+        if (index % 3 === 0) {
+          fx.strokeStyle = `rgba(${rgb}, ${(.2 + .45 * mote.z) * flicker})`;
+          fx.lineWidth = 1.2;
+          fx.beginPath();
+          fx.arc(x, y, 3 + mote.z * 9, 0, 6.2832);
+          fx.stroke();
+        } else {
+          fx.fillStyle = `rgba(${rgb}, ${(.25 + .5 * mote.z) * flicker})`;
+          fx.beginPath();
+          fx.arc(x, y, .9 + mote.z * 2.2, 0, 6.2832);
+          fx.fill();
+        }
+      });
     };
     const onVisibility = () => {
       cancelAnimationFrame(frame);
@@ -176,7 +189,6 @@ export default function Backdrop() {
       window.removeEventListener("pointermove", onPointer);
       window.removeEventListener("scroll", onScroll);
       glCanvas.classList.remove("is-live");
-      gl?.getExtension("WEBGL_lose_context")?.loseContext();
     };
   }, []);
 
