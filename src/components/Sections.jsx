@@ -3,7 +3,7 @@ import { Arrow, Eyebrow, HPBar, ReturnToWorld, SectionHeader, ShowMore } from ".
 import { useShowMore } from "../hooks/useShowMore";
 import ContactForm from "./ContactForm";
 import SocialIcon from "./SocialIcon";
-import { isVideoFile, toEmbedUrl } from "../services/content";
+import { PROJECT_RANKS, RANK_GUIDE, SKILL_RANK, isVideoFile, toEmbedUrl } from "../services/content";
 import { isFilled, pad, tilt } from "../lib/utils";
 
 const icons = {
@@ -51,7 +51,7 @@ export function About({ profile, onNavigate }) {
   ].filter(([, value]) => isFilled(value));
   return <section id="about" className="section" aria-labelledby="about-title">
     <div className="container">
-      <SectionHeader id="about-title" index="01" eyebrow="Player profile" word="ABOUT" title={<>The person behind <em>the work.</em></>} />
+      <SectionHeader id="about-title" index="01" eyebrow="Status window" word="ABOUT" title={<>The person behind <em>the work.</em></>} />
       <div className="about-grid">
         <figure className="profile-card tilt scroll-fx" {...tilt}>
           <div className="profile-card-frame">
@@ -94,13 +94,13 @@ export function Skills({ skills, onNavigate }) {
   const more = useShowMore(visible, 6);
   return <section id="skills" className="section" aria-labelledby="skills-title">
     <div className="container">
-      <SectionHeader id="skills-title" index="02" word="SKILLS" eyebrow="Skill slots" title={<>Skills I bring <em>to your project.</em></>} text="A snapshot of the capabilities I'm building across software, creative, and digital work." />
+      <SectionHeader id="skills-title" index="02" word="SKILLS" eyebrow="Skills · Stats" title={<>Skills I bring <em>to your project.</em></>} text="A snapshot of the capabilities I'm building across software, creative, and digital work." />
       <FilterTabs label="Filter skills by branch" items={categories} value={category} onChange={setCategory} counts={counts} />
       <div><div className="card-grid skill-grid" key={category}>
         {more.shown.map((skill, index) => {
           const steps = levelSteps[skill.level?.toLowerCase()] || 0;
           return <article key={skill.name} className={`card skill-card tilt scroll-fx ${index >= more.limit ? "is-extra" : ""}`} style={{ "--stagger": index, "--extra": index - more.limit }} {...tilt}>
-            <div className="card-meta"><span>{skill.category}</span>{steps > 0 && <span className="level-badge">{skill.level}</span>}</div>
+            <div className="card-meta"><span>{skill.category}</span>{steps > 0 && <span className="level-badge"><i className="rank-mini">{SKILL_RANK[skill.level?.toLowerCase()]}</i>{skill.level}</span>}</div>
             <h3>{skill.name}</h3>
             {steps > 0 && <div className="proficiency" role="img" aria-label={`${skill.level}: proficiency ${steps * 250} of 1000`}>
               <span className="proficiency-track"><i style={{ "--fill": steps / 4 }} /></span>
@@ -128,7 +128,7 @@ export function Services({ services, email, onNavigate }) {
   const more = useShowMore(services, 4);
   return <section id="services" className="section" aria-labelledby="services-title">
     <div className="container">
-      <SectionHeader id="services-title" index="03" word="ABILITY" eyebrow="Abilities · Services" title={<>Digital work, <em>ready to deploy.</em></>} text="Ways I can help — from creative production to organized, dependable digital support." />
+      <SectionHeader id="services-title" index="03" word="ABILITY" eyebrow="Quest board · Services" title={<>Digital work, <em>ready to deploy.</em></>} text="Ways I can help — from creative production to organized, dependable digital support." />
       <div className="card-grid service-grid">
         {more.shown.map((service, index) => <article key={service.name} className={`card service-card tilt scroll-fx ${index >= more.limit ? "is-extra" : ""}`} style={{ "--stagger": index, "--extra": index - more.limit }} {...tilt}>
           <div className="service-head">
@@ -160,12 +160,19 @@ export function Services({ services, email, onNavigate }) {
 }
 
 /* ── 04 Missions ────────────────────────────────────────── */
+const statusLabels = { Completed: "Cleared", Ongoing: "In progress", "In Progress": "In progress", Planned: "Gate locked", "On Hold": "On hold", Archived: "Archived" };
+
+// Hexagonal rank badge: E (small task) up to S (exceptional).
+function RankBadge({ rank }) {
+  return <span className={`rank-badge rank-${rank.toLowerCase()}`} role="img" aria-label={`Rank ${rank}`}><b aria-hidden="true">{rank}</b></span>;
+}
+
 function ProjectMedia({ project, index }) {
   if (project.media) return <div className="project-media"><img src={project.media} alt="" loading="lazy" /></div>;
   return <div className={`project-media project-media-placeholder tone-${index % 3}`} aria-hidden="true">
     <span className="pm-grid" />
     <span className="pm-window"><span className="pm-bar"><i /><i /><i /></span><span className="pm-body"><span className="pm-side" /><span className="pm-map"><i /><i /><i /></span></span></span>
-    <span className="pm-label">Mission {pad(index + 1, 3)}</span>
+    <span className="pm-label">Dungeon {pad(index + 1, 3)}</span>
   </div>;
 }
 
@@ -177,15 +184,22 @@ export function Projects({ projects, onOpen, onNavigate }) {
   const more = useShowMore(visible, 6);
   return <section id="projects" className="section" aria-labelledby="projects-title">
     <div className="container">
-      <SectionHeader id="projects-title" index="04" word="QUESTS" eyebrow="Quest log · Projects" title={<>Selected <em>projects.</em></>} text="Projects, experiments, and work in progress. Open one to see the goal, what I did, and the results." />
-      <FilterTabs label="Filter missions by category" items={categories} value={filter} onChange={setFilter} counts={counts} />
+      <SectionHeader id="projects-title" index="04" word="DUNGEONS" eyebrow="Dungeon gates · Projects" title={<>Selected <em>projects.</em></>} text="Projects, experiments, and work in progress. Open one to see the goal, what I did, and the results." />
+      {projects.some((project) => project.rank) && <details className="rank-guide scroll-fx">
+        <summary>How project ranks work</summary>
+        <p>Every project is ranked E to S for its real complexity and scope, with a reason shown on the card.</p>
+        <ul>{PROJECT_RANKS.map((rank) => <li key={rank}><RankBadge rank={rank} /><span>{RANK_GUIDE[rank]}</span></li>)}</ul>
+      </details>}
+      <FilterTabs label="Filter projects by category" items={categories} value={filter} onChange={setFilter} counts={counts} />
       <div><div className="project-grid" key={filter}>
         {more.shown.map(({ project, index }, order) => <button key={`${project.name}-${index}`} type="button" className={`card project-card tilt scroll-fx ${project.featured && filter === "All" ? "is-featured" : ""} ${order >= more.limit ? "is-extra" : ""}`} style={{ "--stagger": order, "--extra": order - more.limit }} onClick={() => onOpen(project)} {...tilt} aria-label={`View project: ${project.name}`}>
           <ProjectMedia project={project} index={index} />
+          {project.rank && <span className="project-rank"><RankBadge rank={project.rank} /></span>}
           <span className="project-body">
-            <span className="card-meta"><span>{project.category} · {project.year}</span><span className="status-pill"><span className="status-dot" aria-hidden="true" />{project.status}</span></span>
+            <span className="card-meta"><span>{project.category} · {project.year}</span><span className="status-pill"><span className="status-dot" aria-hidden="true" />{statusLabels[project.status] || project.status}</span></span>
             <span className="project-title">{project.name}</span>
             <span className="project-description">{project.description}</span>
+            {project.rank && <span className="rank-reason"><b>Rank {project.rank}</b>{isFilled(project.rankReason) ? ` · ${project.rankReason}` : ""}</span>}
             <span className="chip-list">{project.tech.filter(isFilled).map((tech) => <span key={tech}>{tech}</span>)}</span>
             <span className="card-link">View project <Arrow /></span>
           </span>
@@ -208,7 +222,7 @@ export function Experience({ education, experience, certificates, onNavigate }) 
   const credentialMore = useShowMore(credentials, 3);
   return <section id="experience" className="section" aria-labelledby="experience-title">
     <div className="container">
-      <SectionHeader id="experience-title" index="05" word="JOURNEY" eyebrow="Progression" title={<>Growth through <em>practice.</em></>} text="Education, experience, and credentials earned along the way." />
+      <SectionHeader id="experience-title" index="05" word="JOURNEY" eyebrow="Level progression" title={<>Growth through <em>practice.</em></>} text="Education, experience, and credentials earned along the way." />
       <div className="experience-grid">
         <ol id="education" className="timeline">
           {timeline.shown.map((item, index) => <li key={`${item.kind}-${index}`} className={`timeline-item ${index >= timeline.limit ? "is-extra" : ""}`} style={{ "--stagger": index, "--extra": index - timeline.limit }}>
@@ -260,7 +274,7 @@ export function Loadout({ tools, onNavigate }) {
   const more = useShowMore(visible, 8);
   return <section id="loadout" className="section" aria-labelledby="loadout-title">
     <div className="container">
-      <SectionHeader id="loadout-title" index="06" word="LOADOUT" eyebrow="Inventory · Loadout" title={<>Tools for <em>the build.</em></>} text="The software in my current working kit." />
+      <SectionHeader id="loadout-title" index="06" word="LOADOUT" eyebrow="Inventory · Tools" title={<>Tools for <em>the build.</em></>} text="The software in my current working kit." />
       <FilterTabs label="Filter tools by category" items={categories} value={category} onChange={setCategory} counts={counts} />
       <div><ul className="tool-grid" key={category}>
         {more.shown.map((tool, index) => <li key={`${tool.name}-${index}`} className={`card tool-card tilt scroll-fx ${index >= more.limit ? "is-extra" : ""}`} style={{ "--stagger": index, "--extra": index - more.limit }} {...tilt}>
@@ -310,7 +324,7 @@ export function Contact({ profile, socialLinks, resume, onNavigate }) {
       <span className="bg-word scroll-fx" aria-hidden="true">MESSAGE</span>
       <div className="contact-panel scroll-fx">
         <div className="contact-info">
-          <Eyebrow index="08">Message window</Eyebrow>
+          <Eyebrow index="08">System message</Eyebrow>
           <h2 id="contact-title">Let's build something <em>together.</em></h2>
           <p className="section-lead">Have an idea, a project, or need thoughtful digital support? Send a message and I'll get back to you.</p>
           <p className="hud-chip"><span className="status-dot" aria-hidden="true" />{profile.availability}</p>
@@ -361,9 +375,10 @@ export function ProjectDialog({ project, onClose }) {
         {project.video ? <MediaItem item={{ src: project.video, alt: `${project.name} video` }} poster={project.media} /> : <ProjectMedia project={project} index={0} />}
       </div>
       <div className="dialog-body">
-        <Eyebrow index="Quest">{project.category}</Eyebrow>
+        <Eyebrow index="Dungeon">{project.category}</Eyebrow>
         <h2 id="dialog-title">{project.name}</h2>
         <p className="dialog-lead">{project.description}</p>
+        {project.rank && <p className="dialog-rank"><RankBadge rank={project.rank} /><span><b>Rank {project.rank}.</b> {isFilled(project.rankReason) ? project.rankReason : RANK_GUIDE[project.rank]}</span></p>}
         {facts.length > 0 && <dl className="dialog-facts">{facts.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>}
         {details.map(([label, value]) => <section key={label} className="dialog-section"><h3>{label}</h3><p>{value}</p></section>)}
         {features.length > 0 && <section className="dialog-section"><h3>Features</h3><ul className="tick-list">{features.map((feature) => <li key={feature}>{feature}</li>)}</ul></section>}

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { scrollToElement } from "../lib/scroll";
 
 export function Eyebrow({ index, children }) {
-  return <p className="eyebrow"><span className="sao-diamond" aria-hidden="true" /><span className="eyebrow-index">{index}</span>{children}</p>;
+  return <p className="eyebrow"><span className="sys-diamond" aria-hidden="true" /><span className="eyebrow-index">{index}</span>{children}</p>;
 }
 
 // Section title with a giant outlined word drifting behind it as you scroll.
@@ -77,7 +77,7 @@ export function ShowMore({ hasMore, expanded, hidden, toggle }) {
   };
   return <div className="show-more">
     <button type="button" className={`show-more-button ${expanded ? "is-expanded" : ""}`} aria-expanded={expanded} onClick={onClick}>
-      <span className="sao-diamond" aria-hidden="true" />
+      <span className="sys-diamond" aria-hidden="true" />
       {expanded ? "Show less" : <>Show more<span className="show-more-count">+{hidden}</span></>}
       <Arrow direction={expanded ? "up" : "down"} />
     </button>

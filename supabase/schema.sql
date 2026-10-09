@@ -143,6 +143,8 @@ create table if not exists public.projects (
   video text,
   gallery jsonb not null default '[]'::jsonb,
   github_url text,
+  rank text check (rank in ('E', 'D', 'C', 'B', 'A', 'S')),
+  rank_reason text,
   live_url text,
   featured boolean not null default false,
   sort_order integer not null default 0,

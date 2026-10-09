@@ -47,9 +47,9 @@ export default function Hero({ profile, destinations, onNavigate }) {
         <span className="hud-corner hud-corner-tl" aria-hidden="true" /><span className="hud-corner hud-corner-tr" aria-hidden="true" />
         <span className="hud-corner hud-corner-bl" aria-hidden="true" /><span className="hud-corner hud-corner-br" aria-hidden="true" />
         <div className="hero-readout" aria-live="polite">
-          <span className="hero-readout-label">{selected ? `Teleport gate ${pad(activeIndex + 1)}` : "Floating world"}</span>
-          <strong>{selected ? selected.label : "Floor 01 · LANZ.SYS"}</strong>
-          <span className="hero-readout-detail">{selected ? selected.detail : `${destinations.length} gates stand around the castle. Select one to teleport.`}</span>
+          <span className="hero-readout-label">{selected ? `Gate ${pad(activeIndex + 1)}` : "Gate hub"}</span>
+          <strong>{selected ? selected.label : "LANZ.SYS · Hub"}</strong>
+          <span className="hero-readout-detail">{selected ? selected.detail : `${destinations.length} gates are open around the central Gate. Select one to enter.`}</span>
         </div>
       </div>
     </div>

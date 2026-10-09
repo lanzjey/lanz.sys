@@ -97,7 +97,10 @@ function App() {
     <footer className="footer">
       <div className="container footer-inner">
         <span className="brand"><span className="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span className="brand-name">LANZ<b>.SYS</b></span></span>
-        <span className="footer-copy">© {new Date().getFullYear()} {profile.name}. Built with React &amp; Three.js.</span>
+        <span className="footer-copy">
+          <span>© {new Date().getFullYear()} {profile.name}. A Solo Leveling-inspired portfolio, built with React.</span>
+          <small>Fan-inspired design with original artwork. Solo Leveling belongs to its respective owners; this site is not affiliated with or endorsed by them.</small>
+        </span>
         <a className="footer-top" href="#home" onClick={(event) => { event.preventDefault(); navigate("home"); }}>Return to World <Arrow direction="up" /></a>
       </div>
     </footer>

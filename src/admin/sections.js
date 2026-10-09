@@ -1,6 +1,6 @@
 // Every admin editor is generated from these definitions.
 // To add a field: add the column in supabase/schema.sql, then add it here.
-import { PLATFORM_LABELS, PROJECT_STATUSES, SERVICE_AVAILABILITY, SKILL_LEVELS, SOCIAL_PLATFORMS } from "../services/content";
+import { PLATFORM_LABELS, PROJECT_RANKS, PROJECT_STATUSES, RANK_GUIDE, SERVICE_AVAILABILITY, SKILL_LEVELS, SOCIAL_PLATFORMS } from "../services/content";
 
 const httpUrl = (value) => (!value || /^https?:\/\/\S+$/i.test(value) ? "" : "Use a full link starting with https://");
 
@@ -58,6 +58,16 @@ export const SECTIONS = [
       { name: "category", label: "Category", type: "category" },
       { name: "status", label: "Status", type: "select", options: PROJECT_STATUSES },
       { name: "year", label: "Year / date", type: "text", help: "e.g. 2026" },
+      {
+        name: "rank", label: "Dungeon rank (E to S)", type: "select", options: PROJECT_RANKS,
+        optionLabels: Object.fromEntries(PROJECT_RANKS.map((rank) => [rank, `${rank}-rank: ${RANK_GUIDE[rank]}`])),
+        help: "Rate the real complexity and scope, not how proud you are. E = a day of work, S = exceptional. Leave empty to show no rank.",
+      },
+      {
+        name: "rank_reason", label: "Why this rank?", type: "text",
+        help: "One honest line, e.g. “Three connected systems, several weeks, used by real people”.",
+        validate: (value, form) => (form.rank && !value ? "Add one line explaining the rank." : ""),
+      },
       { name: "featured", label: "Featured (shown large at the top)", type: "toggle" },
       { name: "description", label: "Summary", type: "textarea", rows: 3, required: true },
       { name: "cover_image", label: "Cover image", type: "image", folder: "projects" },

@@ -16,5 +16,13 @@
   "vars": {
     "SUPABASE_URL": "https://xojhmfihdcitldvzfcim.supabase.co",
     "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_VlyXTEIfFHtuYfFBkMvdIQ_lkp9673j"
+  },
+  // Branch previews (`wrangler preview`) need their own values. These point at the same public
+  // Supabase project, so a preview shows the real content. Previews do not run the daily cron.
+  "previews": {
+    "vars": {
+      "SUPABASE_URL": "https://xojhmfihdcitldvzfcim.supabase.co",
+      "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_VlyXTEIfFHtuYfFBkMvdIQ_lkp9673j"
+    }
   }
 }

@@ -3,7 +3,7 @@ import { scrollState } from "../lib/scroll";
 import { prefersReducedMotion } from "../lib/utils";
 
 const GLYPHS = "01010110100101101001ABCDEF0123456789";
-const PARTICLE_COLORS = ["200, 236, 255", "255, 255, 255", "255, 178, 92", "120, 220, 255"];
+const PARTICLE_COLORS = ["205, 195, 255", "255, 255, 255", "139, 92, 246", "125, 190, 255"];
 
 // A single 2D canvas behind the whole site: light orbs, parallax particles,
 // falling machine-code streams and an occasional system scan line.
@@ -25,8 +25,8 @@ export default function AmbientBackground() {
 
     const orbs = [
       { x: .82, y: .12, r: .55, color: "40, 140, 255", speed: .00006, phase: 0 },
-      { x: .1, y: .7, r: .5, color: "255, 140, 50", speed: .00005, phase: 2 },
-      { x: .55, y: .95, r: .45, color: "120, 90, 255", speed: .00007, phase: 4 },
+      { x: .1, y: .7, r: .5, color: "139, 92, 246", speed: .00005, phase: 2 },
+      { x: .55, y: .95, r: .45, color: "109, 40, 217", speed: .00007, phase: 4 },
     ];
 
     const makeStream = (initial) => {
@@ -99,7 +99,7 @@ export default function AmbientBackground() {
           if (y < -lineHeight || y > height + lineHeight) continue;
           const fade = 1 - i / stream.length;
           const head = i === 0;
-          ctx.fillStyle = head ? `rgba(220, 248, 255, ${.32 * stream.depth})` : `rgba(90, 200, 255, ${.11 * fade * stream.depth})`;
+          ctx.fillStyle = head ? `rgba(228, 218, 255, ${.32 * stream.depth})` : `rgba(150, 120, 255, ${.11 * fade * stream.depth})`;
           ctx.fillText(stream.chars[i % stream.chars.length], stream.x, y);
         }
       });
@@ -127,11 +127,11 @@ export default function AmbientBackground() {
         else {
           const y = progress * height;
           const gradient = ctx.createLinearGradient(0, y - 60, 0, y);
-          gradient.addColorStop(0, "rgba(255, 170, 80, 0)");
-          gradient.addColorStop(1, "rgba(255, 170, 80, .05)");
+          gradient.addColorStop(0, "rgba(139, 92, 246, 0)");
+          gradient.addColorStop(1, "rgba(139, 92, 246, .06)");
           ctx.fillStyle = gradient;
           ctx.fillRect(0, y - 60, width, 60);
-          ctx.fillStyle = "rgba(255, 190, 110, .18)";
+          ctx.fillStyle = "rgba(196, 181, 253, .2)";
           ctx.fillRect(0, y, width, 1);
         }
       }

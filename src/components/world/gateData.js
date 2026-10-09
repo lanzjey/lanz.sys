@@ -5,14 +5,14 @@
 // Gate-local coordinates: x is centred, y runs up from the gate's feet (y = 0).
 
 export const gateTheme = {
-  profile: { a: "#d7f1ff", b: "#5fe3ff" },
-  skills: { a: "#5fe3ff", b: "#9c87ff" },
-  services: { a: "#c4b5ff", b: "#ff8fd0" },
-  missions: { a: "#ffcb7a", b: "#ff8a2b" },
-  experience: { a: "#9dff7a", b: "#5fe3ff" },
-  loadout: { a: "#ffe0a0", b: "#ffa53d" },
-  resume: { a: "#ffd6e0", b: "#ff6b9a" },
-  contact: { a: "#7fd4ff", b: "#6a8dff" },
+  profile: { a: "#e0e7ff", b: "#6366f1" },
+  skills: { a: "#a8d4ff", b: "#3b82f6" },
+  services: { a: "#ddd6fe", b: "#8b5cf6" },
+  missions: { a: "#c4b5fd", b: "#6d28d9" },
+  experience: { a: "#bae6fd", b: "#0ea5e9" },
+  loadout: { a: "#c7d2fe", b: "#4f46e5" },
+  resume: { a: "#f5d0fe", b: "#c026d3" },
+  contact: { a: "#bfdbfe", b: "#2563eb" },
 };
 
 // Outline of each gate and the vertical centre of its portal.

@@ -21,7 +21,7 @@ export default function LinkStartTunnel({ speed = .2, colorful = false, reducedM
       x: (Math.random() - .5) * 2,
       y: (Math.random() - .5) * 2,
       z: Math.random() * .9 + .1,
-      hue: Math.random() * 360,
+      hue: 235 + Math.random() * 75,
     });
     for (let i = 0; i < 420; i += 1) stars.push(spawn());
 
@@ -37,7 +37,7 @@ export default function LinkStartTunnel({ speed = .2, colorful = false, reducedM
     const draw = (dt) => {
       current += (target.current.speed - current) * Math.min(1, dt * 2.2);
       saturation += ((target.current.colorful ? 1 : 0) - saturation) * Math.min(1, dt * 2);
-      ctx.fillStyle = `rgba(3, 6, 12, ${Math.max(.18, .55 - current * .35)})`;
+      ctx.fillStyle = `rgba(4, 3, 12, ${Math.max(.18, .55 - current * .35)})`;
       ctx.fillRect(0, 0, width, height);
       const cx = width / 2;
       const cy = height / 2;

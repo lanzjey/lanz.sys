@@ -4,8 +4,8 @@ import { Arrow } from "./ui";
 import { prefersReducedMotion } from "../lib/utils";
 import { setQuickMode } from "../lib/preferences";
 
-// A nod to the full-dive sensory check before logging in.
-const checks = ["Touch", "Sight", "Hearing", "Taste", "Smell"];
+// The System scans the visitor, then asks whether they accept the invitation to enter.
+const checks = ["Scanning player", "Verifying identity", "Locating gate", "Syncing System"];
 const LINK_START_MS = 2300;
 
 // Phases: 0 sensory check → 1 LINK START tunnel → 2 welcome / login.
@@ -15,6 +15,7 @@ export default function IntroExperience({ profile, onEnter, ready = true }) {
   const [phase, setPhase] = useState(reducedMotion ? 2 : 0);
   const [checked, setChecked] = useState(reducedMotion ? checks.length : 0);
   const [requested, setRequested] = useState(false);
+  const [declined, setDeclined] = useState(false);
   const exiting = requested && ready;
 
   useEffect(() => {
@@ -34,6 +35,7 @@ export default function IntroExperience({ profile, onEnter, ready = true }) {
 
   // Entering waits for the portfolio content; the exit plays once it has arrived.
   const enter = useCallback(() => setRequested(true), []);
+  const decline = () => { setDeclined(true); window.setTimeout(() => setDeclined(false), 2200); };
   useEffect(() => {
     if (!exiting) return undefined;
     enterTimer.current = window.setTimeout(onEnter, reducedMotion ? 0 : 900);
@@ -66,28 +68,32 @@ export default function IntroExperience({ profile, onEnter, ready = true }) {
     </header>
 
     <div className="intro-stage">
-      <section className="intro-check sao-window" aria-label="Sensory check" aria-hidden={phase !== 0}>
-        <div className="sao-window-title"><span className="sao-diamond" aria-hidden="true" />System check</div>
+      <section className="intro-check sys-window" aria-label="System scan" aria-hidden={phase !== 0}>
+        <div className="sys-window-title"><span className="sys-diamond" aria-hidden="true" />System scan</div>
         <ul>
           {checks.map((label, index) => <li key={label} className={index < checked ? "is-ok" : ""}>
             <span>{label}</span><span className="intro-check-dots" aria-hidden="true" /><b>{index < checked ? "OK" : "··"}</b>
           </li>)}
         </ul>
-        <p className="intro-check-foot">Language: English · Account: {profile.name.split(" ")[0].toLowerCase()}</p>
+        <p className="intro-check-foot">Player: {profile.name.split(" ")[0].toLowerCase()} · Rank: unassigned</p>
       </section>
 
-      <h1 className="intro-linkstart" aria-hidden={phase !== 1}><span>Link</span> <span>Start</span></h1>
+      <h1 className="intro-linkstart" aria-hidden={phase !== 1}><span>Gate</span> <span>Open</span></h1>
 
       {phase === 2 && <section className="intro-ready" aria-labelledby="intro-title">
-        <p className="intro-welcome">Welcome to <b>LANZ.SYS</b></p>
+        <p className="intro-welcome"><b>[ SYSTEM ]</b> A new gate has appeared. You have been chosen as a Player.</p>
         <h1 id="intro-title" className="intro-name"><span>{nameWords.slice(0, -1).join(" ")}</span><span className="text-gradient">{nameWords.at(-1)}</span></h1>
         <p className="intro-role">{profile.role}</p>
-        <button className="button button-primary button-large" type="button" onClick={enter} disabled={exiting} autoFocus>{requested && !ready ? "Syncing world data…" : <>Enter world <Arrow direction="right" /></>}</button>
-        <button className="button button-ghost" type="button" onClick={() => { setQuickMode(true); enter(); }} disabled={exiting}>Quick view</button>
-        <p className="intro-hint">Quick view skips the animations. Or press <kbd>Enter</kbd> to enter.</p>
+        <div className="intro-choices">
+          <button className="button button-primary button-large" type="button" onClick={enter} disabled={exiting} autoFocus>{requested && !ready ? "Syncing world data…" : <>Accept <Arrow direction="right" /></>}</button>
+          <button className="button button-ghost button-large" type="button" onClick={decline} disabled={exiting}>Decline</button>
+        </div>
+        <p className="intro-declined" role="status">{declined ? "[ SYSTEM ] Declined. The System will ask again…" : ""}</p>
+        <button className="intro-quick" type="button" onClick={() => { setQuickMode(true); enter(); }} disabled={exiting}>Quick view</button>
+        <p className="intro-hint">Quick view skips the animations. Or press <kbd>Enter</kbd> to accept.</p>
       </section>}
     </div>
 
-    <footer className="intro-footer"><span>Full-dive portfolio environment</span><span>{["Checking", "Connecting", "Ready"][phase]}</span></footer>
+    <footer className="intro-footer"><span>Shadow dungeon portfolio</span><span>{["Scanning", "Opening gate", "Awaiting response"][phase]}</span></footer>
   </main>;
 }
