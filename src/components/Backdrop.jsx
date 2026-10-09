@@ -2,8 +2,8 @@ import { useEffect, useRef } from "react";
 import { prefersReducedMotion } from "../lib/utils";
 
 // The living background, three layers deep:
-//   1. a WebGL shader at reduced resolution: an underwater scene with a bright azure surface,
-//      rippling caustics and swaying light shafts that sinks to deep navy as you scroll down;
+//   1. a WebGL shader at reduced resolution: a moonlit night sea of five layered, flowing waves
+//      with cyan crest lines, moon glints and a soft horizon haze that darkens as you scroll;
 //   2. a 2D canvas of rising bubbles and light motes in three depth layers (scroll and pointer parallax);
 //   3. skewed glass shards that shift with scroll and pointer for a subtle 3D parallax.
 // Everything stops when the tab is hidden, drops to a lighter setup on touch devices, and falls
@@ -16,34 +16,42 @@ precision highp float;
 precision mediump float;
 #endif
 uniform vec2 r; uniform float t; uniform float dh; uniform float d; uniform vec2 m;
+float waveY(float x, float base, float amp, float freq, float spd, float ph) {
+  return base + amp * sin(x * freq + t * spd + ph) + amp * .55 * sin(x * freq * 2.3 - t * spd * .7 + ph * 1.7) + amp * .25 * sin(x * freq * 4.1 + t * spd * 1.3 + ph * .4);
+}
 void main(){
   vec2 uv = gl_FragCoord.xy / r;
   float asp = r.x / r.y;
-  vec2 p = vec2(uv.x * asp, uv.y) * 4.5 + m * .5;
-  vec2 i = p; float c = 1.0; float inten = .0065;
-  for (int n = 0; n < 4; n++) {
-    float tt = t * .26 * (1.0 - 3.2 / float(n + 1));
-    i = p + vec2(cos(tt - i.x) + sin(tt + i.y), sin(tt - i.y) + cos(tt + i.x));
-    c += 1.0 / length(vec2(p.x / (sin(i.x + tt) / inten), p.y / (cos(i.y + tt) / inten)));
+  float x = uv.x * asp;
+  vec3 sky = mix(vec3(.008, .02, .07), vec3(.02, .08, .26), smoothstep(.15, 1.0, uv.y));
+  vec2 mp = vec2(asp * .70, .74 + sin(t * .15) * .01);
+  float md = length(vec2(x, uv.y) - mp);
+  sky += vec3(.12, .5, 1.0) * .13 / (1.0 + 16.0 * md * md);
+  vec3 col = sky;
+  float refl = exp(-pow((x - mp.x) * 2.6, 2.0));
+  for (int i = 0; i < 5; i++) {
+    float fi = float(i);
+    float k = fi / 4.0;
+    float base = .56 - fi * .115 + m.y * .012 * (fi + 1.0);
+    float amp = .010 + k * .022;
+    float yy = waveY(x + m.x * .06 * (fi + 1.0), base, amp, 2.6 + fi * 1.3, .30 + fi * .11, fi * 2.1);
+    float above = uv.y - yy;
+    float fill = smoothstep(.0025, -.0025, above);
+    vec3 lc = mix(vec3(.03, .16, .5), vec3(.012, .05, .22), k);
+    lc *= .55 + .45 * smoothstep(-.28, 0.0, above);
+    float ripple = pow(.5 + .5 * sin(above * 110.0 + x * 7.0 + t * (.6 + fi * .2)), 3.0) * .045;
+    float glint = refl * pow(.5 + .5 * sin(x * 95.0 + sin(above * 38.0 + t * .9 + fi) * 3.2 - t * 1.6), 9.0) * (1.0 - k * .5) * smoothstep(-.2, 0.0, above);
+    vec3 layer = lc + vec3(.2, .6, 1.0) * ripple * (1.0 - k * .4) + vec3(.55, .9, 1.0) * glint * .34;
+    layer += vec3(.25, .75, 1.0) * smoothstep(.014, 0.0, abs(above)) * (.5 - k * .25);
+    col = mix(col, layer, fill);
   }
-  c /= 4.0; c = 1.17 - pow(c, 1.35);
-  float w = clamp(pow(abs(c), 9.0), 0.0, 1.0);
-  float y = uv.y;
-  vec3 topC = mix(vec3(.10, .70, 1.0), vec3(.04, .34, .95), d);
-  vec3 midC = mix(vec3(.02, .28, .98), vec3(.01, .12, .6), d);
-  vec3 botC = mix(vec3(.01, .07, .56), vec3(.005, .03, .2), d);
-  vec3 base = mix(mix(botC, midC, smoothstep(0.0, .55, y)), topC, smoothstep(.42, 1.0, y));
-  float s = sin((uv.x * asp * 1.1 + (1.0 - y) * .9) * 7.0 + sin(t * .18 + uv.x * 3.0) * 1.2 + t * .14);
-  float rays = pow(max(s, 0.0), 6.0) * smoothstep(.1, 1.0, y) * .3 * (1.0 - d * .7);
-  float surf = smoothstep(.84, 1.0, y) * (.5 + .5 * sin(uv.x * asp * 26.0 + sin(y * 30.0 + t * 1.2) * 2.0 - t * 1.4)) * .22;
-  vec3 col = base + vec3(.6, .9, 1.0) * w * (.18 + .3 * y) * (1.0 - .5 * d) + vec3(.6, .9, 1.0) * (rays * .55 + surf * .6);
-  col += (fract(sin(dot(gl_FragCoord.xy + t, vec2(12.9898, 78.233))) * 43758.5453) - .5) * .02;
-  vec3 dhBase = mix(mix(vec3(.0, .05, .04), vec3(.02, .22, .15), smoothstep(0.0, .6, y)), vec3(.05, .42, .3), smoothstep(.5, 1.0, y));
-  vec3 dhCol = dhBase + vec3(.4, 1.0, .7) * w * (.2 + .4 * y) + vec3(.4, 1.0, .7) * (rays + surf) * .8;
-  col = mix(col, dhCol, dh);
-  col = 1.0 - exp(-col * 1.25);
-  float vig = smoothstep(1.4, .3, length(uv - .5));
-  gl_FragColor = vec4(col * (.78 + .22 * vig), 1.0);
+  col += vec3(.1, .35, .8) * exp(-pow((uv.y - .60) * 6.0, 2.0)) * .09;
+  col *= mix(1.0, .55, d);
+  float lum = dot(col, vec3(.3, .59, .11));
+  col = mix(col, vec3(lum * .35, lum * 1.35, lum * .85) + vec3(.0, .012, .01), dh);
+  col += (fract(sin(dot(gl_FragCoord.xy + t, vec2(12.9898, 78.233))) * 43758.5453) - .5) * .018;
+  col *= .8 + .2 * smoothstep(1.4, .3, length(uv - .5));
+  gl_FragColor = vec4(col, 1.0);
 }`;
 
 const SHARDS = [
