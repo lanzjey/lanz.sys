@@ -396,7 +396,8 @@ a.social-link:hover { border-color: var(--border-glow); color: var(--violet); ba
 /* ── Footer ───────────────────────────────────────────── */
 .footer { border-top: 1px solid var(--border); background: rgba(3, 6, 12, .75); }
 .footer-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding-block: 2rem; }
-.footer-copy { color: var(--text-quiet); font-size: .875rem; }
+.footer-copy { display: grid; gap: .3rem; max-width: 46rem; color: var(--text-quiet); font-size: .875rem; }
+.footer-copy small { color: var(--text-quiet); font-size: .75rem; line-height: 1.5; opacity: .85; }
 .footer-top { display: inline-flex; align-items: center; gap: .4rem; color: var(--text-muted); font: 500 .9rem var(--font-heading); transition: color .2s; }
 .footer-top:hover { color: var(--violet); }
 
