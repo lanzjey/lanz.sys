@@ -81,14 +81,14 @@ export default function ContactForm({ email }) {
 
   const sending = state.kind === "sending";
   return <form ref={formRef} className="contact-form" onSubmit={submit}>
-    <div className="contact-form-bar"><span className="terminal-dots" aria-hidden="true"><i /><i /><i /></span><span>new_message.txt</span></div>
+    <p className="form-title">Send a message</p>
     <label>Name<input name="name" autoComplete="name" placeholder="Your name" maxLength={120} required /></label>
     <label>Email<input name="email" type="email" autoComplete="email" placeholder="you@example.com" maxLength={254} required /></label>
     <label>Message<textarea name="message" rows="5" placeholder="Tell me about your project…" minLength={10} maxLength={5000} required /></label>
     {/* Honeypot: hidden from people and assistive tech; bots tend to fill it. */}
     <label className="form-trap" aria-hidden="true">Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
     {canSubmitOnline && <div ref={widgetRef} className="turnstile-slot" />}
-    <button className="button button-primary button-large" type="submit" disabled={sending}>{sending ? "Sending…" : <>Send message <Arrow /></>}</button>
+    <button className="btn btn-fill" type="submit" disabled={sending}>{sending ? <span>Sending…</span> : <><span>Send message</span><Arrow /></>}</button>
     <p className={`form-status is-${state.kind}`} role="status" aria-live="polite">
       {state.text || (canSubmitOnline ? `Prefer email? Write to ${email}.` : "This opens your email app with the message ready to send.")}
     </p>

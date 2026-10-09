@@ -9,7 +9,6 @@ import { resume } from "../data/resume";
 import { socialLinks } from "../data/socialLinks";
 import { tools } from "../data/tools";
 import { testimonials } from "../data/testimonials";
-import { worldDestinations } from "../data/worldDestinations";
 import { LIST_TABLES, OPTIONAL_TABLES, SINGLETON_TABLES, mapPortfolio } from "./content";
 import { SUPABASE_KEY, SUPABASE_URL, isSupabaseConfigured } from "../lib/config";
 
@@ -20,7 +19,7 @@ const snapshots = import.meta.glob("../data/snapshot.json", { eager: true, impor
 const snapshot = Object.values(snapshots)[0];
 
 const localContent = { profile, skills, projects, services, education, experience, certificates, resume, socialLinks, tools, testimonials };
-export const fallbackPortfolio = { ...(snapshot || localContent), worldDestinations };
+export const fallbackPortfolio = snapshot || localContent;
 
 async function fetchTable(table, signal) {
   const order = SINGLETON_TABLES.includes(table) ? "" : "&order=sort_order.asc,created_at.asc";
@@ -47,7 +46,7 @@ export async function loadPortfolio({ timeout = 7000 } = {}) {
     const results = await Promise.all(tables.map((table) => fetchTable(table, controller.signal)));
     const raw = Object.fromEntries(tables.map((table, index) => [table, results[index]]));
     if (!raw.profile) throw new Error("profile row missing");
-    return { content: { ...mapPortfolio(raw), worldDestinations }, source: "database" };
+    return { content: mapPortfolio(raw), source: "database" };
   } catch (error) {
     console.warn("[portfolio] Using backup content:", error.message);
     return { content: fallbackPortfolio, source: "backup" };

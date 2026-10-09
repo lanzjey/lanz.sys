@@ -1,14 +1,12 @@
 import Lenis from "lenis";
 import { prefersReducedMotion } from "./utils";
 
-// Shared, render-free scroll state read by the canvases and 3D scenes every frame.
-export const scrollState = { y: 0, velocity: 0, hero: 0 };
-
 let lenis = null;
 
+// Smooth wheel scrolling is for mouse users only. Touch devices keep their native, momentum-based scroll.
 export function startSmoothScroll() {
-  if (prefersReducedMotion() || lenis) return () => {};
-  lenis = new Lenis({ lerp: .085, wheelMultiplier: .9, smoothWheel: true });
+  if (prefersReducedMotion() || lenis || !window.matchMedia("(pointer: fine)").matches) return () => {};
+  lenis = new Lenis({ lerp: .09, wheelMultiplier: .9, smoothWheel: true });
   document.documentElement.classList.add("has-smooth-scroll");
   let frame = requestAnimationFrame(function raf(time) {
     lenis?.raf(time);
@@ -25,12 +23,12 @@ export function startSmoothScroll() {
 export function scrollToElement(element, { immediate = false } = {}) {
   if (!element) return;
   const offset = element.matches("main > section") ? 0 : -96;
-  if (document.documentElement.classList.contains("quick-mode")) immediate = true;
-  if (lenis) lenis.scrollTo(element, { offset, immediate, duration: immediate ? 0 : 1.4 });
+  if (lenis) lenis.scrollTo(element, { offset, immediate, duration: immediate ? 0 : 1.3 });
   else element.scrollIntoView({ behavior: immediate || prefersReducedMotion() ? "auto" : "smooth", block: "start" });
 }
 
 export function setScrollLocked(locked) {
+  document.documentElement.classList.toggle("scroll-locked", locked);
   if (!lenis) return;
   if (locked) lenis.stop();
   else lenis.start();
