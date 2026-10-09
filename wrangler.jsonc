@@ -1,0 +1,10 @@
+{
+  // Cloudflare static-site deploy: `npm run build` writes dist/, `npx wrangler deploy` publishes it.
+  "name": "lanz-sys",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    // Unknown paths (like /admin) load the app instead of a 404.
+    "not_found_handling": "single-page-application"
+  }
+}
