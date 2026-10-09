@@ -5,7 +5,7 @@
 -- ============================================================================
 
 insert into public.profile (id, name, roles, role, tagline, intro, about, image, image_alt, player_class, specialization, availability, location, email, career_goal)
-values (1, 'JAYZEL LANCE MACATUGGAL', array['Virtual Assistant', 'Creative Digital Professional', 'Computer Science Student']::text[], 'VIRTUAL ASSISTANT / CREATIVE DIGITAL PROFESSIONAL', 'Digital experiences, creative solutions, organized workflows.', 'Computer Science student building digital experiences, creative solutions, and organized workflows.', 'I bring software thinking and creative execution together: shaping an idea, organizing its moving parts, and building a clear experience around it.', '/assets/profile-placeholder.svg', 'Abstract profile placeholder; replace with a portrait when ready', 'Computer Science Student', 'Software development + creative digital work', 'Open to selected opportunities', 'Philippines', 'example@email.com', 'Add career goal')
+values (1, 'JAYZEL LANCE MACATUGGAL', array['Virtual Assistant', 'Creative Digital Professional', 'Computer Science Student']::text[], 'VIRTUAL ASSISTANT / CREATIVE DIGITAL PROFESSIONAL', 'Digital experiences, creative solutions, organized workflows.', 'Computer Science student building digital experiences, creative solutions, and organized workflows.', 'I bring software thinking and creative execution together: shaping an idea, organizing its moving parts, and building a clear experience around it.', '/assets/profile-placeholder.svg', 'Abstract profile placeholder; replace with a portrait when ready', 'Computer Science Student', 'Software development + creative digital work', 'Open to selected opportunities', 'Philippines', 'macatuggaljayzellance@gmail.com', 'Add career goal')
 on conflict (id) do nothing;
 
 insert into public.resume (id, title, description, file, url, status)
@@ -91,7 +91,7 @@ select * from (values
   ('instagram', 'Instagram', 'https://www.instagram.com/lanzzonness', 1),
   ('github', 'GitHub', null, 2),
   ('linkedin', 'LinkedIn', null, 3),
-  ('email', 'Portfolio email', 'mailto:example@email.com', 4)
+  ('email', 'Portfolio email', 'mailto:macatuggaljayzellance@gmail.com', 4)
 ) as v(platform, label, url, sort_order)
 where not exists (select 1 from public.social_links);
 

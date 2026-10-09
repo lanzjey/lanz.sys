@@ -1,10 +1,20 @@
 {
-  // Cloudflare static-site deploy: `npm run build` writes dist/, `npx wrangler deploy` publishes it.
+  // Cloudflare deploy: `npm run build` writes dist/, `npx wrangler deploy` publishes it.
   "name": "lanz-sys",
+  "main": "cloudflare/keepalive-worker.js",
   "compatibility_date": "2026-10-01",
   "assets": {
     "directory": "./dist",
     // Unknown paths (like /admin) load the app instead of a 404.
-    "not_found_handling": "single-page-application"
+    "not_found_handling": "single-page-application",
+    // Only this path reaches the Worker code; everything else is served as static files.
+    "run_worker_first": ["/__keepalive"]
+  },
+  // Daily 03:00 UTC ping so the free Supabase project never pauses from inactivity.
+  "triggers": { "crons": ["0 3 * * *"] },
+  // Public values (the same ones the website already ships with).
+  "vars": {
+    "SUPABASE_URL": "https://xojhmfihdcitldvzfcim.supabase.co",
+    "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_VlyXTEIfFHtuYfFBkMvdIQ_lkp9673j"
   }
 }

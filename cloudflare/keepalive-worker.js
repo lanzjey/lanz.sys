@@ -2,10 +2,9 @@
 // Supabase pauses free projects after ~7 days without activity; one tiny
 // read per day keeps the portfolio database awake.
 //
-// Setup (Cloudflare dashboard → Workers & Pages → Create → Worker):
-//   1. Paste this file as the Worker code and deploy.
-//   2. Settings → Variables: add SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY.
-//   3. Settings → Triggers → Cron Triggers: add  0 3 * * *  (daily, 03:00 UTC).
+// Runs as part of the site's Worker (see wrangler.jsonc): the cron trigger and the
+// SUPABASE_* variables are configured there, so `git push` deploys it with the site.
+// Visiting /__keepalive on the site runs a manual check and returns only "ok" or "failed".
 export default {
   async scheduled(_event, env, ctx) {
     ctx.waitUntil(ping(env));

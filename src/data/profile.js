@@ -10,7 +10,7 @@ export const profile = {
   playerClass: "Computer Science Student",
   availability: "Open to selected opportunities",
   location: "Philippines",
-  email: "example@email.com",
+  email: "macatuggaljayzellance@gmail.com",
   about: "I bring software thinking and creative execution together: shaping an idea, organizing its moving parts, and building a clear experience around it.",
   specialization: "Software development + creative digital work",
   careerGoal: "Add career goal",

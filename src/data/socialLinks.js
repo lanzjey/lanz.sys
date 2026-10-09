@@ -5,5 +5,5 @@ export const socialLinks = [
   { platform: "instagram", label: "Instagram", href: "https://www.instagram.com/lanzzonness", placeholder: false },
   { platform: "github", label: "GitHub", href: null, placeholder: true },
   { platform: "linkedin", label: "LinkedIn", href: null, placeholder: true },
-  { platform: "email", label: "Portfolio email", href: "mailto:example@email.com", placeholder: false },
+  { platform: "email", label: "Portfolio email", href: "mailto:macatuggaljayzellance@gmail.com", placeholder: false },
 ];
