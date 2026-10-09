@@ -4,7 +4,7 @@ import { isFilled } from "../lib/utils";
 
 const HOLD_MS = 1500;
 const RING = 2 * Math.PI * 84;
-const stages = ["Seal engaged", "Reading player record…", "Decrypting archive…", "Breaking the seal…"];
+const stages = ["Shadow seal engaged", "Gathering mana…", "Extracting from the shadows…", "The seal is breaking…"];
 
 const groupBy = (items, key) => items.reduce((groups, item) => {
   const name = item[key] || "Other";
@@ -36,6 +36,12 @@ function Vault({ progress, unlocked }) {
       <path className="vault-shackle" d="M98 112V94a22 22 0 0 1 44 0v18" />
       <rect className="vault-body" x="86" y="110" width="68" height="52" rx="8" />
       <circle className="vault-key" cx="120" cy="132" r="6" /><path className="vault-key" d="M120 138v12" />
+    </g>
+    <g transform="translate(116 174) scale(1.75)">
+      <g className="vault-soldier">
+        <path d="M-10 0 L-8 -26 Q-14 -30 -13 -38 L-6 -42 H6 L13 -38 Q14 -30 8 -26 L10 0 L4 4 L0 1 L-5 5 Z M-5 -42 V-52 Q0 -60 5 -52 V-42 Z M-5 -53 L-9 -61 L-3 -56 M5 -53 L9 -61 L3 -56 M15 -24 V-64 L17.5 -69 L20 -64 V-24 Z M11 -27 H24 V-24 H11 Z" />
+        <circle className="vault-eye" cx="-2" cy="-50" r="1.2" /><circle className="vault-eye" cx="2" cy="-50" r="1.2" />
+      </g>
     </g>
   </svg>;
 }
@@ -106,16 +112,18 @@ export default function Resume({ profile, skills, education, experience, certifi
     printTimer.current = window.setTimeout(() => window.print(), 700);
   };
 
-  const stage = unlocked ? "Seal broken" : stages[Math.min(stages.length - 1, Math.floor(progress / 34))];
+  const stage = unlocked ? "Extraction complete" : stages[Math.min(stages.length - 1, Math.floor(progress / 34))];
 
   return <section id="resume" className={`section section-resume ${unlocked ? "is-unlocked" : ""}`} aria-labelledby="resume-title">
     <div className="container">
-      <SectionHeader id="resume-title" index="07" word="UNLOCK" eyebrow="Player record · Sealed archive" title={<>Unlock the <em>full record.</em></>} text="My education, skills, and work, sealed in an archive. Hold the seal to decrypt it, then take your copy." />
+      <SectionHeader id="resume-title" index="07" word="UNLOCK" eyebrow="Player record · Shadow archive" title={<>Unlock the <em>full record.</em></>} text="My education, skills, and work, sealed in a shadow archive. Hold the seal to extract it, then take your copy." />
 
       <div className={`vault scroll-fx ${progress > 0 && !unlocked ? "is-holding" : ""} ${unlocked ? "is-unlocked" : ""}`} style={{ "--p": progress / 100 }}>
         <div className="vault-stage">
           <Vault progress={progress} unlocked={unlocked} />
           <i className="vault-burst" aria-hidden="true" /><i className="vault-burst vault-burst-2" aria-hidden="true" />
+          {unlocked && <span className="vault-arise" aria-hidden="true">ARISE</span>}
+          {unlocked && <span className="vault-smoke" aria-hidden="true">{Array.from({ length: 8 }, (_, index) => <i key={index} style={{ "--i": index }} />)}</span>}
           <span className="vault-readout" aria-hidden="true">{unlocked ? "100" : String(progress).padStart(2, "0")}<small>%</small></span>
         </div>
 
@@ -137,7 +145,7 @@ export default function Resume({ profile, skills, education, experience, certifi
             : <div className="vault-controls">
               <button type="button" className="hold-button" style={{ "--p": progress / 100 }} onPointerDown={beginHold} onPointerUp={endHold} onPointerCancel={endHold} onLostPointerCapture={endHold} onContextMenu={(event) => event.preventDefault()} onClick={activate}>
                 <span className="hold-fill" aria-hidden="true" />
-                <span className="hold-label">{progress > 0 ? "Decrypting…" : "Hold to unlock"}</span>
+                <span className="hold-label">{progress > 0 ? "Extracting…" : "Hold to unlock"}</span>
               </button>
               <a className="vault-skip" href={fileHref || "#resume-sheet"} onClick={skipAndDownload} {...(resume.file ? { download: true } : fileHref ? { target: "_blank", rel: "noopener noreferrer" } : {})}>Skip and download</a>
             </div>}

@@ -48,8 +48,8 @@ function Gate({ id, index, label, active, onActive, onSelect }) {
   </g>;
 }
 
-// A floating fantasy world: layered sky, drifting islands and clouds, a castle island
-// at the centre, and the eight gates standing on their own islands around it.
+// A shadow-dungeon hub: layered sky, drifting islands and clouds, an obsidian island
+// with a glowing Gate and a shadow army at the centre, and the eight gates standing on their own islands around it.
 export default function FloatingWorld({ destinations, activeId, onActive, onSelect, reducedMotion }) {
   const root = useRef(null);
   const byId = Object.fromEntries(destinations.map((destination, index) => [destination.id, { ...destination, index }]));
@@ -64,7 +64,7 @@ export default function FloatingWorld({ destinations, activeId, onActive, onSele
   const reset = () => { root.current.style.setProperty("--wx", 0); root.current.style.setProperty("--wy", 0); };
 
   return <div ref={root} className="world" onPointerMove={track} onPointerLeave={reset}>
-    <svg className="world-svg" viewBox="0 0 600 560" role="img" aria-label="A floating fantasy world with a castle island at its centre, ringed by eight teleport gates">
+    <svg className="world-svg" viewBox="0 0 600 560" role="img" aria-label="A shadow dungeon hub with a glowing Gate at its centre, ringed by eight teleport gates">
       <defs>
         <radialGradient id="w-sun" cx="50%" cy="50%" r="50%"><stop offset="0" stopColor="#a78bfa" stopOpacity=".55" /><stop offset="1" stopColor="#a78bfa" stopOpacity="0" /></radialGradient>
         <radialGradient id="w-nebula" cx="50%" cy="50%" r="50%"><stop offset="0" stopColor="#3b82f6" stopOpacity=".3" /><stop offset="1" stopColor="#3b82f6" stopOpacity="0" /></radialGradient>
@@ -125,9 +125,9 @@ export default function FloatingWorld({ destinations, activeId, onActive, onSele
           </g>
           {/* shadow army */}
           <g className="w-army">
-            {[[262, 316, 1], [338, 316, 1], [236, 306, .8], [364, 306, .8], [282, 322, 1.1], [318, 322, 1.1]].map(([x, y, k], index) => <g key={index} className="w-soldier" transform={`translate(${x} ${y}) scale(${k})`} style={{ "--i": index }}>
-              <path d="M-6 0 L-8 -22 L-4 -30 H4 L8 -22 L6 0 Z M-3 -30 V-38 A4 4 0 0 1 4 -38 V-30 Z M10 4 V-36" />
-              <circle className="w-eye" cx="-1.6" cy="-37" r="1.1" /><circle className="w-eye" cx="1.6" cy="-37" r="1.1" />
+            {[[262, 316, 1], [338, 316, 1], [236, 306, .8], [364, 306, .8], [282, 322, 1.1], [318, 322, 1.1]].map(([x, y, k], index) => <g key={index} className="w-soldier" transform={`translate(${x} ${y}) scale(${k * .58})`} style={{ "--i": index }}>
+              <path d="M-10 0 L-8 -26 Q-14 -30 -13 -38 L-6 -42 H6 L13 -38 Q14 -30 8 -26 L10 0 L4 4 L0 1 L-5 5 Z M-5 -42 V-52 Q0 -60 5 -52 V-42 Z M-5 -53 L-9 -61 L-3 -56 M5 -53 L9 -61 L3 -56 M15 -24 V-64 L17.5 -69 L20 -64 V-24 Z M11 -27 H24 V-24 H11 Z" />
+              <circle className="w-eye" cx="-2" cy="-50" r="1.5" /><circle className="w-eye" cx="2" cy="-50" r="1.5" />
             </g>)}
           </g>
         </g>

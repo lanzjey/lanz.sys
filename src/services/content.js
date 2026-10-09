@@ -4,6 +4,20 @@
 export const PROJECT_STATUSES = ["Planned", "Ongoing", "In Progress", "Completed", "On Hold", "Archived"];
 export const SERVICE_AVAILABILITY = ["Available", "Limited Availability", "Not Currently Available", "Coming Soon"];
 export const SKILL_LEVELS = ["Beginner", "Intermediate", "Advanced", "Expert"];
+
+// Dungeon ranks for projects. A rank is a judgement of complexity and scope, so it
+// always comes with a written reason (see the rubric below, also shown on the site).
+export const PROJECT_RANKS = ["E", "D", "C", "B", "A", "S"];
+export const RANK_GUIDE = {
+  E: "A small task or practice piece: one feature, a day or two of work.",
+  D: "A complete small deliverable with a clear goal, such as a page, an edit or a small tool.",
+  C: "A multi-part project with several features that was finished and is in use.",
+  B: "A substantial project: several systems or technologies, or several weeks of work, with real-world use.",
+  A: "A complex or large-scope project: advanced technical depth, real users or clients, or months of work.",
+  S: "Exceptional: very large scale, team leadership, or major measurable impact.",
+};
+// A skill's rank follows the level set in the admin (Beginner to Expert), never a made-up number.
+export const SKILL_RANK = { beginner: "D", intermediate: "C", advanced: "B", expert: "A" };
 export const SOCIAL_PLATFORMS = ["facebook", "messenger", "instagram", "linkedin", "github", "email", "x", "youtube", "tiktok", "website", "other"];
 export const PLATFORM_LABELS = {
   facebook: "Facebook", messenger: "Messenger", instagram: "Instagram", linkedin: "LinkedIn", github: "GitHub",
@@ -91,6 +105,7 @@ export function mapPortfolio(raw) {
     projects: (raw.projects || []).map((row) => ({
       name: text(row.name), category: text(row.category), status: text(row.status), year: text(row.year),
       description: text(row.description), objective: text(row.objective), challenge: text(row.challenge), solution: text(row.solution),
+      rank: PROJECT_RANKS.includes(row.rank) ? row.rank : "", rankReason: text(row.rank_reason),
       role: text(row.role), features: list(row.features), results: list(row.results), tech: list(row.tech),
       media: row.cover_image || null, video: row.video || null,
       gallery: Array.isArray(row.gallery) ? row.gallery.filter((item) => item?.src) : [],

@@ -26,7 +26,7 @@ export default function TeleportOverlay({ transition }) {
     <i className="tp-scan" aria-hidden="true" />
     <div className="tp-core">
       <span className="sys-diamond" aria-hidden="true" />
-      <span className="tp-kicker">Teleporting to</span>
+      <span className="tp-kicker">Gate opened · entering</span>
       <strong className="tp-label">{transition.label}</strong>
       {transition.subtitle && <span className="tp-sub">{transition.subtitle}</span>}
       <i className="tp-bar" aria-hidden="true" />
