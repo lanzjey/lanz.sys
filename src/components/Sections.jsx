@@ -117,6 +117,12 @@ export function Skills({ skills, onNavigate }) {
   </section>;
 }
 
+const processSteps = [
+  { title: "Send a message", text: "Tell me what you need, what you want to achieve, and any deadline." },
+  { title: "We agree on a plan", text: "I reply with questions and a clear scope, so you know what to expect." },
+  { title: "I deliver and refine", text: "You see the work in stages and can give feedback before it's final." },
+];
+
 /* ── 03 Services ────────────────────────────────────────── */
 export function Services({ services, email, onNavigate }) {
   const more = useShowMore(services, 4);
@@ -137,6 +143,17 @@ export function Services({ services, email, onNavigate }) {
         </article>)}
       </div>
       <ShowMore {...more} />
+      <div className="process scroll-fx">
+        <h3 className="subheading">How working with me goes</h3>
+        <ol className="process-steps">
+          {processSteps.map((step, index) => <li key={step.title} className="process-step">
+            <span className="process-number" aria-hidden="true">{pad(index + 1)}</span>
+            <strong>{step.title}</strong>
+            <span>{step.text}</span>
+          </li>)}
+        </ol>
+        <button type="button" className="button button-ghost" onClick={() => onNavigate("contact")}>Start with a message <Arrow direction="right" /></button>
+      </div>
       <ReturnToWorld onNavigate={onNavigate} />
     </div>
   </section>;

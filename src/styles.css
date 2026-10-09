@@ -835,3 +835,18 @@ a.social-link:hover { border-color: var(--border-glow); color: var(--orange); ba
 .quick-mode .scroll-fx { transform: none !important; opacity: 1 !important; }
 .quick-mode .bg-canvas { display: none; }
 @media print { .floating-cta, .quick-toggle { display: none; } }
+
+/* ── How working with me goes (inside Services) ───────── */
+.process { display: grid; justify-items: start; gap: 1rem; margin-top: clamp(2.5rem, 6vw, 4rem); padding-top: clamp(1.5rem, 4vw, 2.5rem); border-top: 1px solid var(--border); }
+.process .subheading { margin: 0; }
+.process-steps { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; width: 100%; margin: 0; padding: 0; list-style: none; }
+.process-step { position: relative; display: grid; align-content: start; gap: .4rem; padding: 1.2rem 1.3rem; border: 1px solid var(--border); border-radius: var(--radius); background: rgba(10, 18, 32, .6); }
+.process-step strong { font: 700 1.05rem var(--font-heading); }
+.process-step > span:last-child { color: var(--text-muted); font-size: .92rem; line-height: 1.6; }
+.process-number { display: inline-grid; place-items: center; width: 40px; height: 40px; margin-bottom: .3rem; border-radius: 50%; background: var(--gradient); color: #2b1300; font: 800 .85rem var(--font-display); box-shadow: var(--glow-orange); }
+.process-step:not(:last-child)::after { content: ""; position: absolute; top: 2.15rem; left: calc(100% + 1px); width: 1rem; height: 2px; background: var(--gradient-line); }
+@media (max-width: 760px) {
+  .process-steps { grid-template-columns: 1fr; }
+  .process-step:not(:last-child)::after { top: 100%; left: 2.3rem; width: 2px; height: 1rem; background: linear-gradient(var(--cyan), var(--orange)); }
+  .process .button { width: 100%; justify-content: center; }
+}
