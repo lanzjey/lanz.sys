@@ -120,7 +120,7 @@ export default function Resume({ profile, skills, education, experience, certifi
         </div>
 
         <div className="vault-item">
-          <span className="rarity-chip"><span className="sao-diamond" aria-hidden="true" />Legendary item</span>
+          <span className="rarity-chip"><span className="sys-diamond" aria-hidden="true" />Legendary item</span>
           <h3>Player Record</h3>
           <p className="vault-sub">{resume.title} · {profile.name}</p>
           {stats.length > 0 && <ul className="item-stats">{stats.map(([label, count]) => <li key={label}><span>{label}</span><b>{count}</b></li>)}</ul>}
@@ -128,7 +128,7 @@ export default function Resume({ profile, skills, education, experience, certifi
 
           {unlocked
             ? <div className="vault-claim">
-              <p className="item-acquired"><span className="sao-diamond" aria-hidden="true" />Item acquired: Player Record</p>
+              <p className="item-acquired"><span className="sys-diamond" aria-hidden="true" />Item acquired: Player Record</p>
               <div className="resume-actions">
                 <a className="button button-primary button-large" href={fileHref || "#resume-sheet"} onClick={downloadResume} {...(resume.file ? { download: true } : fileHref ? { target: "_blank", rel: "noopener noreferrer" } : {})}>Download Resume <Arrow direction="down" /></a>
                 <a className="button button-ghost button-large" href={fileHref || "#resume-sheet"} onClick={viewResume} {...(fileHref ? { target: "_blank", rel: "noopener noreferrer" } : {})}>View Resume <Arrow direction={fileHref ? "up-right" : "down"} /></a>

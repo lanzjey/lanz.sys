@@ -66,14 +66,14 @@ export default function FloatingWorld({ destinations, activeId, onActive, onSele
   return <div ref={root} className="world" onPointerMove={track} onPointerLeave={reset}>
     <svg className="world-svg" viewBox="0 0 600 560" role="img" aria-label="A floating fantasy world with a castle island at its centre, ringed by eight teleport gates">
       <defs>
-        <radialGradient id="w-sun" cx="50%" cy="50%" r="50%"><stop offset="0" stopColor="#ffb257" stopOpacity=".55" /><stop offset="1" stopColor="#ffb257" stopOpacity="0" /></radialGradient>
-        <radialGradient id="w-nebula" cx="50%" cy="50%" r="50%"><stop offset="0" stopColor="#7d6cff" stopOpacity=".32" /><stop offset="1" stopColor="#7d6cff" stopOpacity="0" /></radialGradient>
-        <radialGradient id="w-cloud" cx="50%" cy="50%" r="50%"><stop offset="0" stopColor="#cfe6ff" stopOpacity=".9" /><stop offset="1" stopColor="#cfe6ff" stopOpacity="0" /></radialGradient>
-        <linearGradient id="w-rock" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#1d3250" /><stop offset="1" stopColor="#070e1b" /></linearGradient>
-        <linearGradient id="w-turf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#1f5a6e" /><stop offset="1" stopColor="#12304a" /></linearGradient>
-        <linearGradient id="w-wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#27456b" /><stop offset="1" stopColor="#14263f" /></linearGradient>
-        <linearGradient id="w-fall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#bff3ff" stopOpacity=".9" /><stop offset="1" stopColor="#5fe3ff" stopOpacity="0" /></linearGradient>
-        <linearGradient id="w-ray" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ffd9a0" stopOpacity=".16" /><stop offset="1" stopColor="#ffd9a0" stopOpacity="0" /></linearGradient>
+        <radialGradient id="w-sun" cx="50%" cy="50%" r="50%"><stop offset="0" stopColor="#a78bfa" stopOpacity=".55" /><stop offset="1" stopColor="#a78bfa" stopOpacity="0" /></radialGradient>
+        <radialGradient id="w-nebula" cx="50%" cy="50%" r="50%"><stop offset="0" stopColor="#3b82f6" stopOpacity=".3" /><stop offset="1" stopColor="#3b82f6" stopOpacity="0" /></radialGradient>
+        <radialGradient id="w-cloud" cx="50%" cy="50%" r="50%"><stop offset="0" stopColor="#b9a9ff" stopOpacity=".85" /><stop offset="1" stopColor="#b9a9ff" stopOpacity="0" /></radialGradient>
+        <linearGradient id="w-rock" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#2a1f5c" /><stop offset="1" stopColor="#07040f" /></linearGradient>
+        <linearGradient id="w-turf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#2f2470" /><stop offset="1" stopColor="#140e2e" /></linearGradient>
+        <linearGradient id="w-ray" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#c4b5fd" stopOpacity=".16" /><stop offset="1" stopColor="#c4b5fd" stopOpacity="0" /></linearGradient>
+        <radialGradient id="w-portal" cx="50%" cy="55%" r="55%"><stop offset="0" stopColor="#f3ecff" stopOpacity=".95" /><stop offset=".3" stopColor="#8b5cf6" stopOpacity=".9" /><stop offset=".7" stopColor="#3a2a9e" stopOpacity=".9" /><stop offset="1" stopColor="#0a0620" /></radialGradient>
+        <radialGradient id="w-spill" cx="50%" cy="50%" r="50%"><stop offset="0" stopColor="#a78bfa" stopOpacity=".7" /><stop offset="1" stopColor="#a78bfa" stopOpacity="0" /></radialGradient>
         {Object.entries(gateTheme).map(([id, theme]) => <linearGradient key={id} id={`portal-${id}`} x1="0" y1="1" x2="0" y2="0">
           <stop offset="0" stopColor={theme.b} stopOpacity=".95" /><stop offset="1" stopColor={theme.a} stopOpacity=".28" />
         </linearGradient>)}
@@ -102,27 +102,34 @@ export default function FloatingWorld({ destinations, activeId, onActive, onSele
 
         <g className="w-bob w-bob-slow">
           {/* island body */}
-          <path d="M196 306 Q210 350 244 366 L262 372 L276 408 L300 436 L322 404 L338 372 L362 364 Q392 350 404 306 Z" fill="url(#w-rock)" stroke="rgba(95,227,255,.35)" strokeWidth="1" />
+          <path d="M196 306 Q210 350 244 366 L262 372 L276 408 L300 436 L322 404 L338 372 L362 364 Q392 350 404 306 Z" fill="url(#w-rock)" stroke="rgba(139,92,246,.45)" strokeWidth="1" />
           <path className="w-facet" d="M244 366 L276 328 L300 436 M362 364 L330 328 L300 436 M276 408 L300 330 M222 332 L252 352 M378 332 L348 352" />
           <path className="w-fall" d="M214 322 V398" /><path className="w-fall w-fall-2" d="M386 322 V384" />
           <path d="M268 392 l-6 22 l9 -9z M338 384 l7 20 l-10 -8z" className="w-crystal" />
-          {/* terrain */}
-          <ellipse cx="300" cy="306" rx="106" ry="25" fill="url(#w-turf)" stroke="rgba(95,227,255,.5)" strokeWidth="1.2" />
-          <ellipse className="w-road" cx="300" cy="309" rx="74" ry="15" />
-          <path className="w-crystal" d="M226 298 l-5 -16 l-5 16z M236 300 l-3 -11 l-4 11z M372 296 l-5 -15 l-5 15z" />
-          {/* castle */}
-          <g className="w-castle">
-            <path d="M250 306 V250 L260 224 L270 250 V306 Z" /><path d="M330 306 V250 L340 224 L350 250 V306 Z" />
-            <path d="M272 306 V264 H280 V257 H288 V264 H296 V257 H304 V264 H312 V257 H320 V264 H328 V306 Z" />
-            <path d="M288 264 V182 L300 134 L312 182 V264 Z" />
-            <path d="M284 182 H316" /><path d="M292 226 H308" />
-            <path className="w-flag" d="M300 134 V112 L316 118 L300 124" />
-            <rect className="w-window" x="296" y="198" width="8" height="12" rx="2" /><rect className="w-window" x="296" y="232" width="8" height="12" rx="2" />
-            <rect className="w-window" x="256" y="270" width="8" height="12" rx="2" /><rect className="w-window" x="336" y="270" width="8" height="12" rx="2" />
-            <rect className="w-window" x="283" y="282" width="7" height="11" rx="2" /><rect className="w-window" x="310" y="282" width="7" height="11" rx="2" />
+          {/* ground and summoning circle */}
+          <ellipse cx="300" cy="306" rx="106" ry="25" fill="url(#w-turf)" stroke="rgba(139,92,246,.6)" strokeWidth="1.2" />
+          <ellipse cx="300" cy="308" rx="84" ry="18" fill="url(#w-spill)" />
+          <ellipse className="w-circle" cx="300" cy="308" rx="78" ry="16" />
+          <ellipse className="w-circle w-circle-2" cx="300" cy="308" rx="56" ry="11" />
+          {/* obsidian spires */}
+          <path className="w-spire" d="M200 304 L206 268 L214 300 Z M214 306 L224 254 L234 304 Z M366 304 L376 258 L386 306 Z M388 302 L394 270 L402 304 Z" />
+          {/* the Gate */}
+          <g className="w-gate">
+            <ellipse className="w-gate-glow" cx="300" cy="236" rx="66" ry="86" />
+            <path className="w-gate-stone" d="M236 306 V240 A64 84 0 0 1 364 240 V306 Z" />
+            <ellipse className="w-gate-void" cx="300" cy="238" rx="50" ry="70" fill="url(#w-portal)" />
+            <ellipse className="w-swirl" cx="300" cy="238" rx="44" ry="62" />
+            <ellipse className="w-swirl w-swirl-2" cx="300" cy="238" rx="30" ry="44" />
+            <ellipse className="w-swirl w-swirl-3" cx="300" cy="238" rx="16" ry="24" />
+            <path className="w-gate-rim" d="M250 306 V240 A50 70 0 0 1 350 240 V306" />
           </g>
-          <path className="w-core" d="M300 98 L308 112 L300 128 L292 112 Z" />
-          <circle className="w-core-halo" cx="300" cy="112" r="20" fill="url(#w-sun)" />
+          {/* shadow army */}
+          <g className="w-army">
+            {[[262, 316, 1], [338, 316, 1], [236, 306, .8], [364, 306, .8], [282, 322, 1.1], [318, 322, 1.1]].map(([x, y, k], index) => <g key={index} className="w-soldier" transform={`translate(${x} ${y}) scale(${k})`} style={{ "--i": index }}>
+              <path d="M-6 0 L-8 -22 L-4 -30 H4 L8 -22 L6 0 Z M-3 -30 V-38 A4 4 0 0 1 4 -38 V-30 Z M10 4 V-36" />
+              <circle className="w-eye" cx="-1.6" cy="-37" r="1.1" /><circle className="w-eye" cx="1.6" cy="-37" r="1.1" />
+            </g>)}
+          </g>
         </g>
 
         {frontRows.map(gate)}

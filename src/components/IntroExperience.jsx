@@ -66,8 +66,8 @@ export default function IntroExperience({ profile, onEnter, ready = true }) {
     </header>
 
     <div className="intro-stage">
-      <section className="intro-check sao-window" aria-label="Sensory check" aria-hidden={phase !== 0}>
-        <div className="sao-window-title"><span className="sao-diamond" aria-hidden="true" />System check</div>
+      <section className="intro-check sys-window" aria-label="Sensory check" aria-hidden={phase !== 0}>
+        <div className="sys-window-title"><span className="sys-diamond" aria-hidden="true" />System check</div>
         <ul>
           {checks.map((label, index) => <li key={label} className={index < checked ? "is-ok" : ""}>
             <span>{label}</span><span className="intro-check-dots" aria-hidden="true" /><b>{index < checked ? "OK" : "··"}</b>

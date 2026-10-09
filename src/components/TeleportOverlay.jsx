@@ -25,7 +25,7 @@ export default function TeleportOverlay({ transition }) {
     </svg>}
     <i className="tp-scan" aria-hidden="true" />
     <div className="tp-core">
-      <span className="sao-diamond" aria-hidden="true" />
+      <span className="sys-diamond" aria-hidden="true" />
       <span className="tp-kicker">Teleporting to</span>
       <strong className="tp-label">{transition.label}</strong>
       {transition.subtitle && <span className="tp-sub">{transition.subtitle}</span>}
