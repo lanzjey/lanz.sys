@@ -502,8 +502,8 @@ a.social-link:hover { background: rgba(55, 214, 255, .2); }
 
 /* ── Reduced motion, print ────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
-  .reveal { opacity: 1; transform: none; }
+  html:not(.motion-full) *, html:not(.motion-full) *::before, html:not(.motion-full) *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  html:not(.motion-full) .reveal { opacity: 1; transform: none; }
 }
 @media print {
   body * { visibility: hidden; }
@@ -566,9 +566,9 @@ a.social-link:hover { background: rgba(55, 214, 255, .2); }
 }
 @media (hover: none) { .proj-row.is-active { transform: none; } }
 @media (prefers-reduced-motion: reduce) {
-  .scene-word, .scene-slash, .scene-moon, .scene-portrait, .hero-menu { transform: none; }
-  .hero-menu { transform: rotate(-4deg) skewX(-7deg); }
-  .bg-word { transform: none; }
+  html:not(.motion-full) .scene-word, html:not(.motion-full) .scene-slash, html:not(.motion-full) .scene-moon, html:not(.motion-full) .scene-portrait, html:not(.motion-full) .hero-menu { transform: none; }
+  html:not(.motion-full) .hero-menu { transform: rotate(-4deg) skewX(-7deg); }
+  html:not(.motion-full) .bg-word { transform: none; }
 }
 
 .footer-brand b { color: var(--cyan); font-weight: 400; }
@@ -813,9 +813,9 @@ html.scroll-locked .scene { overflow: hidden; }
   .st-sweep { width: 40vw; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pj { stroke-dashoffset: 0; fill: rgba(30, 90, 230, .22); }
-  .trace, .sv-link { stroke-dashoffset: 0; }
-  .cr-card { opacity: 1; }
+  html:not(.motion-full) .pj { stroke-dashoffset: 0; fill: rgba(30, 90, 230, .22); }
+  html:not(.motion-full) .trace, html:not(.motion-full) .sv-link { stroke-dashoffset: 0; }
+  html:not(.motion-full) .cr-card { opacity: 1; }
 }
 
 /* Projects is bold blue, so its tabs and intro line get the same dark plates as About and Skills */
@@ -878,7 +878,19 @@ button, a, input, textarea, select, .proj-row { touch-action: manipulation; -web
 .ct-bloom.a { translate: 0 calc(max(-80, var(--sy, 0) * -.05) * 1px); }
 .ct-bloom.b { translate: 0 calc(min(60, var(--sy, 0) * .04) * 1px); }
 @media (prefers-reduced-motion: reduce) {
-  [data-sr] { opacity: 1; translate: 0 0; }
-  .stage > svg, .st-seal, .st-shape, .cr-card, .ct-bloom { translate: none; }
-  .st-seal { translate: -50% -50%; }
+  html:not(.motion-full) [data-sr] { opacity: 1; translate: 0 0; }
+  html:not(.motion-full) .stage > svg, html:not(.motion-full) .st-seal, html:not(.motion-full) .st-shape, html:not(.motion-full) .cr-card, html:not(.motion-full) .ct-bloom { translate: none; }
+  html:not(.motion-full) .st-seal { translate: -50% -50%; }
+}
+
+
+/* Reduced-motion note and the opt-in switch */
+.motion-note { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .9rem; margin: 0; padding: .5rem .9rem; color: #fff; background: rgba(2, 6, 15, .92); border-left: 4px solid var(--red); font: 600 .9rem var(--util); letter-spacing: .06em; }
+.motion-note button { min-height: 44px; padding: 0 1rem; color: var(--ink); background: var(--cyan); font: 700 .85rem var(--util); letter-spacing: .14em; text-transform: uppercase; }
+.hero > .motion-note { position: absolute; left: var(--gutter); bottom: 22px; z-index: 4; max-width: min(520px, calc(100% - 2 * var(--gutter))); }
+.menu .motion-note { display: none; }
+.debug-badge { position: fixed; left: 6px; bottom: 6px; z-index: 500; margin: 0; padding: 4px 7px; color: #5dff9d; background: #000; font: 11px/1.3 ui-monospace, monospace; max-width: calc(100% - 12px); pointer-events: none; }
+@media (max-width: 900px) {
+  .menu .motion-note { display: flex; margin-top: 1.2rem; max-width: 100%; }
+  .hero > .motion-note { position: static; margin: 1rem var(--gutter) 0; }
 }

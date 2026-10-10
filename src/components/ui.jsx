@@ -3,6 +3,7 @@ import { NavContext } from "../lib/nav";
 import { scrollToElement } from "../lib/scroll";
 import { SCENES } from "../lib/scenes";
 import { labelFor } from "../lib/menu";
+import { deviceReducesMotion, motionOverride, setMotionOverride } from "../lib/motion";
 
 // Moon phase glyph, drawn with SVG so it stays crisp at any size. `phase` runs 0-7
 // (new moon → full moon → waning crescent) and tags each section like a calendar day.
@@ -50,6 +51,17 @@ export function SceneNav({ id }) {
     {prev && <button type="button" className="scene-step is-prev" onClick={() => navigate(prev)}><i aria-hidden="true" /><span><small>Previous</small>{labelFor(prev)}</span></button>}
     {next && <button type="button" className="scene-step is-next" onClick={() => navigate(next)}><span><small>Next</small>{labelFor(next)}</span><i aria-hidden="true" /></button>}
   </nav>;
+}
+
+// Shown only when the device asks for reduced motion (or the visitor opted back in), so it never clutters the page.
+export function MotionNote() {
+  const full = motionOverride() === "full";
+  if (!full && !deviceReducesMotion()) return null;
+  const toggle = () => { setMotionOverride(full ? null : "full"); window.location.reload(); };
+  return <p className="motion-note">
+    <span>{full ? "Animations are on for this site." : "Animations are reduced because your device is set to reduce motion."}</span>
+    <button type="button" onClick={toggle}>{full ? "Use device setting" : "Turn on animations"}</button>
+  </p>;
 }
 
 export function Arrow({ direction = "up-right" }) {

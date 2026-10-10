@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import { deviceReducesMotion, motionOverride } from "./motion";
 
 // True for visitors who ask their system for less motion.
-export const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+export const prefersReducedMotion = () => motionOverride() !== "full" && deviceReducesMotion();
 
 // Template entries ("Add …", "Example …", "… placeholder") stay in the data files but are not shown to visitors.
 export const isFilled = (value) => typeof value === "string" && value.trim() !== "" && !/^(add|example)\b|placeholder/i.test(value.trim());

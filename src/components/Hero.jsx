@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { RoleTicker } from "./ui";
+import { MotionNote, RoleTicker } from "./ui";
 import { menuItems } from "../lib/menu";
 import { isFilled, prefersReducedMotion } from "../lib/utils";
 
@@ -9,6 +9,8 @@ export default function Hero({ profile, projects, onNavigate }) {
   const [reducedMotion] = useState(prefersReducedMotion);
   const [active, setActive] = useState(() => Math.max(0, menuItems.findIndex((item) => item.id === "projects")));
   const sectionRef = useRef(null);
+  const lastPointer = useRef("mouse");
+  const tapTimer = useRef(0);
   const roles = useMemo(() => profile.roles?.length ? profile.roles : [profile.role], [profile.roles, profile.role]);
   const words = profile.name.trim().split(/\s+/);
   const building = projects.find((project) => /ongoing|in progress/i.test(project.status) && isFilled(project.name));
@@ -34,6 +36,16 @@ export default function Hero({ profile, projects, onNavigate }) {
     window.addEventListener("pointermove", onMove, { passive: true });
     return () => { window.removeEventListener("pointermove", onMove); cancelAnimationFrame(frame); };
   }, [reducedMotion]);
+
+  useEffect(() => () => window.clearTimeout(tapTimer.current), []);
+
+  // On touch there is no hover: touching an item slides the slash to it first, then the scene opens.
+  const choose = (index, id) => {
+    if (lastPointer.current === "mouse") { onNavigate(id); return; }
+    setActive(index);
+    window.clearTimeout(tapTimer.current);
+    tapTimer.current = window.setTimeout(() => onNavigate(id), reducedMotion ? 0 : 240);
+  };
 
   // Arrow keys and Enter drive the menu while the hero is on screen.
   useEffect(() => {
@@ -85,7 +97,7 @@ export default function Hero({ profile, projects, onNavigate }) {
         <i className="slash" aria-hidden="true"><b /></i>
         <ul>
           {menuItems.map((item, index) => <li key={item.id}>
-            <button type="button" className={index === active ? "is-active" : ""} onPointerEnter={(event) => { if (event.pointerType !== "touch") setActive(index); }} onFocus={() => setActive(index)} onClick={() => onNavigate(item.id)}>
+            <button type="button" className={index === active ? "is-active" : ""} onPointerEnter={(event) => { if (event.pointerType === "mouse") setActive(index); }} onPointerDown={(event) => { lastPointer.current = event.pointerType; if (event.pointerType !== "mouse") setActive(index); }} onFocus={() => setActive(index)} onClick={(event) => (event.detail === 0 ? onNavigate(item.id) : choose(index, item.id))}>
               <span>{item.label}</span>
             </button>
           </li>)}
@@ -93,6 +105,7 @@ export default function Hero({ profile, projects, onNavigate }) {
         <p className="hero-hint" aria-hidden="true"><kbd>↑</kbd><kbd>↓</kbd> choose <kbd>Enter</kbd> go</p>
       </nav>
     </div>
+    <MotionNote />
     <div className="hero-actions reveal" style={{ "--d": ".5s" }}>
       <button type="button" className="btn btn-fill" onClick={() => onNavigate("projects")}><span>View projects</span></button>
       <button type="button" className="btn" onClick={() => onNavigate("contact")}><span>Contact me</span></button>

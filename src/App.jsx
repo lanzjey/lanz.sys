@@ -11,6 +11,7 @@ import ProjectPanel from "./components/ProjectPanel";
 import { About, Certificates, Contact, Projects, Services, Skills } from "./components/Sections";
 import { SceneNav } from "./components/ui";
 import { isFilled, prefersReducedMotion } from "./lib/utils";
+import { deviceReducesMotion } from "./lib/motion";
 import { labelFor } from "./lib/menu";
 import { NavContext } from "./lib/nav";
 import { SCENES, sceneFromLocation, transitionKind, urlFor } from "./lib/scenes";
@@ -36,6 +37,18 @@ function Footer({ name }) {
       </span>
     </div>
   </footer>;
+}
+
+// Add ?debug=1 to the address to see why animations might be off on a device (for troubleshooting).
+function DebugBadge({ scene }) {
+  const [text, setText] = useState("");
+  useEffect(() => {
+    const read = () => setText(`motion:${prefersReducedMotion() ? "reduced" : "full"} device-reduce:${deviceReducesMotion() ? "yes" : "no"} webgl:${document.querySelector(".bd-gl.is-live") ? "on" : "off"} saveData:${navigator.connection?.saveData ? "yes" : "no"} touch-only:${window.matchMedia("(hover: none)").matches ? "yes" : "no"} scene:${scene}`);
+    read();
+    const timer = window.setInterval(read, 1000);
+    return () => window.clearInterval(timer);
+  }, [scene]);
+  return <p className="debug-badge">{text}</p>;
 }
 
 function App() {
@@ -178,6 +191,7 @@ function App() {
         <p className="sr-only" role="status" aria-live="polite">{labelFor(scene)}</p>
         {panelOpen && <ProjectPanel projects={content.projects} index={activeProject} onChange={setActiveProject} onClose={() => setActiveProject(null)} />}
         <Transition tx={tx} />
+        {new URLSearchParams(window.location.search).has("debug") && <DebugBadge scene={scene} />}
       </div>
     </NavContext.Provider>}
   </>;

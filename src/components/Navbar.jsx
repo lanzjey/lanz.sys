@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Moon } from "./ui";
+import { Moon, MotionNote } from "./ui";
 import { setScrollLocked } from "../lib/scroll";
 import { menuItems } from "../lib/menu";
 
@@ -47,6 +47,7 @@ export default function Navbar({ onNavigate, brand, scene }) {
           </a>
         </li>)}
       </ul>
+      <MotionNote />
     </nav>
   </>;
 }
