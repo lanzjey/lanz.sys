@@ -62,7 +62,7 @@ export function About({ profile, education, experience, onNavigate }) {
       <SectionHeader id="about-title" phase={0} word="ABOUT" eyebrow="About" title={<>The person behind <em>the work</em></>} />
       <div className="about-grid">
         <figure className="portrait">
-          <div className="portrait-frame"><img src={profile.image} alt={profile.imageAlt} loading="lazy" /></div>
+          <div className="portrait-cut"><img src="/assets/portrait-cutout.webp" alt={profile.imageAlt} width="720" height="1053" onError={(event) => { event.currentTarget.src = profile.image; }} /></div>
           <figcaption><strong>{profile.name}</strong><span>{profile.role}</span></figcaption>
         </figure>
         <div className="about-body" style={{ "--delay": 1 }}>
@@ -284,7 +284,6 @@ export function Contact({ profile, socialLinks, resume }) {
   };
   const resumeHref = resume.file || resume.url;
   return <section id="contact" className="section section-contact" aria-labelledby="contact-title">
-    <div className="dh-moon" aria-hidden="true"><i /></div>
     <div className="container">
       <p className="stamp" aria-hidden="true">Mail</p>
       <div className="contact-panel">

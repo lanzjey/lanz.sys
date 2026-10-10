@@ -5,6 +5,7 @@ import Intro from "./components/Intro";
 import Resume from "./components/Resume";
 import Backdrop from "./components/Backdrop";
 import Transition from "./components/Transition";
+import SceneStage from "./components/SceneStage";
 import ProjectPanel from "./components/ProjectPanel";
 import { About, Certificates, Contact, Projects, Services, Skills } from "./components/Sections";
 import { SceneNav } from "./components/ui";
@@ -87,14 +88,6 @@ function App() {
     return () => { window.removeEventListener("popstate", onPop); timers.current.forEach(window.clearTimeout); };
   }, [go]);
 
-  // The contact scene is the Dark Hour: a green accent for the rest of the page styling.
-  useEffect(() => {
-    const root = document.documentElement;
-    if (scene === "contact") root.dataset.darkHour = "1";
-    else delete root.dataset.darkHour;
-    return () => { delete root.dataset.darkHour; };
-  }, [scene]);
-
   // Move focus into the new scene so keyboard and screen-reader users start at its top.
   useEffect(() => {
     if (firstScene.current) { firstScene.current = false; return; }
@@ -152,6 +145,7 @@ function App() {
     {content && <NavContext.Provider value={go}>
       <div className={`site-shell ${ready ? "is-ready" : ""}`}>
         <Backdrop scene={scene} />
+        <SceneStage scene={scene} />
         <button type="button" className="skip-link" onClick={() => document.querySelector(".scene")?.focus()}>Skip to content</button>
         <Navbar onNavigate={go} scene={scene} brand="lanz.sys" />
         <span className="thread" style={{ "--p": index / (SCENES.length - 1) }} aria-hidden="true" />

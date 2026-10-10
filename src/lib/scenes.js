@@ -7,7 +7,8 @@ const aliases = { missions: "projects", profile: "about", loadout: "skills", exp
 
 // Adjacent scenes use their own transition; any other jump uses the hub burst.
 // Index = lower scene index of the pair: home/about, about/projects, projects/skills, ...
-const PAIR_KINDS = ["slash", "iris", "streaks", "rays", "grid", "slats", "split"];
+// (see Transition.jsx for the story each one tells)
+const PAIR_KINDS = ["light", "panels", "grid", "truss", "archive", "align", "guide"];
 
 export function transitionKind(from, to) {
   const a = SCENES.indexOf(from);

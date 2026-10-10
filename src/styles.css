@@ -145,7 +145,7 @@ ul, ol { padding: 0; list-style: none; }
 .hero { --px: 0; --py: 0; position: relative; display: grid; align-items: center; min-height: 100svh; padding: 92px 0 60px; overflow: hidden; }
 .duo-defs { position: absolute; width: 0; height: 0; }
 .scene { position: absolute; inset: 0; pointer-events: none; }
-.scene-word { position: absolute; left: -2%; top: 14%; font: 400 clamp(7rem, 24vw, 22rem)/.8 var(--display); font-style: normal; text-transform: uppercase; white-space: nowrap; color: transparent; -webkit-text-stroke: 2px rgba(232, 246, 255, .1); transform: rotate(-7deg) translate3d(calc(var(--px) * -34px), calc(var(--hero) * -140px), 0); }
+.scene-word { position: absolute; left: -2%; top: 16%; font: 400 clamp(6rem, 22vw, 21rem)/.8 var(--display); font-style: normal; text-transform: none; white-space: nowrap; color: transparent; -webkit-text-stroke: 2px rgba(232, 246, 255, .1); transform: rotate(-7deg) translate3d(calc(var(--px) * -34px), calc(var(--hero) * -140px), 0); }
 .scene-slash { position: absolute; display: block; top: -10%; height: 130%; transform: skewX(-18deg) translate3d(calc(var(--px) * 46px), 0, 0); }
 .scene-slash-a { right: 24%; width: 15vw; background: linear-gradient(180deg, rgba(15, 46, 158, .85), rgba(15, 46, 158, 0)); }
 .scene-slash-b { right: 17%; width: 1.6vw; background: linear-gradient(180deg, var(--red), rgba(255, 42, 77, 0)); opacity: .9; }
@@ -255,9 +255,9 @@ button.card, .project { cursor: pointer; }
 /* About */
 .about-grid { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: clamp(1.6rem, 5vw, 3.5rem); align-items: start; }
 .portrait { position: relative; display: grid; gap: .8rem; }
-.portrait-frame { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: var(--navy-2); clip-path: polygon(0 0, calc(100% - 34px) 0, 100% 34px, 100% 100%, 34px 100%, 0 calc(100% - 34px)); }
-.portrait-frame::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(2, 6, 15, .5), transparent 45%); }
-.portrait-frame img { width: 100%; height: 100%; object-fit: cover; }
+.portrait-cut { position: relative; }
+.portrait-cut img { width: 100%; height: auto; filter: drop-shadow(0 0 2px rgba(190, 240, 255, .85)) drop-shadow(0 18px 30px rgba(2, 6, 15, .55)); animation: portrait-in .9s .15s var(--ease) both; }
+@keyframes portrait-in { from { opacity: 0; transform: translateX(-24px); } }
 .portrait figcaption { display: grid; padding-left: .9rem; border-left: 4px solid var(--cyan); }
 .portrait figcaption strong { font: 400 1.15rem var(--display); letter-spacing: .06em; text-transform: uppercase; }
 .portrait figcaption span { color: var(--text-quiet); font: 600 .8rem var(--util); letter-spacing: .14em; text-transform: uppercase; }
@@ -554,12 +554,7 @@ a.social-link:hover { background: rgba(55, 214, 255, .2); }
 /* ── Contact: the Dark Hour moment ────────────────────── */
 .section-contact { overflow: hidden; }
 .section-contact .container { position: relative; z-index: 1; }
-.dh-moon { position: absolute; z-index: 0; right: 6%; top: 2%; width: clamp(180px, 30vw, 440px); aspect-ratio: 1; opacity: 0; transform: translate3d(0, 50px, 0) scale(.85); transition: opacity .9s, transform 1.4s var(--ease); pointer-events: none; }
-.dh-moon i { display: block; width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle at 38% 34%, #eaffd0 0 6%, #a5ff8a 22%, #3dff9a 48%, #0b6b45 80%, #02100c); box-shadow: 0 0 110px rgba(109, 255, 196, .3); }
-html[data-dark-hour] .dh-moon { opacity: .85; transform: none; }
 .stamp { display: inline-block; margin-bottom: 1.1rem; padding: .05em .55em; font: 400 clamp(2.4rem, 8vw, 5rem)/1.1 var(--display); letter-spacing: .04em; text-transform: uppercase; color: var(--ink); background: #fff; box-shadow: 8px 8px 0 var(--red); transform: rotate(-4deg) skewX(-8deg); }
-html[data-dark-hour] .contact-panel { border-left-color: var(--dh); }
-html[data-dark-hour] .contact-info h2 em, html[data-dark-hour] .contact-panel .sec-tab { background: var(--dh); }
 
 /* ── Phones and tablets ───────────────────────────────── */
 @media (max-width: 900px) {
@@ -653,71 +648,6 @@ html.scroll-locked .scene { overflow: hidden; }
 .scene-skills .tool { background: rgba(2, 6, 15, .88); }
 .scene-about .timeline::before { background: #fff; }
 
-/* ── Transitions ──────────────────────────────────────── */
-.tx { position: fixed; inset: 0; z-index: 250; overflow: hidden; pointer-events: none; }
-.tx i { display: block; position: absolute; }
-.tx-line, .tx-ring { position: absolute; background: var(--cyan); box-shadow: 0 0 20px var(--cyan); }
-/* slash: two slabs and a cyan line (home and about) */
-.tx-slash i { inset: 0; }
-.tx-slash i:nth-child(1) { background: var(--royal); clip-path: polygon(0 0, 100% 0, 100% 44%, 0 62%); }
-.tx-slash i:nth-child(2) { background: #02060f; clip-path: polygon(0 62%, 100% 44%, 100% 100%, 0 100%); }
-.tx-slash .tx-line { left: -5%; right: -5%; top: 53%; height: 3px; transform: rotate(-4.6deg); }
-.tx-slash.is-in i:nth-child(1) { animation: tx-l2c .38s var(--ease) both; }
-.tx-slash.is-in i:nth-child(2) { animation: tx-r2c .38s var(--ease) both; }
-.tx-slash.is-out i:nth-child(1) { animation: tx-c2r .44s var(--ease) both; }
-.tx-slash.is-out i:nth-child(2) { animation: tx-c2l .44s var(--ease) both; }
-.tx-slash.is-in .tx-line { animation: tx-sx-in .38s var(--ease) both; transform-origin: left; }
-.tx-slash.is-out .tx-line { animation: tx-sx-out .44s var(--ease) both; transform-origin: right; }
-/* iris: a circle opens from the seal and closes onto the new scene (about and projects) */
-.tx-iris i { inset: 0; background: radial-gradient(circle at 70% 50%, #052a63, #02060f 70%); }
-.tx-iris.is-in i { animation: tx-iris-in .38s var(--ease) both; }
-.tx-iris.is-out i { animation: tx-iris-out .44s var(--ease) both; }
-.tx-ring { left: 70%; top: 50%; width: 22vmax; height: 22vmax; margin: -11vmax 0 0 -11vmax; background: none; border: 3px solid var(--cyan); border-radius: 50%; }
-.tx-iris.is-in .tx-ring { animation: tx-ring .38s var(--ease) both; }
-.tx-iris.is-out .tx-ring { opacity: 0; }
-/* streaks: six horizontal bars sweep across (projects and skills) */
-.tx-streaks i { left: 0; right: 0; top: calc(var(--n) * 16.667%); height: 16.7%; }
-.tx-streaks i:nth-child(odd) { background: var(--royal); transform-origin: left; }
-.tx-streaks i:nth-child(even) { background: #02060f; transform-origin: right; border-top: 2px solid var(--cyan); }
-.tx-streaks.is-in i { animation: tx-sx-in .34s calc(var(--n) * .03s) var(--ease) both; }
-.tx-streaks.is-out i { animation: tx-sx-out .4s calc(var(--n) * .03s) var(--ease) both; }
-.tx-streaks.is-out i:nth-child(odd) { transform-origin: right; }
-.tx-streaks.is-out i:nth-child(even) { transform-origin: left; }
-/* grid: tiles snap into place (services and certificates) */
-.tx-grid { display: grid; grid-template-columns: repeat(6, 1fr); grid-template-rows: repeat(4, 1fr); }
-.tx-grid i { position: static; background: #04163f; box-shadow: inset 0 0 0 1px rgba(55, 214, 255, .35); }
-.tx-grid i:nth-child(3n) { background: #02060f; }
-.tx-grid.is-in i { animation: tx-scale-in .26s calc(var(--n) * .028s) var(--ease) both; }
-.tx-grid.is-out i { animation: tx-scale-out .3s calc(var(--n) * .028s) var(--ease) both; }
-/* slats: ten vertical blinds (certificates and resume) */
-.tx-slats i { top: 0; bottom: 0; left: calc(var(--n) * 10%); width: 10.2%; background: #04163f; border-right: 2px solid var(--cyan); transform-origin: top; }
-.tx-slats i:nth-child(even) { transform-origin: bottom; background: #02060f; }
-.tx-slats.is-in i { animation: tx-sy-in .32s calc(var(--n) * .025s) var(--ease) both; }
-.tx-slats.is-out i { animation: tx-sy-out .36s calc(var(--n) * .025s) var(--ease) both; }
-/* split: two panels slide together and apart along a cyan line (resume and contact) */
-.tx-split i:nth-child(1) { inset: 0 50% 0 0; background: #02060f; }
-.tx-split i:nth-child(2) { inset: 0 0 0 50%; background: #031a3a; }
-.tx-split .tx-line { left: calc(50% - 1.5px); top: 0; bottom: 0; width: 3px; }
-.tx-split.is-in i:nth-child(1) { animation: tx-l2c .38s var(--ease) both; }
-.tx-split.is-in i:nth-child(2) { animation: tx-r2c .38s var(--ease) both; }
-.tx-split.is-out i:nth-child(1) { animation: tx-c2l .44s var(--ease) both; }
-.tx-split.is-out i:nth-child(2) { animation: tx-c2r .44s var(--ease) both; }
-.tx-split.is-in .tx-line { animation: tx-sy-in .38s var(--ease) both; transform-origin: top; }
-.tx-split.is-out .tx-line { animation: tx-sy-out .44s var(--ease) both; transform-origin: bottom; }
-@keyframes tx-l2c { from { transform: translateX(-102%); } }
-@keyframes tx-r2c { from { transform: translateX(102%); } }
-@keyframes tx-c2r { to { transform: translateX(102%); } }
-@keyframes tx-c2l { to { transform: translateX(-102%); } }
-@keyframes tx-sx-in { from { transform: scaleX(0); } }
-@keyframes tx-sx-out { to { transform: scaleX(0); } }
-@keyframes tx-sy-in { from { transform: scaleY(0); } }
-@keyframes tx-sy-out { to { transform: scaleY(0); } }
-@keyframes tx-scale-in { from { transform: scale(0); } }
-@keyframes tx-scale-out { to { transform: scale(0); } }
-@keyframes tx-iris-in { from { clip-path: circle(0% at 70% 50%); } to { clip-path: circle(150% at 70% 50%); } }
-@keyframes tx-iris-out { from { clip-path: circle(150% at 70% 50%); } to { clip-path: circle(0% at 70% 50%); } }
-@keyframes tx-ring { from { transform: scale(.1); opacity: 1; } to { transform: scale(9); opacity: .4; } }
-
 @media (max-width: 900px) {
   .scene-nav { padding-right: var(--gutter); }
   .scene-step { min-height: 50px; }
@@ -728,3 +658,181 @@ html.scroll-locked .scene { overflow: hidden; }
   .scene { position: static; overflow: visible; }
   .scene-nav, .thread, .backdrop, .topbar, .menu { display: none !important; }
 }
+
+/* ── Scene stages (decorative, behind the content) ─────── */
+.stage { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; animation: st-in .9s both; }
+.stage * { pointer-events: none; }
+.stage svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+@keyframes st-in { from { opacity: 0; } }
+@keyframes st-spin { to { transform: rotate(360deg); } }
+@keyframes st-drift { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-34px, 24px, 0); } }
+.backdrop[data-scene="projects"] .bd-fx, .backdrop[data-scene="skills"] .bd-fx, .backdrop[data-scene="services"] .bd-fx,
+.backdrop[data-scene="certificates"] .bd-fx, .backdrop[data-scene="resume"] .bd-fx { opacity: 0; }
+.backdrop[data-scene="about"] .bd-fx { opacity: .5; }
+
+/* About: a turning seal behind the portrait, light sweeping across, drifting shapes */
+.st-seal { left: calc(max(0px, (100% - 1180px) / 2) + clamp(1rem, 5vw, 3rem) + 170px); top: 52%; width: min(96vmin, 860px); height: min(96vmin, 860px); translate: -50% -50%; overflow: visible; }
+.st-seal g { transform-box: fill-box; transform-origin: center; }
+.st-seal .ring { fill: none; stroke: rgba(120, 230, 255, .36); stroke-width: 1.5; }
+.st-seal .ring.faint { stroke: rgba(120, 230, 255, .18); }
+.st-seal .dash-a { fill: none; stroke: rgba(150, 240, 255, .55); stroke-width: 3; stroke-dasharray: 4 22; }
+.st-seal .dash-b { fill: none; stroke: rgba(150, 240, 255, .35); stroke-width: 2; stroke-dasharray: 60 30; }
+.st-seal .tick { stroke: rgba(170, 245, 255, .5); stroke-width: 2; }
+.spin-a { animation: st-spin 90s linear infinite; }
+.spin-b { animation: st-spin 140s linear infinite reverse; }
+.st-sweep { position: absolute; top: -10%; bottom: -10%; left: -30vw; width: 24vw; background: linear-gradient(90deg, transparent, rgba(170, 245, 255, .14), transparent); transform: skewX(-18deg); animation: st-sweep 11s 1.4s ease-in-out infinite; }
+@keyframes st-sweep { 0% { translate: 0 0; } 55%, 100% { translate: 160vw 0; } }
+.st-shape { position: absolute; background: linear-gradient(180deg, rgba(80, 220, 255, .14), transparent); clip-path: polygon(0 0, 100% 0, 60% 100%, 0 100%); animation: st-drift 18s ease-in-out infinite alternate; }
+.st-shape.sa { left: 58%; top: 6%; width: 18vw; height: 62vh; }
+.st-shape.sb { left: 78%; top: 30%; width: 12vw; height: 56vh; animation-duration: 24s; animation-direction: alternate-reverse; background: linear-gradient(180deg, rgba(2, 6, 15, .3), transparent); }
+.st-shape.sc { left: 3%; top: 58%; width: 16vw; height: 46vh; animation-duration: 21s; }
+
+/* Projects: outlines draw themselves, then fill: ideas becoming tangible panels */
+.pj { fill: rgba(30, 90, 230, 0); stroke: rgba(255, 255, 255, .6); stroke-width: 2; stroke-dasharray: 1500; stroke-dashoffset: 1500; animation: pj-draw 1.3s var(--d) var(--ease) forwards, pj-fill .6s calc(var(--d) + 1s) ease forwards, pj-float 14s calc(var(--d) + 2s) ease-in-out infinite alternate; }
+.pj.thin { stroke-width: 1; }
+.pj-cut { stroke: rgba(255, 255, 255, .35); stroke-width: 1.5; stroke-dasharray: 8 10; }
+@keyframes pj-draw { to { stroke-dashoffset: 0; } }
+@keyframes pj-fill { to { fill: rgba(30, 90, 230, .22); } }
+@keyframes pj-float { from { transform: translate(0, 0); } to { transform: translate(-10px, 8px); } }
+.st-bar { position: absolute; background: linear-gradient(90deg, rgba(255, 255, 255, .5), rgba(255, 255, 255, 0)); height: 3px; transform: rotate(-24deg); transform-origin: left; animation: st-bar 6s ease-in-out infinite alternate; }
+.st-bar.b1 { left: 4%; top: 78%; width: 34vw; }
+.st-bar.b2 { left: 56%; top: 14%; width: 26vw; animation-delay: 1.2s; }
+@keyframes st-bar { from { opacity: .25; translate: -20px 0; } to { opacity: .8; translate: 30px 0; } }
+
+/* Skills: traces drawing in with pulses running along them, a grid, a scan line */
+.trace { fill: none; stroke: rgba(55, 214, 255, .5); stroke-width: 2; stroke-dasharray: 1; stroke-dashoffset: 1; animation: sk-draw 1.4s var(--d) var(--ease) forwards; }
+.pulse { fill: none; stroke: #8ff0ff; stroke-width: 3; stroke-linecap: round; stroke-dasharray: .05 1.5; stroke-dashoffset: 1.5; animation: sk-run 5s var(--d) linear infinite; }
+.node { fill: #02060f; stroke: var(--cyan); stroke-width: 2; }
+@keyframes sk-draw { to { stroke-dashoffset: 0; } }
+@keyframes sk-run { to { stroke-dashoffset: -.05; } }
+.st-scan { position: absolute; left: 0; right: 0; top: 0; height: 120px; background: linear-gradient(180deg, transparent, rgba(55, 214, 255, .12) 70%, rgba(120, 240, 255, .5) 99%, transparent); animation: st-scan 7s linear infinite; }
+@keyframes st-scan { from { transform: translateY(-120px); } to { transform: translateY(100vh); } }
+
+/* Services: a geometric structure whose connections draw in, with nodes that pulse */
+.sv-poly { fill: none; stroke: rgba(80, 180, 255, .4); stroke-width: 2; }
+.sv-poly.inner { stroke: rgba(80, 180, 255, .22); }
+.sv-rot { transform-box: fill-box; transform-origin: center; animation: st-spin 160s linear infinite; }
+.sv-rot.rev { animation-direction: reverse; animation-duration: 220s; }
+.sv-link { stroke: rgba(55, 214, 255, .5); stroke-width: 1.5; stroke-dasharray: 1; stroke-dashoffset: 1; animation: sk-draw 1.2s var(--d) var(--ease) forwards; }
+.sv-node { fill: #02060f; stroke: var(--cyan); stroke-width: 2; animation: sv-pulse 3.2s var(--d) ease-in-out infinite; }
+@keyframes sv-pulse { 50% { fill: rgba(55, 214, 255, .5); } }
+
+/* Certificates: layered archive cards revealed one by one, a slow scan */
+.cr-card { position: absolute; width: 30vw; height: 38vh; border: 1px solid rgba(55, 214, 255, .35); background: linear-gradient(160deg, rgba(20, 60, 150, .28), rgba(5, 20, 70, .12)); opacity: 0; animation: cr-in .8s var(--ease) forwards, st-drift 20s ease-in-out infinite alternate; }
+.cr-card.c1 { left: 62%; top: 12%; transform: rotate(-5deg); animation-delay: .1s, .9s; }
+.cr-card.c2 { left: 68%; top: 22%; transform: rotate(-2deg); animation-delay: .3s, .9s; }
+.cr-card.c3 { left: 74%; top: 32%; transform: rotate(2deg); animation-delay: .5s, .9s; }
+.cr-card.c4 { left: 4%; top: 64%; width: 22vw; height: 28vh; transform: rotate(4deg); animation-delay: .7s, .9s; }
+@keyframes cr-in { to { opacity: 1; } }
+.cr-scan { position: absolute; top: 0; bottom: 0; left: 0; width: 160px; background: linear-gradient(90deg, transparent, rgba(55, 214, 255, .08) 70%, rgba(120, 240, 255, .3) 99%, transparent); animation: cr-scan 12s linear infinite; }
+@keyframes cr-scan { from { transform: translateX(-160px); } to { transform: translateX(100vw); } }
+
+/* Resume: a quiet technical grid and one margin line */
+.rs-margin { position: absolute; top: 0; bottom: 0; left: calc(max(0px, (100% - 1180px) / 2) + clamp(1rem, 5vw, 3rem) - 14px); width: 1px; background: linear-gradient(transparent, rgba(80, 170, 255, .35), transparent); }
+
+/* Contact: spacious, with soft cyan light and one beam that leads toward the details */
+.ct-bloom { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(60, 200, 230, .22), transparent 68%); animation: st-drift 26s ease-in-out infinite alternate; }
+.ct-bloom.a { right: -8vw; top: 6vh; width: 56vmax; height: 56vmax; }
+.ct-bloom.b { left: -12vw; bottom: -18vh; width: 42vmax; height: 42vmax; opacity: .6; animation-duration: 32s; animation-direction: alternate-reverse; }
+.ct-beam { position: absolute; left: 0; right: 0; top: 62%; height: 2px; background: linear-gradient(90deg, transparent, rgba(80, 220, 250, .7) 30%, rgba(190, 250, 255, .95) 50%, rgba(80, 220, 250, .7) 70%, transparent); box-shadow: 0 0 24px 4px rgba(55, 214, 255, .35); transform-origin: left; animation: ct-beam 1.4s .2s var(--ease) both, ct-pulse 6s 1.6s ease-in-out infinite; }
+@keyframes ct-beam { from { transform: scaleX(0); } }
+@keyframes ct-pulse { 50% { opacity: .45; } }
+.scene-contact .contact-info > *, .scene-contact .contact-form > * { animation: scene-rise .6s var(--ease) both; }
+.scene-contact .contact-info > *:nth-child(1), .scene-contact .contact-form > *:nth-child(1) { animation-delay: .3s; }
+.scene-contact .contact-info > *:nth-child(2), .scene-contact .contact-form > *:nth-child(2) { animation-delay: .38s; }
+.scene-contact .contact-info > *:nth-child(3), .scene-contact .contact-form > *:nth-child(3) { animation-delay: .46s; }
+.scene-contact .contact-info > *:nth-child(4), .scene-contact .contact-form > *:nth-child(4) { animation-delay: .54s; }
+.scene-contact .contact-info > *:nth-child(n+5), .scene-contact .contact-form > *:nth-child(n+5) { animation-delay: .62s; }
+
+/* About portrait caption plate stays readable over the seal */
+.portrait figcaption { background: rgba(2, 6, 15, .88); padding: .5rem .9rem; }
+
+/* ── Transitions ──────────────────────────────────────── */
+.tx { position: fixed; inset: 0; z-index: 250; overflow: hidden; pointer-events: none; }
+.tx i, .tx u { display: block; position: absolute; }
+.tx .veil { inset: 0; }
+.tx.is-in .veil { animation: tx-fade-in .3s ease both; }
+.tx.is-out .veil { animation: tx-fade-out .44s ease both; }
+@keyframes tx-fade-in { from { opacity: 0; } }
+@keyframes tx-fade-out { to { opacity: 0; } }
+@keyframes tx-sx-in { from { transform: scaleX(0); } }
+@keyframes tx-sx-out { to { transform: scaleX(0); } }
+@keyframes tx-sy-in { from { transform: scaleY(0); } }
+@keyframes tx-edge { to { transform: translateX(100vw); } }
+
+/* light: it concentrates into a bright edge that sweeps right, revealing the person (home to about) */
+.tx-light .lt-slab { inset: 0; transform-origin: left; background: linear-gradient(90deg, #06324f 0%, #0c6f98 72%, #8fe7ff 99%, #e8fcff 100%); }
+.tx-light .lt-edge { top: 0; bottom: 0; left: 0; width: 5px; background: #eaffff; box-shadow: 0 0 36px 12px rgba(150, 235, 255, .75); }
+.tx-light.is-in .lt-slab { animation: tx-sx-in .38s var(--ease) both; }
+.tx-light.is-out .lt-slab { transform-origin: right; animation: tx-sx-out .44s var(--ease) both; }
+.tx-light.is-in .lt-edge { animation: tx-edge .38s var(--ease) both; }
+.tx-light.is-out .lt-edge { animation: tx-edge .44s var(--ease) both; }
+
+/* panels: angular panels close together, then part up and down to uncover the showcase (about to projects) */
+.tx-panels i { top: 0; bottom: 0; left: calc(var(--n) * 20% - 3%); width: 26%; clip-path: polygon(14% 0, 100% 0, 86% 100%, 0 100%); border-left: 2px solid rgba(255, 255, 255, .8); background: #0a2a8a; }
+.tx-panels i:nth-child(even) { background: #02060f; }
+.tx-panels.is-in i:nth-child(odd) { animation: tx-from-top .36s calc(var(--n) * .04s) var(--ease) both; }
+.tx-panels.is-in i:nth-child(even) { animation: tx-from-bottom .36s calc(var(--n) * .04s) var(--ease) both; }
+.tx-panels.is-out i:nth-child(odd) { animation: tx-to-top .42s calc(var(--n) * .04s) var(--ease) both; }
+.tx-panels.is-out i:nth-child(even) { animation: tx-to-bottom .42s calc(var(--n) * .04s) var(--ease) both; }
+@keyframes tx-from-top { from { transform: translateY(-102%); } }
+@keyframes tx-from-bottom { from { transform: translateY(102%); } }
+@keyframes tx-to-top { to { transform: translateY(-102%); } }
+@keyframes tx-to-bottom { to { transform: translateY(102%); } }
+
+/* grid: interface lines extend across a dark veil into the technical grid (projects to skills) */
+.tx-grid .veil { background: #020a10; opacity: .97; }
+.tx-grid .h { left: 0; right: 0; top: calc(var(--n) * 14.2% + 7%); height: 2px; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); transform-origin: left; }
+.tx-grid .v { top: 0; bottom: 0; left: calc(var(--n) * 11.1% + 5%); width: 1px; background: rgba(55, 214, 255, .7); transform-origin: top; }
+.tx-grid.is-in .h { animation: tx-sx-in .32s calc(var(--n) * .03s) var(--ease) both; }
+.tx-grid.is-in .v { animation: tx-sy-in .32s calc(.05s + var(--n) * .025s) var(--ease) both; }
+.tx-grid.is-out .h, .tx-grid.is-out .v { animation: tx-fade-out .44s ease both; }
+
+/* truss: straight lines rotate into a structure that frames the services (skills to services) */
+.tx-truss .veil { background: #020718; opacity: .97; }
+.tx-truss .line { left: 50%; top: 50%; width: 90vmax; height: 2px; margin: -1px 0 0 -45vmax; background: linear-gradient(90deg, transparent, var(--cyan), transparent); transform: rotate(var(--a)); }
+.tx-truss.is-in .line { animation: tx-truss-in .38s var(--ease) both; }
+.tx-truss.is-out .line { animation: tx-truss-out .44s var(--ease) both; }
+@keyframes tx-truss-in { from { transform: rotate(0deg) scaleX(0); } to { transform: rotate(var(--a)) scaleX(1); } }
+@keyframes tx-truss-out { from { transform: rotate(var(--a)); opacity: 1; } to { transform: rotate(calc(var(--a) + 30deg)) scale(1.2); opacity: 0; } }
+
+/* archive: the panels recede and reform as stacked archive cards (services to certificates) */
+.tx-archive .veil { background: #020a24; opacity: .97; }
+.tx-archive .card { left: 22%; top: 24%; width: 52%; height: 44%; margin: calc(var(--n) * 2.2%) 0 0 calc(var(--n) * 3.4%); border: 2px solid rgba(55, 214, 255, .65); background: rgba(10, 40, 120, .55); }
+.tx-archive.is-in .card { animation: tx-recede .38s calc(var(--n) * .04s) var(--ease) both; }
+.tx-archive.is-out .card { animation: tx-reform .44s calc(var(--n) * .04s) var(--ease) both; }
+@keyframes tx-recede { from { transform: scale(1.7); opacity: 0; } }
+@keyframes tx-reform { to { transform: translate(calc(var(--n) * -18px), calc(var(--n) * -12px)) scale(.96); opacity: 0; } }
+
+/* align: scattered cards line up into one clean document (certificates to resume) */
+.tx-align .veil { background: #030b22; opacity: .97; }
+.tx-align .card { inset: 14% 24%; border: 2px solid rgba(255, 255, 255, .55); background: rgba(10, 36, 100, .7); }
+.tx-align.is-in .card { animation: tx-align-in .38s calc(var(--n) * .03s) var(--ease) both; }
+.tx-align.is-out .card { animation: tx-align-out .44s calc(var(--n) * .03s) var(--ease) both; }
+@keyframes tx-align-in { from { transform: translate(var(--x), var(--y)) rotate(var(--r)); opacity: 0; } }
+@keyframes tx-align-out { to { transform: translateY(-9%) scale(1.04); opacity: 0; } }
+
+/* guide: a cyan light leads out of the fading grid toward the contact details (resume to contact) */
+.tx-guide .veil { background: #020a14; opacity: .97; }
+.tx-guide .h { left: 0; right: 0; top: calc(var(--n) * 20% + 8%); height: 1px; background: rgba(55, 214, 255, .45); }
+.tx-guide .beam { left: 0; right: 0; top: 62%; height: 3px; background: linear-gradient(90deg, transparent, var(--cyan) 20%, #fff 50%, var(--cyan) 80%, transparent); box-shadow: 0 0 30px 6px rgba(55, 214, 255, .6); transform-origin: left; }
+.tx-guide.is-in .beam { animation: tx-sx-in .38s var(--ease) both; }
+.tx-guide.is-out .beam { animation: tx-fade-out .44s .1s ease both; }
+.tx-guide.is-out .h { animation: tx-fade-out .25s ease both; }
+
+@media (max-width: 900px) {
+  .st-seal { left: 50%; top: 24%; width: 120vw; height: 120vw; }
+  .st-shape.sb, .st-shape.sc, .cr-card.c3, .cr-card.c4, .st-bar.b2 { display: none; }
+  .cr-card { width: 56vw; left: 38% !important; }
+  .st-sweep { width: 40vw; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pj { stroke-dashoffset: 0; fill: rgba(30, 90, 230, .22); }
+  .trace, .sv-link { stroke-dashoffset: 0; }
+  .cr-card { opacity: 1; }
+}
+
+/* Projects is bold blue, so its tabs and intro line get the same dark plates as About and Skills */
+.scene-projects .filter-tabs button { background: rgba(2, 6, 15, .9); color: #fff; }
+.scene-projects .filter-tabs button.is-active { color: var(--ink); background: var(--cyan); }
+.scene-projects .sec-head .sec-lead { padding: .7rem 1.1rem; color: #fff; background: rgba(2, 6, 15, .88); border-left: 4px solid var(--red); }

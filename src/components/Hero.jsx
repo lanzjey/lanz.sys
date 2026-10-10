@@ -59,7 +59,7 @@ export default function Hero({ profile, projects, onNavigate }) {
     </svg>
 
     <div className="scene" aria-hidden="true">
-      <i className="scene-word">Portfolio</i>
+      <i className="scene-word">lanz.sys</i>
       <i className="scene-slash scene-slash-a" /><i className="scene-slash scene-slash-b" />
       <div className="scene-moon"><i /></div>
       <div className="scene-portrait"><img src="/assets/portrait.jpg" alt="" width="1000" height="1333" decoding="async" fetchPriority="high" /></div>

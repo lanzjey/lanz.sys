@@ -27,7 +27,7 @@ float fbm(vec2 p) {
 }
 float ring(float rad, float r0, float w) { return smoothstep(w, 0.0, abs(rad - r0)); }
 
-// Home: the approved near-black navy with a faint drifting haze.
+// Home: the approved near-black navy, with a faint haze and a breathing royal-blue light behind the portrait.
 vec3 home(vec2 uv, float asp) {
   vec2 p = vec2(uv.x * asp, uv.y);
   float n = sin(p.x * 2.6 + t * .07 + m.x * .6) * .5 + sin(p.y * 3.4 - t * .05 + p.x * 1.7) * .5;
@@ -37,110 +37,80 @@ vec3 home(vec2 uv, float asp) {
   vec3 col = vec3(.008, .024, .06);
   col += vec3(.012, .045, .13) * haze * (.35 + .65 * uv.y);
   col += vec3(.01, .05, .12) * shimmer * .22 * smoothstep(.1, .8, uv.y);
+  vec2 lp = p - vec2(asp * .72, .55);
+  col += vec3(.02, .09, .42) * (.5 / (1.0 + 7.0 * dot(lp, lp))) * (.85 + .15 * sin(t * .35)) * .55;
+  col += vec3(.03, .10, .38) * pow(max(0.0, sin(p.x * 3.1 - p.y * 2.2 + t * .12)), 10.0) * .10 * smoothstep(.2, 1.0, uv.y);
   return col;
 }
 
-// About: teal-cyan dusk with a slowly turning seal and soft light shafts.
+// About: turquoise and cyan with drifting pools of light (the seal and sweep are drawn by the stage).
 vec3 about(vec2 uv, float asp) {
   vec2 p = vec2(uv.x * asp, uv.y);
-  vec2 q = p - vec2(asp * .70, .52);
-  float rad = length(q); float ang = atan(q.y, q.x);
   float g = clamp(uv.y * .7 + uv.x * .35, 0.0, 1.0);
   vec3 col = mix(vec3(.01, .09, .16), vec3(.02, .30, .40), g);
   col += vec3(.02, .12, .16) * fbm(p * 2.2 + t * .03);
-  float dashA = step(.35, .5 + .5 * sin(ang * 36.0 + t * .35));
-  float dashB = step(.45, .5 + .5 * sin(ang * 22.0 - t * .25));
-  col += vec3(.25, .85, 1.0) * (ring(rad, .46, .004) * dashA * .55 + ring(rad, .38, .003) * dashB * .4 + ring(rad, .52, .0025) * .25 + ring(rad, .30, .0025) * .18);
-  col += vec3(.4, .95, 1.0) * step(.9, fract(ang * 5.73 + t * .02)) * ring(rad, .43, .02) * .3;
-  col += vec3(.3, .8, .95) * pow(max(0.0, sin(p.x * 2.2 + uv.y * 1.4 + t * .15)), 8.0) * .14 * uv.y;
+  col += vec3(.05, .28, .34) * smoothstep(.55, .9, fbm(p * 3.2 + vec2(t * .04, -t * .03))) * .35;
+  col += vec3(.3, .8, .95) * pow(max(0.0, sin(p.x * 2.2 + uv.y * 1.4 + t * .15)), 8.0) * .12 * uv.y;
   return col;
 }
 
-// Projects: deep cobalt chart with contour lines, a grid and pulsing points of interest.
+// Projects: bold royal blue with white-edged contour lines (ideas taking form).
 vec3 projects(vec2 uv, float asp) {
   vec2 p = vec2(uv.x * asp, uv.y);
-  vec3 col = mix(vec3(.008, .03, .16), vec3(.03, .12, .5), uv.y * .8 + uv.x * .2);
+  vec3 col = mix(vec3(.02, .07, .36), vec3(.06, .20, .70), uv.y * .8 + uv.x * .2);
   float n = fbm(p * 1.8 + vec2(t * .015, -t * .01));
-  col += vec3(.2, .6, 1.0) * smoothstep(.05, 0.0, abs(fract(n * 8.0) - .5) - .44) * .22;
-  vec2 gp = p * 13.0;
-  col += vec3(.2, .5, 1.0) * max(smoothstep(.04, 0.0, abs(fract(gp.x) - .5) - .46), smoothstep(.04, 0.0, abs(fract(gp.y) - .5) - .46)) * .045;
-  for (int i = 0; i < 5; i++) {
-    float fi = float(i);
-    vec2 bp = vec2(hash(vec2(fi, 1.0)) * asp, .2 + hash(vec2(fi, 2.0)) * .65);
-    float d = length(p - bp);
-    float pulse = .5 + .5 * sin(t * 1.2 + fi * 1.7);
-    col += vec3(.4, .9, 1.0) * (exp(-d * d * 9000.0) * .9 + ring(d, .02 + pulse * .03, .002) * .25 * (1.0 - pulse));
-  }
-  col += vec3(.8, .95, 1.0) * smoothstep(.003, 0.0, abs(p.x * .55 - uv.y + .12 + sin(t * .1) * .015)) * .18;
+  col += vec3(.7, .85, 1.0) * smoothstep(.05, 0.0, abs(fract(n * 8.0) - .5) - .44) * .16;
+  col += vec3(.1, .3, .9) * fbm(p * 1.1 - t * .02) * .25;
   return col;
 }
 
-// Skills: turquoise with light bars that fill like skill meters and slow dark shards.
+// Skills: cyan and black, a technical field (traces, grid and scan are drawn by the stage).
 vec3 skills(vec2 uv, float asp) {
   vec2 p = vec2(uv.x * asp, uv.y);
-  vec3 col = mix(vec3(.01, .10, .17), vec3(.02, .36, .46), smoothstep(.1, 1.0, uv.y * .8 + uv.x * .3));
-  for (int i = 0; i < 6; i++) {
-    float fi = float(i);
-    float len = fract(p.x * .35 - t * (.05 + fi * .012) - fi * .21);
-    col += vec3(.3, .9, .95) * smoothstep(.006, 0.0, abs(uv.y - (.16 + fi * .13))) * smoothstep(0.0, .1, len) * smoothstep(1.0, .5, len) * .18;
-  }
-  col *= 1.0 - smoothstep(.015, 0.0, abs(fract((p.x * 1.1 - uv.y * .8 + t * .04) * 2.5) - .5) - .4) * .28;
-  col += vec3(.1, .5, .6) * fbm(p * 3.0 - t * .03) * .12;
+  vec3 col = mix(vec3(.0, .03, .05), vec3(.01, .20, .26), smoothstep(.2, 1.0, uv.y * .9 + uv.x * .2));
+  col += vec3(.05, .35, .42) * smoothstep(.5, .85, fbm(p * 2.6 + vec2(-t * .03, t * .02))) * .3;
+  col *= .8 + .2 * smoothstep(.0, .6, uv.y);
   return col;
 }
 
-// Services: indigo to royal dusk with rising orbs (possibilities) and a drifting path.
+// Services: deep navy with three soft anchor glows that the stage's structure connects.
 vec3 services(vec2 uv, float asp) {
   vec2 p = vec2(uv.x * asp, uv.y);
-  vec3 col = mix(vec3(.015, .02, .12), vec3(.09, .09, .42), smoothstep(0.0, 1.0, uv.y));
-  col += vec3(.04, .06, .2) * fbm(p * 1.6 + t * .02);
-  for (int i = 0; i < 9; i++) {
+  vec3 col = mix(vec3(.008, .02, .09), vec3(.03, .07, .24), uv.y);
+  col += vec3(.02, .05, .16) * fbm(p * 1.4 + t * .02);
+  for (int i = 0; i < 3; i++) {
     float fi = float(i);
-    vec2 oc = vec2(hash(vec2(fi, 1.0)) * asp, fract(hash(vec2(fi, 2.0)) + t * (.025 + .03 * hash(vec2(fi, 3.0)))));
-    float rr = .012 + .03 * hash(vec2(fi, 4.0));
-    float d = length(p - oc);
-    col += vec3(.5, .7, 1.0) * (exp(-d * d / (rr * rr)) * .55 + ring(d, rr * 1.8, .0015) * .2);
+    vec2 c = vec2(asp * (.2 + fi * .3), .35 + .3 * hash(vec2(fi, 5.0)));
+    vec2 q = p - c;
+    col += vec3(.1, .35, .8) * .09 * (.8 + .2 * sin(t * .6 + fi * 2.0)) / (1.0 + 18.0 * dot(q, q));
   }
-  col += vec3(.3, .6, 1.0) * smoothstep(.003, 0.0, abs(uv.y - (.3 + .22 * sin(p.x * 2.0 + t * .1)))) * .12;
   return col;
 }
 
-// Certificates: calm navy with faint medal rings and a slow foil shine.
+// Certificates: a navy digital archive, layered grids and a slow foil shine.
 vec3 certificates(vec2 uv, float asp) {
   vec2 p = vec2(uv.x * asp, uv.y);
-  vec2 q = p - vec2(asp * .5, .5);
-  float rad = length(q); float ang = atan(q.y, q.x);
   vec3 col = mix(vec3(.008, .025, .11), vec3(.03, .08, .28), uv.y);
-  col += vec3(.15, .4, .9) * pow(.5 + .5 * sin(rad * 110.0 + sin(ang * 14.0 + t * .1) * 2.5), 8.0) * .08 * smoothstep(.9, .1, rad);
-  col += vec3(.3, .7, 1.0) * (ring(rad, .28, .003) + ring(rad, .36, .002) + ring(rad, .5, .0025)) * .2;
-  col += vec3(.6, .85, 1.0) * smoothstep(.07, 0.0, abs(p.x * .8 - uv.y * .55 - mod(t * .12, 3.4) + .8)) * .1;
+  col += vec3(.15, .4, .9) * max(smoothstep(.04, 0.0, abs(fract(p.x * 9.0) - .5) - .47), smoothstep(.04, 0.0, abs(fract(p.y * 9.0) - .5) - .47)) * .05;
+  col += vec3(.6, .85, 1.0) * smoothstep(.07, 0.0, abs(p.x * .8 - uv.y * .55 - mod(t * .1, 3.4) + .8)) * .08;
   return col;
 }
 
-// Resume: near-black blue ruled page with a cyan scan line.
+// Resume: restrained midnight blue, almost still.
 vec3 resume(vec2 uv, float asp) {
-  vec2 p = vec2(uv.x * asp, uv.y);
-  vec3 col = mix(vec3(.005, .014, .05), vec3(.01, .035, .11), uv.y);
-  col += vec3(.1, .3, .8) * smoothstep(.06, 0.0, abs(fract(uv.y * 26.0) - .5) - .47) * .05;
-  col += vec3(.2, .6, 1.0) * smoothstep(.0015, 0.0, abs(p.x - .11 * asp)) * .12;
-  float d = uv.y - fract(t * .07);
-  float trail = d < 0.0 ? exp(d * 12.0) * .09 : 0.0;
-  col += vec3(.3, .8, 1.0) * (smoothstep(.004, 0.0, abs(d)) * .5 + trail);
+  vec3 col = mix(vec3(.005, .014, .05), vec3(.012, .04, .12), uv.y);
+  col += vec3(.02, .05, .12) * (.5 + .5 * sin(t * .05 + uv.x * 1.5)) * .5 * smoothstep(.2, 1.0, uv.y);
   return col;
 }
 
-// Contact: the Dark Hour. Green night, a large moon glow, pulsing rings and a faint HUD grid.
+// Contact: a calm dark cyan, with a soft light drifting in from the right and a slow mist.
 vec3 contact(vec2 uv, float asp) {
   vec2 p = vec2(uv.x * asp, uv.y);
-  vec2 q = p - vec2(asp * .74, .68);
-  float rad = length(q);
-  vec3 col = mix(vec3(.0, .03, .025), vec3(.02, .16, .12), uv.y * .8);
-  col += vec3(.15, 1.0, .65) * .16 / (1.0 + 16.0 * dot(q, q));
-  float pulse = fract(t * .12);
-  col += vec3(.3, 1.0, .7) * ring(rad, .1 + pulse * .7, .006) * (1.0 - pulse) * .35;
-  vec2 gp = p * 16.0;
-  col += vec3(.1, .6, .4) * max(smoothstep(.03, 0.0, abs(fract(gp.x) - .5) - .47), smoothstep(.03, 0.0, abs(fract(gp.y) - .5) - .47)) * .05 * smoothstep(1.1, .2, rad);
-  col += vec3(.1, .5, .35) * fbm(p * 2.4 + t * .03) * .12;
+  vec3 col = mix(vec3(.0, .025, .04), vec3(.01, .13, .17), uv.y * .8);
+  vec2 q = p - vec2(asp * (.78 + .03 * sin(t * .12)), .62);
+  col += vec3(.1, .6, .75) * .13 / (1.0 + 10.0 * dot(q, q));
+  col += vec3(.04, .3, .38) * fbm(p * 2.0 + vec2(t * .02, -t * .015)) * .22;
+  col += vec3(.1, .6, .75) * smoothstep(.004, 0.0, abs(uv.y - .62)) * .1 * (.6 + .4 * sin(t * .4));
   return col;
 }
 
@@ -264,7 +234,7 @@ export default function Backdrop({ scene }) {
       }
 
       fx.clearRect(0, 0, width, height);
-      const rgb = to === SCENES.length - 1 ? "170, 255, 205" : "150, 215, 255";
+      const rgb = "150, 215, 255";
       motes.forEach((mote) => {
         const x = ((mote.x * width + Math.sin(t * .3 + mote.ph) * 22 * mote.z + sx * 90 * mote.z) % width + width) % width;
         const y = (((mote.y * height - t * 14 * mote.z) % height) + height) % height;
