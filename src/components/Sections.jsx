@@ -218,7 +218,7 @@ export function Projects({ projects, onOpen }) {
       <div className="proj-layout">
         <ol className="proj-list" key={filter}>
           {more.shown.map(({ project, index }, order) => <li key={`${project.name}-${index}`} className={`${order >= more.limit ? "is-extra" : ""}`} style={{ "--extra": order - more.limit }}>
-            <button type="button" className={`proj-row ${order === selected ? "is-active" : ""}`} style={{ "--o": order }} aria-label={`View project: ${project.name}`}
+            <button type="button" data-index={index} className={`proj-row ${order === selected ? "is-active" : ""}`} style={{ "--o": order }} aria-label={`View project: ${project.name}`}
               onClick={() => onOpen(index)} onFocus={() => setSelected(order)} onPointerEnter={(event) => { if (event.pointerType !== "touch") setSelected(order); }}>
               <b className="proj-num" aria-hidden="true">{toRoman(order + 1)}</b>
               <span className="proj-text">
