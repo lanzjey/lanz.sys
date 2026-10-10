@@ -174,7 +174,8 @@ export function Services({ services, email, onNavigate }) {
           </div>
           <h3>{service.name}</h3>
           <p>{service.description}</p>
-          {service.capabilities?.length > 0 && <ul className="ticks">{service.capabilities.filter(isFilled).map((item) => <li key={item}>{item}</li>)}</ul>}
+          {service.capabilities?.filter(isFilled).length > 0 && <div className="svc-group"><h4>What I do</h4><ul className="ticks">{service.capabilities.filter(isFilled).map((item) => <li key={item}>{item}</li>)}</ul></div>}
+          {service.deliverables?.filter(isFilled).length > 0 && <div className="svc-group"><h4>You get</h4><ul className="ticks is-get">{service.deliverables.filter(isFilled).map((item) => <li key={item}>{item}</li>)}</ul></div>}
           {service.tools?.length > 0 && <ul className="chips" aria-label="Tools">{service.tools.map((tool) => <li key={tool}>{tool}</li>)}</ul>}
           <a className="card-link" href={`mailto:${email}?subject=${encodeURIComponent(service.cta || service.name)}`}>{isFilled(service.cta) ? service.cta : "Start a project"} <Arrow /></a>
         </article>)}
@@ -224,6 +225,7 @@ export function Projects({ projects, onOpen }) {
                 <strong>{project.name}</strong>
                 <small>{project.category} · {project.year}</small>
                 <span className="proj-desc">{project.description}</span>
+                <span className="chips proj-tech">{project.tech.filter(isFilled).map((tech) => <span key={tech}>{tech}</span>)}</span>
               </span>
               <span className="pill">{statusLabel(project.status)}</span>
             </button>

@@ -93,6 +93,10 @@ export default function Hero({ profile, projects, onNavigate }) {
         <p className="hero-hint" aria-hidden="true"><kbd>↑</kbd><kbd>↓</kbd> choose <kbd>Enter</kbd> go</p>
       </nav>
     </div>
+    <div className="hero-actions reveal" style={{ "--d": ".5s" }}>
+      <button type="button" className="btn btn-fill" onClick={() => onNavigate("projects")}><span>View projects</span></button>
+      <button type="button" className="btn" onClick={() => onNavigate("contact")}><span>Contact me</span></button>
+    </div>
     {cards.length > 0 && <ul className="now-cards reveal" style={{ "--d": ".4s" }} aria-label="Currently">
       {cards.map((card, index) => <li key={card.tag} style={{ "--k": index }}>
         <button type="button" onClick={() => onNavigate(card.target)}><b>{card.tag}</b><span>{card.text}</span></button>

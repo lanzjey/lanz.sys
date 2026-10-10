@@ -50,8 +50,10 @@ function App() {
 
   useEffect(() => {
     let cancelled = false;
+    // Show the build-time snapshot if the database is slow, then swap in the live content when it arrives.
+    const early = window.setTimeout(() => { if (!cancelled) setContent((current) => current ?? fallbackPortfolio); }, 2500);
     loadPortfolio().then(({ content: loaded }) => { if (!cancelled) setContent(loaded); });
-    return () => { cancelled = true; };
+    return () => { cancelled = true; window.clearTimeout(early); };
   }, []);
 
   const onIntroExit = useCallback(() => setReady(true), []);

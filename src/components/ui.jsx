@@ -32,7 +32,7 @@ export function SectionHeader({ id, eyebrow, phase, title, text, word }) {
   return <header className="sec-head">
     {word && <span className="bg-word" aria-hidden="true">{word}</span>}
     <div className="sec-top">
-      <p className="sec-tab"><Moon phase={phase} size={18} /><span>{eyebrow}</span></p>
+      <p className="sec-tab"><Moon phase={phase} size={18} /><span>{eyebrow}</span><b className="sec-count">{String(Math.max(1, SCENES.indexOf(String(id).replace(/-title$/, "")))).padStart(2, "0")} / {String(SCENES.length - 1).padStart(2, "0")}</b></p>
       <BackToMenu />
     </div>
     <h2 id={id}>{title}</h2>
