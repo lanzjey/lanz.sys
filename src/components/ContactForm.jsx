@@ -27,6 +27,7 @@ export default function ContactForm({ email }) {
   const widgetId = useRef(null);
   const startedAt = useRef(0);
   const [token, setToken] = useState("");
+  const [checkFailed, setCheckFailed] = useState(false);
   const [state, setState] = useState({ kind: "idle", text: "" });
 
   useEffect(() => {
@@ -39,13 +40,18 @@ export default function ContactForm({ email }) {
         sitekey: TURNSTILE_SITE_KEY,
         theme: "dark",
         appearance: "interaction-only",
-        callback: setToken,
+        callback: (value) => { setToken(value); setCheckFailed(false); },
         "expired-callback": () => setToken(""),
-        "error-callback": () => setToken(""),
+        "error-callback": () => { setToken(""); setCheckFailed(true); },
+        "unsupported-callback": () => setCheckFailed(true),
       });
-    }).catch(() => setState({ kind: "error", text: "Spam protection could not load. Please email me directly." }));
+    }).catch(() => setCheckFailed(true));
+    // If the security check never answers (blocked, offline, or this address is not allowed for the key),
+    // stop waiting and offer the email draft instead of leaving the form stuck.
+    const giveUp = window.setTimeout(() => setCheckFailed(true), 12000);
     return () => {
       cancelled = true;
+      window.clearTimeout(giveUp);
       if (widgetId.current != null) window.turnstile?.remove(widgetId.current);
     };
   }, []);
@@ -53,9 +59,9 @@ export default function ContactForm({ email }) {
   const submit = async (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.currentTarget));
-    if (!canSubmitOnline) {
+    if (!canSubmitOnline || (checkFailed && !token)) {
       const body = `Name: ${data.name}\nEmail: ${data.email}\n\n${data.message}`;
-      setState({ kind: "info", text: "Opening your email app with this draft…" });
+      setState({ kind: "info", text: "Opening your email app with this message ready to send. Nothing has been sent yet." });
       window.location.href = `mailto:${email}?subject=${encodeURIComponent("Portfolio inquiry")}&body=${encodeURIComponent(body)}`;
       return;
     }
@@ -90,7 +96,7 @@ export default function ContactForm({ email }) {
     {canSubmitOnline && <div ref={widgetRef} className="turnstile-slot" />}
     <button className="btn btn-fill" type="submit" disabled={sending}>{sending ? <span>Sending…</span> : <><span>Send message</span><Arrow /></>}</button>
     <p className={`form-status is-${state.kind}`} role="status" aria-live="polite">
-      {state.text || (canSubmitOnline ? `Prefer email? Write to ${email}.` : "This opens your email app with the message ready to send.")}
+      {state.text || (canSubmitOnline && !(checkFailed && !token) ? `Prefer email? Write to ${email}.` : "The security check is unavailable, so Send opens your email app with the message ready to send.")}
     </p>
   </form>;
 }

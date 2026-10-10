@@ -144,7 +144,7 @@ ul, ol { padding: 0; list-style: none; }
 /* ── Hero: the menu screen ────────────────────────────── */
 .hero { --px: 0; --py: 0; position: relative; display: grid; align-items: center; min-height: 100svh; padding: 92px 0 60px; overflow: hidden; }
 .duo-defs { position: absolute; width: 0; height: 0; }
-.scene { position: absolute; inset: 0; pointer-events: none; }
+.hero-art { position: absolute; inset: 0; pointer-events: none; }
 .scene-word { position: absolute; left: -2%; top: 16%; font: 400 clamp(6rem, 22vw, 21rem)/.8 var(--display); font-style: normal; text-transform: none; white-space: nowrap; color: transparent; -webkit-text-stroke: 2px rgba(232, 246, 255, .1); transform: rotate(-7deg) translate3d(calc(var(--px) * -34px), calc(var(--hero) * -140px), 0); }
 .scene-slash { position: absolute; display: block; top: -10%; height: 130%; transform: skewX(-18deg) translate3d(calc(var(--px) * 46px), 0, 0); }
 .scene-slash-a { right: 24%; width: 15vw; background: linear-gradient(180deg, rgba(15, 46, 158, .85), rgba(15, 46, 158, 0)); }

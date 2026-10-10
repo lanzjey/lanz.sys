@@ -58,7 +58,7 @@ export default function Hero({ profile, projects, onNavigate }) {
       </filter>
     </svg>
 
-    <div className="scene" aria-hidden="true">
+    <div className="hero-art" aria-hidden="true">
       <i className="scene-word">lanz.sys</i>
       <i className="scene-slash scene-slash-a" /><i className="scene-slash scene-slash-b" />
       <div className="scene-moon"><i /></div>
