@@ -67,7 +67,7 @@ ul, ol { padding: 0; list-style: none; }
 ::selection { background: var(--cyan); color: var(--ink); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .container { width: min(100%, var(--container)); margin-inline: auto; padding-inline: var(--gutter); }
-.loading { min-height: 100svh; display: grid; place-items: center; color: var(--text-muted); font: 600 1rem var(--util); letter-spacing: .2em; text-transform: uppercase; }
+.loading { min-height: 100vh; min-height: 100svh; display: grid; place-items: center; color: var(--text-muted); font: 600 1rem var(--util); letter-spacing: .2em; text-transform: uppercase; }
 
 /* ── Animated backdrop ───────────────────────────────── */
 .backdrop { --mx: 0; --my: 0; --sy: 0; position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: #02060f; }
@@ -139,7 +139,7 @@ ul, ol { padding: 0; list-style: none; }
 @keyframes rise { to { opacity: 1; translate: 0 0; } }
 
 /* ── Hero: the menu screen ────────────────────────────── */
-.hero { --px: 0; --py: 0; position: relative; display: grid; align-items: center; min-height: 100svh; padding: 92px 0 60px; overflow: hidden; }
+.hero { --px: 0; --py: 0; position: relative; display: grid; align-items: center; min-height: 100vh; min-height: 100svh; padding: 92px 0 60px; overflow: hidden; }
 .duo-defs { position: absolute; width: 0; height: 0; }
 .hero-art { position: absolute; inset: 0; pointer-events: none; }
 .scene-word { position: absolute; left: -2%; top: 16%; font: 400 clamp(6rem, 22vw, 21rem)/.8 var(--display); font-style: normal; text-transform: none; white-space: nowrap; color: transparent; -webkit-text-stroke: 2px rgba(232, 246, 255, .1); transform: rotate(-7deg) translate3d(calc(var(--px) * -34px), calc(var(--hero) * -140px), 0); }
@@ -148,7 +148,7 @@ ul, ol { padding: 0; list-style: none; }
 .scene-slash-b { right: 17%; width: 1.6vw; background: linear-gradient(180deg, var(--red), rgba(255, 42, 77, 0)); opacity: .9; }
 .scene-moon { position: absolute; right: 24%; top: 10%; width: clamp(150px, 21vw, 310px); aspect-ratio: 1; transform: translate3d(calc(var(--px) * -46px), calc(var(--py) * -34px + var(--hero) * 90px), 0); }
 .scene-moon i { display: block; width: 100%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 36% 34%, #e6f7ff 0 6%, #7fdcf5 20%, #2fb4dd 46%, #0f2e9e 76%, #060f24 100%); box-shadow: 0 0 90px rgba(55, 214, 255, .22); }
-.scene-portrait { position: absolute; right: clamp(0px, 5vw, 110px); bottom: 0; height: min(94svh, 980px); aspect-ratio: 3 / 4; transform: translate3d(calc(var(--px) * 26px), calc(var(--hero) * 70px + var(--py) * 12px), 0) scale(calc(1 + var(--hero) * .07)); transform-origin: 50% 100%; }
+.scene-portrait { position: absolute; right: clamp(0px, 5vw, 110px); bottom: 0; height: min(94vh, 980px); height: min(94svh, 980px); aspect-ratio: 3 / 4; transform: translate3d(calc(var(--px) * 26px), calc(var(--hero) * 70px + var(--py) * 12px), 0) scale(calc(1 + var(--hero) * .07)); transform-origin: 50% 100%; }
 .scene-portrait img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; filter: url(#duotone); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(ellipse 50% 56% at 50% 46%, #000 52%, transparent 98%), linear-gradient(180deg, #000 78%, transparent); -webkit-mask-composite: source-in; mask-image: radial-gradient(ellipse 50% 56% at 50% 46%, #000 52%, transparent 98%), linear-gradient(180deg, #000 78%, transparent); mask-composite: intersect; }
 .scene-portrait::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle, rgba(2, 6, 15, .7) 1px, transparent 1.6px) 0 0 / 7px 7px; -webkit-mask-image: linear-gradient(0deg, #000, transparent 45%); mask-image: linear-gradient(0deg, #000, transparent 45%); }
 
@@ -559,7 +559,7 @@ a.social-link:hover { background: rgba(55, 214, 255, .2); }
   .scene-slash-a { right: 6%; width: 28vw; }
   .scene-slash-b { right: -2%; width: 4vw; }
   .scene-moon { right: 6%; top: 9%; width: 44vw; opacity: .8; }
-  .scene-portrait { right: -18%; height: 66svh; opacity: .9; }
+  .scene-portrait { right: -18%; height: 66vh; height: 66svh; opacity: .9; }
 }
 @media (max-width: 560px) {
 }
@@ -585,7 +585,7 @@ html, body { height: 100%; overflow: hidden; }
 .scene { position: fixed; inset: 0; z-index: 1; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; outline: none; scrollbar-width: thin; scrollbar-color: rgba(55, 214, 255, .4) transparent; }
 html.scroll-locked .scene { overflow: hidden; }
 .scene > .section:first-child { padding-top: clamp(5.5rem, 12vh, 7.5rem); }
-.scene-home { overflow: hidden; }
+.scene-home { overflow-y: auto; }
 .thread { position: fixed; left: 7px; top: 0; z-index: 70; width: 3px; height: calc(var(--p) * 100%); background: linear-gradient(var(--cyan), rgba(55, 214, 255, .35)); box-shadow: 0 0 14px rgba(55, 214, 255, .7); transition: height .8s var(--ease); pointer-events: none; }
 
 /* Each scene builds in: header first, then its content, one beat at a time. */
@@ -854,3 +854,7 @@ html.scroll-locked .scene { overflow: hidden; }
 @media (max-width: 560px) {
   .hero-actions .btn { flex: 1 1 0; }
 }
+
+/* Touch devices (Android and iOS): no double-tap delay, no grey tap flash, no pull-to-refresh over scenes */
+html { overscroll-behavior-y: none; }
+button, a, input, textarea, select, .proj-row { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }

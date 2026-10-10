@@ -186,13 +186,18 @@ export default function Backdrop({ scene }) {
 
     let width = 0;
     let height = 0;
+    // Quality steps down on slow devices: level 1 renders smaller and less often, level 2 drops the shader.
+    let level = 0;
+    let frames = 0;
+    let acc = 0;
+    let prevNow = 0;
     const resize = () => {
       width = window.innerWidth;
       height = window.innerHeight;
       fxCanvas.width = width;
       fxCanvas.height = height;
       if (gl) {
-        glCanvas.width = Math.min(960, Math.round(width * (coarse ? .4 : .5)));
+        glCanvas.width = Math.min(960, Math.round(width * (coarse ? .4 : .5) * (level === 1 ? .55 : 1)));
         glCanvas.height = Math.round(glCanvas.width * (height / width));
         gl.viewport(0, 0, glCanvas.width, glCanvas.height);
       }
@@ -214,6 +219,19 @@ export default function Backdrop({ scene }) {
     const draw = (now) => {
       frame = requestAnimationFrame(draw);
       tick += 1;
+      if (prevNow) {
+        acc += now - prevNow;
+        frames += 1;
+        if (frames === 90) {
+          if (acc / 90 > 42 && level < 2) {
+            level += 1;
+            if (level === 2) { gl = null; glCanvas.classList.remove("is-live"); } else resize();
+          }
+          frames = 0;
+          acc = 0;
+        }
+      }
+      prevNow = now;
       const t = now / 1000;
       sx += (pointer.x - sx) * .06;
       sy += (pointer.y - sy) * .06;
@@ -223,7 +241,7 @@ export default function Backdrop({ scene }) {
       if (k >= 1 && fadeStart) { from = to; fadeStart = 0; k = 0; }
       else if (!fadeStart) k = 0;
 
-      if (gl && tick % 2 === 0) {
+      if (gl && tick % (level === 1 ? 3 : 2) === 0) {
         gl.uniform2f(uniforms.r, glCanvas.width, glCanvas.height);
         gl.uniform1f(uniforms.t, t % 3600);
         gl.uniform1f(uniforms.sa, from);
@@ -245,6 +263,7 @@ export default function Backdrop({ scene }) {
       });
     };
     const onVisibility = () => {
+      prevNow = 0;
       cancelAnimationFrame(frame);
       if (!document.hidden) frame = requestAnimationFrame(draw);
     };
