@@ -9,7 +9,7 @@ import SceneStage from "./components/SceneStage";
 import ProjectPanel from "./components/ProjectPanel";
 import { About, Certificates, Contact, Projects, Services, Skills } from "./components/Sections";
 import { SceneNav } from "./components/ui";
-import { prefersReducedMotion } from "./lib/utils";
+import { isFilled, prefersReducedMotion } from "./lib/utils";
 import { labelFor } from "./lib/menu";
 import { NavContext } from "./lib/nav";
 import { SCENES, sceneFromLocation, transitionKind, urlFor } from "./lib/scenes";
@@ -55,6 +55,12 @@ function App() {
     loadPortfolio().then(({ content: loaded }) => { if (!cancelled) setContent(loaded); });
     return () => { cancelled = true; window.clearTimeout(early); };
   }, []);
+
+  // The page description follows the profile text you edit in the admin (the static tag in index.html is the fallback).
+  useEffect(() => {
+    if (!content || !isFilled(content.profile.intro)) return;
+    document.querySelector('meta[name="description"]')?.setAttribute("content", `${content.profile.name} — ${content.profile.intro}`);
+  }, [content]);
 
   const onIntroExit = useCallback(() => setReady(true), []);
   const onIntroDone = useCallback(() => {
