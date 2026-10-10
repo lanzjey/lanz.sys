@@ -7,7 +7,7 @@ import { isFilled, prefersReducedMotion } from "../lib/utils";
 // that follows the selection (hover, arrow keys, or tap), over a duotone portrait with layered parallax.
 export default function Hero({ profile, projects, onNavigate }) {
   const [reducedMotion] = useState(prefersReducedMotion);
-  const [active, setActive] = useState(3);
+  const [active, setActive] = useState(() => Math.max(0, menuItems.findIndex((item) => item.id === "projects")));
   const sectionRef = useRef(null);
   const roles = useMemo(() => profile.roles?.length ? profile.roles : [profile.role], [profile.roles, profile.role]);
   const words = profile.name.trim().split(/\s+/);
@@ -38,7 +38,7 @@ export default function Hero({ profile, projects, onNavigate }) {
   // Arrow keys and Enter drive the menu while the hero is on screen.
   useEffect(() => {
     const onKeyDown = (event) => {
-      if (window.scrollY > window.innerHeight * .5 || event.target.closest?.("input, textarea, select, [role='dialog']")) return;
+      if (event.target.closest?.("input, textarea, select, [role='dialog']")) return;
       if (event.key === "ArrowDown") { event.preventDefault(); setActive((value) => (value + 1) % menuItems.length); }
       else if (event.key === "ArrowUp") { event.preventDefault(); setActive((value) => (value - 1 + menuItems.length) % menuItems.length); }
       else if (event.key === "Enter" && !event.target.closest?.("a, button")) onNavigate(menuItems[active].id);
@@ -98,6 +98,5 @@ export default function Hero({ profile, projects, onNavigate }) {
         <button type="button" onClick={() => onNavigate(card.target)}><b>{card.tag}</b><span>{card.text}</span></button>
       </li>)}
     </ul>}
-    <p className="scroll-cue" aria-hidden="true">Scroll</p>
   </section>;
 }

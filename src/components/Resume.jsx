@@ -44,7 +44,7 @@ export default function Resume({ profile, skills, education, experience, certifi
     <div className="container">
       <SectionHeader id="resume-title" phase={6} word="RESUME" eyebrow="Resume" title={<>Take the <em>full record</em></>} text="My education, skills, and work in one place. Read it here or save a copy." />
 
-      <div className="resume-card scroll-fx">
+      <div className="resume-card">
         <div className="resume-seal" aria-hidden="true"><span>CV</span></div>
         <div className="resume-main">
           <h3>{resume.title}</h3>

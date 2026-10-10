@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { Arrow, BackToMenu, SectionHeader, ShowMore } from "./ui";
 import { useShowMore } from "../hooks/useShowMore";
 import ContactForm from "./ContactForm";
@@ -50,7 +50,7 @@ function FilterTabs({ label, items, value, onChange, counts }) {
 const countBy = (items, key) => items.reduce((acc, item) => ({ ...acc, [item[key]]: (acc[item[key]] || 0) + 1 }), { All: items.length });
 
 /* ── About ──────────────────────────────────────────────── */
-export function About({ profile, onNavigate }) {
+export function About({ profile, education, experience, onNavigate }) {
   const facts = [
     ["Studying", profile.playerClass],
     ["Focus", profile.specialization],
@@ -61,11 +61,11 @@ export function About({ profile, onNavigate }) {
     <div className="container">
       <SectionHeader id="about-title" phase={0} word="ABOUT" eyebrow="About" title={<>The person behind <em>the work</em></>} />
       <div className="about-grid">
-        <figure className="portrait scroll-fx">
+        <figure className="portrait">
           <div className="portrait-frame"><img src={profile.image} alt={profile.imageAlt} loading="lazy" /></div>
           <figcaption><strong>{profile.name}</strong><span>{profile.role}</span></figcaption>
         </figure>
-        <div className="about-body scroll-fx" style={{ "--delay": 1 }}>
+        <div className="about-body" style={{ "--delay": 1 }}>
           <p className="about-lead">{profile.about}</p>
           <p className="about-text">{profile.intro}</p>
           <dl className="facts">
@@ -77,8 +77,34 @@ export function About({ profile, onNavigate }) {
           </div>
         </div>
       </div>
+      <Background education={education} experience={experience} />
     </div>
   </section>;
+}
+
+// Experience and education, shown inside About once real entries exist (placeholders stay hidden).
+function Background({ education, experience }) {
+  const milestones = [
+    ...experience.map((item) => ({ ...item, kind: "Experience" })),
+    ...education.map((item) => ({ ...item, kind: "Education" })),
+  ].filter((item) => isFilled(item.title));
+  const more = useShowMore(milestones, 3);
+  if (!milestones.length) return null;
+  return <div className="subsection">
+    <h3 className="subhead">Background</h3>
+    <ol className="timeline">
+      {more.shown.map((item, index) => <li key={`${item.kind}-${index}`} className={`timeline-item ${index >= more.limit ? "is-extra" : ""}`} style={{ "--extra": index - more.limit }}>
+        <span className="timeline-node" aria-hidden="true" />
+        <div className="card">
+          <div className="card-meta"><span className={`kind kind-${item.kind.toLowerCase()}`}>{item.kind}</span>{isFilled(item.period) && <span>{item.period}</span>}</div>
+          <h3>{item.title}</h3>
+          {isFilled(item.organization) && <p className="timeline-org">{item.organization}</p>}
+          {isFilled(item.description) && <p>{item.description}</p>}
+        </div>
+      </li>)}
+    </ol>
+    <ShowMore {...more} />
+  </div>;
 }
 
 /* ── Skills + toolkit ───────────────────────────────────── */
@@ -102,7 +128,7 @@ export function Skills({ skills, tools }) {
       <div className="card-grid" key={category}>
         {more.shown.map((skill, index) => {
           const steps = levelSteps[skill.level?.toLowerCase()] || 0;
-          return <article key={skill.name} className={`card skill scroll-fx ${index >= more.limit ? "is-extra" : ""}`} style={{ "--delay": index % 3, "--extra": index - more.limit }}>
+          return <article key={skill.name} className={`card skill ${index >= more.limit ? "is-extra" : ""}`} style={{ "--delay": index % 3, "--extra": index - more.limit }}>
             <div className="card-meta"><span>{skill.category}</span>{steps > 0 && <span className="level-text">{skill.level}</span>}</div>
             <h3>{skill.name}</h3>
             {steps > 0 && <div className="level-bar" role="img" aria-label={`${skill.level}: ${steps} of 4`}>{[1, 2, 3, 4].map((n) => <i key={n} className={n <= steps ? "on" : ""} />)}</div>}
@@ -113,7 +139,7 @@ export function Skills({ skills, tools }) {
       </div>
       <ShowMore {...more} />
 
-      {toolList.length > 0 && <div className="subsection scroll-fx">
+      {toolList.length > 0 && <div className="subsection">
         <h3 className="subhead">Toolkit</h3>
         <FilterTabs label="Filter tools by category" items={toolCategories} value={toolCategory} onChange={setToolCategory} />
         <ul className="tool-grid" key={toolCategory}>
@@ -141,7 +167,7 @@ export function Services({ services, email, onNavigate }) {
     <div className="container">
       <SectionHeader id="services-title" phase={2} word="SERVICES" eyebrow="Services" title={<>Digital work, <em>ready to go</em></>} text="Ways I can help, from creative production to organized, dependable digital support." />
       <div className="card-grid card-grid-2">
-        {more.shown.map((service, index) => <article key={service.name} className={`card service scroll-fx ${index >= more.limit ? "is-extra" : ""}`} style={{ "--delay": index % 2, "--extra": index - more.limit }}>
+        {more.shown.map((service, index) => <article key={service.name} className={`card service ${index >= more.limit ? "is-extra" : ""}`} style={{ "--delay": index % 2, "--extra": index - more.limit }}>
           <div className="service-head">
             <span className="icon-badge"><Icon path={iconFor(service.name)} /></span>
             {isFilled(service.availability) && <span className="pill">{service.availability}</span>}
@@ -154,7 +180,7 @@ export function Services({ services, email, onNavigate }) {
         </article>)}
       </div>
       <ShowMore {...more} />
-      <div className="subsection scroll-fx">
+      <div className="subsection">
         <h3 className="subhead">How working with me goes</h3>
         <ol className="steps">
           {processSteps.map((step, index) => <li key={step.title}><b aria-hidden="true">{pad(index + 1)}</b><strong>{step.title}</strong><span>{step.text}</span></li>)}
@@ -220,34 +246,6 @@ export function Projects({ projects, onOpen }) {
   </section>;
 }
 
-/* ── Experience ─────────────────────────────────────────── */
-export function Experience({ education, experience }) {
-  const milestones = [
-    ...experience.map((item) => ({ ...item, kind: "Experience" })),
-    ...education.map((item) => ({ ...item, kind: "Education" })),
-  ].filter((item) => isFilled(item.title));
-  const more = useShowMore(milestones, 4);
-  return <section id="experience" className="section" aria-labelledby="experience-title">
-    <div className="container">
-      <SectionHeader id="experience-title" phase={4} word="JOURNEY" eyebrow="Experience" title={<>Growth through <em>practice</em></>} text="Education and hands-on experience, in the order they happened." />
-      {milestones.length ? <>
-        <ol className="timeline">
-          {more.shown.map((item, index) => <li key={`${item.kind}-${index}`} className={`timeline-item ${index >= more.limit ? "is-extra" : ""}`} style={{ "--extra": index - more.limit }}>
-            <span className="timeline-node" aria-hidden="true" />
-            <div className="card scroll-fx">
-              <div className="card-meta"><span className={`kind kind-${item.kind.toLowerCase()}`}>{item.kind}</span>{isFilled(item.period) && <span>{item.period}</span>}</div>
-              <h3>{item.title}</h3>
-              {isFilled(item.organization) && <p className="timeline-org">{item.organization}</p>}
-              {isFilled(item.description) && <p>{item.description}</p>}
-            </div>
-          </li>)}
-        </ol>
-        <ShowMore {...more} />
-      </> : <div className="card empty scroll-fx"><p><strong>Details on the way.</strong>Education and experience will appear here as they are added.</p></div>}
-    </div>
-  </section>;
-}
-
 /* ── Certificates ───────────────────────────────────────── */
 export function Certificates({ certificates }) {
   const credentials = certificates.filter((item) => isFilled(item.title) && isFilled(item.issuer));
@@ -257,7 +255,7 @@ export function Certificates({ certificates }) {
       <SectionHeader id="certificates-title" phase={5} word="CERTS" eyebrow="Certificates" title={<>Credentials <em>earned</em></>} text="Training and certifications, with verification links where they exist." />
       {credentials.length ? <>
         <ul className="card-grid">
-          {more.shown.map((item, index) => <li key={`${item.title}-${index}`} className={`card cert scroll-fx ${index >= more.limit ? "is-extra" : ""}`} style={{ "--delay": index % 3, "--extra": index - more.limit }}>
+          {more.shown.map((item, index) => <li key={`${item.title}-${index}`} className={`card cert ${index >= more.limit ? "is-extra" : ""}`} style={{ "--delay": index % 3, "--extra": index - more.limit }}>
             {item.image ? <a className="cert-thumb" href={item.image} target="_blank" rel="noopener noreferrer"><img src={item.image} alt={`${item.title} certificate`} loading="lazy" /></a> : <span className="icon-badge" aria-hidden="true"><Icon path={icons.assist} /></span>}
             <h3>{item.title}</h3>
             <p className="cert-issuer">{item.issuer}{isFilled(item.date) ? ` · ${item.date}` : ""}</p>
@@ -269,25 +267,7 @@ export function Certificates({ certificates }) {
           </li>)}
         </ul>
         <ShowMore {...more} />
-      </> : <div className="card empty scroll-fx"><p><strong>Certificates are on the way.</strong>They will appear here as they are earned and verified.</p></div>}
-    </div>
-  </section>;
-}
-
-/* ── Feedback (rendered once approved messages exist) ───── */
-export function Testimonials({ testimonials }) {
-  const more = useShowMore(testimonials, 3);
-  if (!testimonials.length) return null;
-  return <section id="feedback" className="section" aria-labelledby="feedback-title">
-    <div className="container">
-      <SectionHeader id="feedback-title" phase={6} eyebrow="Feedback" title={<>Kind words from <em>collaborators</em></>} />
-      <div className="card-grid">
-        {more.shown.map((item, index) => <figure key={`${item.name}-${index}`} className={`card quote scroll-fx ${index >= more.limit ? "is-extra" : ""}`} style={{ "--extra": index - more.limit }}>
-          <blockquote>{item.message}</blockquote>
-          <figcaption><strong>{item.name}</strong><span>{item.role}</span></figcaption>
-        </figure>)}
-      </div>
-      <ShowMore {...more} />
+      </> : <div className="card empty"><p><strong>Certificates are on the way.</strong>They will appear here as they are earned and verified.</p></div>}
     </div>
   </section>;
 }
@@ -295,19 +275,6 @@ export function Testimonials({ testimonials }) {
 /* ── Contact ────────────────────────────────────────────── */
 export function Contact({ profile, socialLinks, resume }) {
   const [copied, setCopied] = useState(false);
-  const sectionRef = useRef(null);
-  // The one Dark Hour moment: the page backdrop turns green while the contact section is on screen.
-  useEffect(() => {
-    const node = sectionRef.current;
-    if (!node) return undefined;
-    const root = document.documentElement;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) root.dataset.darkHour = "1";
-      else delete root.dataset.darkHour;
-    }, { threshold: .35 });
-    observer.observe(node);
-    return () => { observer.disconnect(); delete root.dataset.darkHour; };
-  }, []);
   const copyEmail = async () => {
     try {
       await navigator.clipboard.writeText(profile.email);
@@ -316,11 +283,11 @@ export function Contact({ profile, socialLinks, resume }) {
     } catch { setCopied(false); }
   };
   const resumeHref = resume.file || resume.url;
-  return <section ref={sectionRef} id="contact" className="section section-contact" aria-labelledby="contact-title">
+  return <section id="contact" className="section section-contact" aria-labelledby="contact-title">
     <div className="dh-moon" aria-hidden="true"><i /></div>
     <div className="container">
       <p className="stamp" aria-hidden="true">Mail</p>
-      <div className="contact-panel scroll-fx">
+      <div className="contact-panel">
         <div className="contact-info">
           <div className="sec-top"><p className="sec-tab"><span>Contact</span></p><BackToMenu /></div>
           <h2 id="contact-title">Let's build something <em>together</em></h2>

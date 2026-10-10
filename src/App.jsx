@@ -4,34 +4,48 @@ import Hero from "./components/Hero";
 import Intro from "./components/Intro";
 import Resume from "./components/Resume";
 import Backdrop from "./components/Backdrop";
+import Transition from "./components/Transition";
 import ProjectPanel from "./components/ProjectPanel";
-import { About, Certificates, Contact, Experience, Projects, Services, Skills, Testimonials } from "./components/Sections";
-import { Arrow } from "./components/ui";
+import { About, Certificates, Contact, Projects, Services, Skills } from "./components/Sections";
+import { SceneNav } from "./components/ui";
+import { prefersReducedMotion } from "./lib/utils";
 import { labelFor } from "./lib/menu";
 import { NavContext } from "./lib/nav";
-import { prefersReducedMotion } from "./lib/utils";
-import { scrollToElement, setScrollLocked, startSmoothScroll } from "./lib/scroll";
-import { useScrollFX } from "./hooks/useScrollFX";
+import { SCENES, sceneFromLocation, transitionKind, urlFor } from "./lib/scenes";
+import { setScrollLocked } from "./lib/scroll";
 import { fallbackPortfolio, loadPortfolio } from "./services/portfolioRepository";
 
 const INTRO_KEY = "jlm-intro-seen";
-const sectionAlias = { missions: "projects", profile: "about", loadout: "skills", education: "experience" };
+const COVER_MS = 380;
+const REVEAL_MS = 440;
 
 const introSeen = () => {
   if (prefersReducedMotion()) return true;
   try { return window.sessionStorage.getItem(INTRO_KEY) === "1"; } catch { return false; }
 };
 
+function Footer({ name }) {
+  return <footer className="footer">
+    <div className="container footer-inner">
+      <span className="footer-brand">lanz<b>.sys</b></span>
+      <span className="footer-copy">
+        <span>© {new Date().getFullYear()} {name}. Built with React.</span>
+        <small>Design inspired by Persona 3 Reload, with original artwork. Persona belongs to its respective owners; this site is not affiliated with or endorsed by them.</small>
+      </span>
+    </div>
+  </footer>;
+}
+
 function App() {
   const [content, setContent] = useState(null);
   const [introDone, setIntroDone] = useState(introSeen);
   const [ready, setReady] = useState(introSeen);
-  const [wipe, setWipe] = useState("");
-  const [wipeLabel, setWipeLabel] = useState("");
+  const [scene, setScene] = useState(sceneFromLocation);
+  const [tx, setTx] = useState(null);
   const [activeProject, setActiveProject] = useState(null);
-  const pendingTarget = useRef(window.location.hash ? decodeURIComponent(window.location.hash.slice(1)) : null);
-  const wipeTimers = useRef([]);
-  useScrollFX(introDone && Boolean(content));
+  const targetRef = useRef(scene);
+  const timers = useRef([]);
+  const firstScene = useRef(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -39,36 +53,53 @@ function App() {
     return () => { cancelled = true; };
   }, []);
 
-  useEffect(() => (introDone && content ? startSmoothScroll() : undefined), [introDone, content]);
-  useEffect(() => () => wipeTimers.current.forEach(window.clearTimeout), []);
-
   const onIntroExit = useCallback(() => setReady(true), []);
   const onIntroDone = useCallback(() => {
     try { window.sessionStorage.setItem(INTRO_KEY, "1"); } catch { /* the intro simply plays again next visit */ }
     setIntroDone(true);
   }, []);
 
-  useEffect(() => {
-    if (!introDone || !content || !pendingTarget.current) return;
-    scrollToElement(document.getElementById(sectionAlias[pendingTarget.current] || pendingTarget.current), { immediate: true });
-    pendingTarget.current = null;
-  }, [introDone, content]);
-
-  // Jumping across the page plays a short diagonal wipe, then lands on the section.
-  const navigate = useCallback((id) => {
-    const target = document.getElementById(sectionAlias[id] || id);
-    if (!target) return;
-    try { window.history.replaceState(null, "", `#${target.id}`); } catch { /* the address bar just stays as it was */ }
-    const far = Math.abs(target.getBoundingClientRect().top) > window.innerHeight * 1.4;
-    if (!far || prefersReducedMotion()) { scrollToElement(target); return; }
-    wipeTimers.current.forEach(window.clearTimeout);
-    setWipeLabel(labelFor(target.id));
-    setWipe("in");
-    wipeTimers.current = [
-      window.setTimeout(() => { scrollToElement(target, { immediate: true }); setWipe("out"); }, 520),
-      window.setTimeout(() => setWipe(""), 1150),
+  // One history entry per scene change. Re-opening the current scene adds nothing. If a transition
+  // is still playing, it is finished instantly so navigation never waits on an animation.
+  const go = useCallback((id, { push = true } = {}) => {
+    if (!SCENES.includes(id) || id === targetRef.current) return;
+    if (timers.current.length) {
+      timers.current.forEach(window.clearTimeout);
+      timers.current = [];
+      setScene(targetRef.current);
+      setTx(null);
+    }
+    const from = targetRef.current;
+    targetRef.current = id;
+    if (push) { try { window.history.pushState({ scene: id }, "", urlFor(id)); } catch { /* history unavailable: the scene still changes */ } }
+    if (prefersReducedMotion()) { setScene(id); return; }
+    setTx({ kind: transitionKind(from, id), phase: "in", label: labelFor(id) });
+    timers.current = [
+      window.setTimeout(() => { setScene(id); setTx((current) => current && { ...current, phase: "out" }); }, COVER_MS),
+      window.setTimeout(() => { setTx(null); timers.current = []; }, COVER_MS + REVEAL_MS),
     ];
   }, []);
+
+  useEffect(() => {
+    try { window.history.replaceState({ scene: targetRef.current }, "", urlFor(targetRef.current)); } catch { /* ignore */ }
+    const onPop = () => go(sceneFromLocation(), { push: false });
+    window.addEventListener("popstate", onPop);
+    return () => { window.removeEventListener("popstate", onPop); timers.current.forEach(window.clearTimeout); };
+  }, [go]);
+
+  // The contact scene is the Dark Hour: a green accent for the rest of the page styling.
+  useEffect(() => {
+    const root = document.documentElement;
+    if (scene === "contact") root.dataset.darkHour = "1";
+    else delete root.dataset.darkHour;
+    return () => { delete root.dataset.darkHour; };
+  }, [scene]);
+
+  // Move focus into the new scene so keyboard and screen-reader users start at its top.
+  useEffect(() => {
+    if (firstScene.current) { firstScene.current = false; return; }
+    document.querySelector(".scene")?.focus({ preventScroll: true });
+  }, [scene]);
 
   const panelOpen = activeProject !== null;
   useEffect(() => {
@@ -84,52 +115,60 @@ function App() {
     };
   }, [panelOpen]);
 
-  // Esc is the shortcut for "Back to Menu" anywhere below the hero.
+  // Esc returns to the hub; the arrow keys step through the journey.
   useEffect(() => {
     if (!introDone || !content) return undefined;
     const onKeyDown = (event) => {
-      if (event.key !== "Escape" || panelOpen || document.querySelector(".menu.is-open") || window.scrollY < window.innerHeight * .5) return;
-      navigate("home");
+      if (panelOpen || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || document.querySelector(".menu.is-open")) return;
+      if (event.target.closest?.("input, textarea, select, [contenteditable], .panel-shots")) return;
+      const index = SCENES.indexOf(targetRef.current);
+      if (event.key === "Escape" && index > 0) go("home");
+      else if (event.key === "ArrowRight" && index > 0 && index < SCENES.length - 1) go(SCENES[index + 1]);
+      else if (event.key === "ArrowLeft" && index > 0) go(SCENES[index - 1]);
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [introDone, content, panelOpen, navigate]);
+  }, [introDone, content, panelOpen, go]);
 
   const profile = (content || fallbackPortfolio).profile;
-  const showSite = introDone && content;
+  const index = SCENES.indexOf(scene);
+
+  const renderScene = () => {
+    switch (scene) {
+      case "about": return <About profile={content.profile} education={content.education} experience={content.experience} onNavigate={go} />;
+      case "projects": return <Projects projects={content.projects} onOpen={setActiveProject} />;
+      case "skills": return <Skills skills={content.skills} tools={content.tools} />;
+      case "services": return <Services services={content.services} email={content.profile.email} onNavigate={go} />;
+      case "certificates": return <Certificates certificates={content.certificates} />;
+      case "resume": return <Resume profile={content.profile} skills={content.skills} education={content.education} experience={content.experience} certificates={content.certificates} tools={content.tools} resume={content.resume} />;
+      case "contact": return <Contact profile={content.profile} socialLinks={content.socialLinks} resume={content.resume} />;
+      default: return <Hero profile={content.profile} projects={content.projects} onNavigate={go} />;
+    }
+  };
 
   return <>
     {!introDone && <Intro name={profile.name} onExit={onIntroExit} onDone={onIntroDone} />}
     {introDone && !content && <div className="loading" role="status">Loading portfolio…</div>}
-    {content && <NavContext.Provider value={navigate}><div className={`site-shell ${ready ? "is-ready" : ""}`}>
-      <Backdrop />
-      <a className="skip-link" href="#about">Skip to content</a>
-      <Navbar onNavigate={navigate} brand="lanz.sys" />
-      <main id="main">
-        <Hero profile={content.profile} projects={content.projects} onNavigate={navigate} />
-        <About profile={content.profile} onNavigate={navigate} />
-        <Skills skills={content.skills} tools={content.tools} />
-        <Services services={content.services} email={content.profile.email} onNavigate={navigate} />
-        <Projects projects={content.projects} onOpen={setActiveProject} />
-        <Experience education={content.education} experience={content.experience} />
-        <Certificates certificates={content.certificates} />
-        <Testimonials testimonials={content.testimonials} />
-        <Resume profile={content.profile} skills={content.skills} education={content.education} experience={content.experience} certificates={content.certificates} tools={content.tools} resume={content.resume} />
-        <Contact profile={content.profile} socialLinks={content.socialLinks} resume={content.resume} />
-      </main>
-      <footer className="footer">
-        <div className="container footer-inner">
-          <span className="footer-brand">lanz<b>.sys</b></span>
-          <span className="footer-copy">
-            <span>© {new Date().getFullYear()} {profile.name}. Built with React.</span>
-            <small>Design inspired by Persona 3 Reload, with original artwork. Persona belongs to its respective owners; this site is not affiliated with or endorsed by them.</small>
-          </span>
-          <a className="text-link" href="#home" onClick={(event) => { event.preventDefault(); navigate("home"); }}>Back to top <Arrow direction="up" /></a>
-        </div>
-      </footer>
-      {panelOpen && showSite && <ProjectPanel projects={content.projects} index={activeProject} onChange={setActiveProject} onClose={() => setActiveProject(null)} />}
-      <div className={`burst ${wipe ? `is-${wipe}` : ""}`} aria-hidden="true"><i className="burst-rays" /><i className="burst-slab" /><b>{wipeLabel}</b></div>
-    </div></NavContext.Provider>}
+    {content && <NavContext.Provider value={go}>
+      <div className={`site-shell ${ready ? "is-ready" : ""}`}>
+        <Backdrop scene={scene} />
+        <button type="button" className="skip-link" onClick={() => document.querySelector(".scene")?.focus()}>Skip to content</button>
+        <Navbar onNavigate={go} scene={scene} brand="lanz.sys" />
+        <span className="thread" style={{ "--p": index / (SCENES.length - 1) }} aria-hidden="true" />
+        <main id="main">
+          <div key={scene} className={`scene scene-${scene}`} data-scene={scene} tabIndex={-1} aria-label={labelFor(scene)}>
+            {renderScene()}
+            {scene !== "home" && <>
+              <SceneNav id={scene} />
+              <Footer name={profile.name} />
+            </>}
+          </div>
+        </main>
+        <p className="sr-only" role="status" aria-live="polite">{labelFor(scene)}</p>
+        {panelOpen && <ProjectPanel projects={content.projects} index={activeProject} onChange={setActiveProject} onClose={() => setActiveProject(null)} />}
+        <Transition tx={tx} />
+      </div>
+    </NavContext.Provider>}
   </>;
 }
 

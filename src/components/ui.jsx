@@ -1,6 +1,8 @@
 import { useContext, useEffect, useState } from "react";
 import { NavContext } from "../lib/nav";
 import { scrollToElement } from "../lib/scroll";
+import { SCENES } from "../lib/scenes";
+import { labelFor } from "../lib/menu";
 
 // Moon phase glyph, drawn with SVG so it stays crisp at any size. `phase` runs 0-7
 // (new moon → full moon → waning crescent) and tags each section like a calendar day.
@@ -27,7 +29,7 @@ export function BackToMenu() {
 
 // Section title: a slanted tab with the moon phase, then the heading. `em` words become cyan slabs.
 export function SectionHeader({ id, eyebrow, phase, title, text, word }) {
-  return <header className="sec-head scroll-fx">
+  return <header className="sec-head">
     {word && <span className="bg-word" aria-hidden="true">{word}</span>}
     <div className="sec-top">
       <p className="sec-tab"><Moon phase={phase} size={18} /><span>{eyebrow}</span></p>
@@ -36,6 +38,18 @@ export function SectionHeader({ id, eyebrow, phase, title, text, word }) {
     <h2 id={id}>{title}</h2>
     {text && <p className="sec-lead">{text}</p>}
   </header>;
+}
+
+// Previous and next scene prompts at the end of every scene: the journey in narrative order.
+export function SceneNav({ id }) {
+  const navigate = useContext(NavContext);
+  const index = SCENES.indexOf(id);
+  const prev = SCENES[index - 1];
+  const next = SCENES[index + 1];
+  return <nav className="scene-nav" aria-label="Scenes">
+    {prev && <button type="button" className="scene-step is-prev" onClick={() => navigate(prev)}><i aria-hidden="true" /><span><small>Previous</small>{labelFor(prev)}</span></button>}
+    {next && <button type="button" className="scene-step is-next" onClick={() => navigate(next)}><span><small>Next</small>{labelFor(next)}</span><i aria-hidden="true" /></button>}
+  </nav>;
 }
 
 export function Arrow({ direction = "up-right" }) {

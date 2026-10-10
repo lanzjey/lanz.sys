@@ -7,34 +7,11 @@ const links = [{ id: "home", label: "Home" }, ...menuItems];
 
 // The persistent menu: a vertical list on wide screens, a full-screen sheet on phones and tablets.
 // The current section is the cyan slab.
-export default function Navbar({ onNavigate, brand }) {
+export default function Navbar({ onNavigate, brand, scene }) {
   const [open, setOpen] = useState(false);
-  const [active, setActive] = useState("home");
+  const active = scene;
   const toggleRef = useRef(null);
   const listRef = useRef(null);
-  const progressRef = useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-      if (visible) setActive(visible.target.id);
-    }, { rootMargin: "-40% 0px -50% 0px", threshold: [0, .1, .4] });
-    document.querySelectorAll("main > section[id]").forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    let frame = 0;
-    const update = () => {
-      frame = 0;
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      progressRef.current?.style.setProperty("--progress", `${max > 0 ? Math.min(1, window.scrollY / max) : 0}`);
-    };
-    const onScroll = () => { if (!frame) frame = requestAnimationFrame(update); };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => { window.removeEventListener("scroll", onScroll); cancelAnimationFrame(frame); };
-  }, []);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -61,7 +38,6 @@ export default function Navbar({ onNavigate, brand }) {
       <button ref={toggleRef} type="button" className="menu-toggle" aria-expanded={open} aria-controls="primary-menu" onClick={() => setOpen(!open)}>
         <span>{open ? "Close" : "Menu"}</span>
       </button>
-      <span ref={progressRef} className="scroll-progress" aria-hidden="true" />
     </header>
     <nav id="primary-menu" ref={listRef} data-lenis-prevent className={`menu ${open ? "is-open" : ""} ${active === "home" ? "is-hero" : ""}`} aria-label="Primary">
       <ul>
