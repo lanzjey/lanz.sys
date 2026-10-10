@@ -61,6 +61,7 @@ img { display: block; }
 a { color: inherit; }
 button, input, textarea, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
+:where(button) { background: none; border: 0; padding: 0; }
 h1, h2, h3, h4, p, ul, ol, dl, figure { margin: 0; }
 ul, ol { padding: 0; list-style: none; }
 :focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; }
@@ -579,7 +580,7 @@ a.social-link:hover { background: rgba(55, 214, 255, .2); }
 @media (hover: none) { .back-menu kbd { display: none; } }
 
 /* ── Scenes ───────────────────────────────────────────── */
-html, body { height: 100%; overflow: hidden; }
+html.has-scenes, html.has-scenes body { height: 100%; overflow: hidden; }
 .skip-link { position: fixed; left: 1rem; top: -4rem; z-index: 400; padding: .7rem 1rem; color: var(--ink); background: var(--cyan); border: 0; font: 700 .9rem var(--util); letter-spacing: .1em; text-transform: uppercase; }
 .skip-link:focus { top: 1rem; }
 .scene { position: fixed; inset: 0; z-index: 1; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; outline: none; scrollbar-width: thin; scrollbar-color: rgba(55, 214, 255, .4) transparent; }
@@ -639,7 +640,7 @@ html.scroll-locked .scene { overflow: hidden; }
   .thread { width: 2px; left: 4px; }
 }
 @media print {
-  html, body { height: auto; overflow: visible; }
+  html.has-scenes, html.has-scenes body { height: auto; overflow: visible; }
   .scene { position: static; overflow: visible; }
   .scene-nav, .thread, .backdrop, .topbar, .menu { display: none !important; }
 }
@@ -858,3 +859,26 @@ html.scroll-locked .scene { overflow: hidden; }
 /* Touch devices (Android and iOS): no double-tap delay, no grey tap flash, no pull-to-refresh over scenes */
 html { overscroll-behavior-y: none; }
 button, a, input, textarea, select, .proj-row { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+
+
+/* Scroll reveals: held back only when JS has marked the element as below the fold */
+[data-sr] { opacity: 0; translate: 0 28px; animation: none !important; }
+[data-sr].is-in { opacity: 1; translate: 0 0; transition: opacity .6s var(--ease) var(--sr-d, 0ms), translate .6s var(--ease) var(--sr-d, 0ms); }
+
+/* Subtle parallax: stage layers drift against the scene's scroll (set by SceneStage as --sy) */
+.stage-host { display: contents; }
+.stage > svg:not(.st-seal) { height: calc(100% + 80px); translate: 0 calc(max(-70, var(--sy, 0) * -.035) * 1px); }
+.st-seal { translate: -50% calc(-50% + max(-60, var(--sy, 0) * -.04) * 1px); }
+.st-shape.sa { translate: 0 calc(max(-90, var(--sy, 0) * -.06) * 1px); }
+.st-shape.sb { translate: 0 calc(max(-60, var(--sy, 0) * -.03) * 1px); }
+.st-shape.sc { translate: 0 calc(min(70, var(--sy, 0) * .04) * 1px); }
+.cr-card.c1 { translate: 0 calc(max(-80, var(--sy, 0) * -.05) * 1px); }
+.cr-card.c2 { translate: 0 calc(max(-60, var(--sy, 0) * -.035) * 1px); }
+.cr-card.c3 { translate: 0 calc(max(-40, var(--sy, 0) * -.02) * 1px); }
+.ct-bloom.a { translate: 0 calc(max(-80, var(--sy, 0) * -.05) * 1px); }
+.ct-bloom.b { translate: 0 calc(min(60, var(--sy, 0) * .04) * 1px); }
+@media (prefers-reduced-motion: reduce) {
+  [data-sr] { opacity: 1; translate: 0 0; }
+  .stage > svg, .st-seal, .st-shape, .cr-card, .ct-bloom { translate: none; }
+  .st-seal { translate: -50% -50%; }
+}

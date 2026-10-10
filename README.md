@@ -10,6 +10,8 @@ Portfolio of Jayzel Lance Macatuggal: a cinematic, scene-based single-page site 
 - **Scenes, not pages.** `Home` is the hub. `About`, `Projects`, `Skills`, `Services`, `Certificates`, `Resume` and `Contact` each open as a full-screen scene that scrolls inside itself. There is no router: the scene lives in the URL hash (`/#projects`), every scene change adds one browser-history entry, and Back/Forward step through scenes. `/admin` is the only real path.
 - **Navigation:** hero menu (mouse, tap, arrow keys + Enter), side menu / phone menu sheet, `Back to Menu` and `Esc` to go Home, `←` `→` and the Previous / Next prompts to walk the journey in order.
 - **Motion:** one animated backdrop per scene (a small WebGL shader at reduced resolution, cross-faded on change), an SVG/CSS "stage" composition per scene, and seven narrative transitions of about 0.8 s. Reduced-motion users get instant scene changes and static compositions. On slow devices the backdrop steps its quality down, down to plain CSS colours.
+- **Scroll reveals:** inside a scene, anything below the fold fades and slides up as it scrolls into view (`src/hooks/useScrollReveal.js`; works with touch swipes and momentum scrolling, never takes over scrolling), and a few stage layers drift slightly against the scroll (`SceneStage.jsx`). Reduced motion turns both off.
+- **Admin** (`/admin`) is a normal scrolling page. Only the public site locks the page for scenes (`html.has-scenes`).
 - **Content** lives in Supabase and is edited at `/admin`. The build saves a copy to `src/data/snapshot.json` (git-ignored, regenerated on every build); the site falls back to it if the database is slow or down, and to `src/data/*.js` if there is no snapshot.
 
 ## Project map

@@ -198,3 +198,12 @@ code { padding: .1rem .35rem; border-radius: 4px; background: var(--adm-panel-2)
 @media (prefers-reduced-motion: reduce) {
   .adm-nav, .adm-toast { transition: none; animation: none; }
 }
+
+
+/* Gentle fade-in for whatever is showing (opacity only, so the sticky save bar is never affected) */
+.adm-main > * { animation: adm-in .35s ease both; }
+@keyframes adm-in { from { opacity: 0; } }
+.adm-shell a, .adm-auth a { text-decoration: none; }
+.adm-shell a:hover, .adm-auth a:hover { text-decoration: underline; }
+.adm-shell button:focus-visible, .adm-shell a:focus-visible, .adm-shell input:focus-visible, .adm-shell select:focus-visible, .adm-shell textarea:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .adm-main > * { animation: none; } }

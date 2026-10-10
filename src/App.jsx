@@ -6,6 +6,7 @@ import Resume from "./components/Resume";
 import Backdrop from "./components/Backdrop";
 import Transition from "./components/Transition";
 import SceneStage from "./components/SceneStage";
+import { useScrollReveal } from "./hooks/useScrollReveal";
 import ProjectPanel from "./components/ProjectPanel";
 import { About, Certificates, Contact, Projects, Services, Skills } from "./components/Sections";
 import { SceneNav } from "./components/ui";
@@ -101,6 +102,14 @@ function App() {
     if (firstScene.current) { firstScene.current = false; return; }
     document.querySelector(".scene")?.focus({ preventScroll: true });
   }, [scene]);
+
+  // Scenes scroll inside themselves, so only the public site locks the page itself (the admin must scroll normally).
+  useEffect(() => {
+    document.documentElement.classList.add("has-scenes");
+    return () => document.documentElement.classList.remove("has-scenes");
+  }, []);
+
+  useScrollReveal(introDone && content ? scene : null);
 
   const panelOpen = activeProject !== null;
   useEffect(() => {

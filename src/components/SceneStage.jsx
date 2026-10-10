@@ -1,3 +1,6 @@
+import { useEffect, useRef } from "react";
+import { prefersReducedMotion } from "../lib/utils";
+
 // Authored 2D composition for each scene, drawn in SVG and CSS on top of the shader backdrop.
 // Purely decorative: every layer is aria-hidden and ignores the pointer, so it never gets in the
 // way of clicks, selection or keyboard use. Each stage mounts when its scene does, so its
@@ -100,7 +103,22 @@ function Contact() {
 
 const stages = { about: About, projects: Projects, skills: Skills, services: Services, certificates: Certificates, resume: Resume, contact: Contact };
 
+// Subtle 2D parallax: the scene's own scroll position is written to one CSS variable (--sy) on a
+// wrapper, and a few layers drift a few pixels against the content. It never moves the content.
 export default function SceneStage({ scene }) {
+  const host = useRef(null);
   const Stage = stages[scene];
-  return Stage ? <Stage key={scene} /> : null;
+
+  useEffect(() => {
+    const element = host.current;
+    const root = document.querySelector(".scene");
+    if (!element || !root || prefersReducedMotion()) return undefined;
+    let frame = 0;
+    const apply = () => { frame = 0; element.style.setProperty("--sy", String(Math.round(root.scrollTop))); };
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(apply); };
+    root.addEventListener("scroll", onScroll, { passive: true });
+    return () => { root.removeEventListener("scroll", onScroll); cancelAnimationFrame(frame); };
+  }, [scene]);
+
+  return <div ref={host} className="stage-host">{Stage ? <Stage key={scene} /> : null}</div>;
 }
